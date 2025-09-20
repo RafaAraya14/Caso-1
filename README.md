@@ -135,3 +135,7 @@ The middleware layer has been designed and documented to handle cross-cutting co
 ---
 
 *Note: Commits will be reviewed to validate participation from all team members throughout the 3-week work period. Penalties may apply for insufficient participation.*
+
+
+
+
