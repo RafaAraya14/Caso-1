@@ -188,7 +188,7 @@ This architecture ensures:
 - Reusability of components across the application
 
 ## Project Structure
-
+```
 src/
 ├── components/                 # UI Components Layer
 │   ├── ui/                    # Componentes de UI reutilizables
@@ -347,7 +347,7 @@ src/
 ├── App.tsx
 ├── index.tsx
 └── react-app-env.d.ts
-
+```
 ### Key File Descriptions
 
 - **components/**: Contains all React components organized by feature
@@ -374,32 +374,319 @@ This structure follows the layered architecture design and ensures separation of
 ![alt text](<Classes Diagram.jpg>)
 
 ## 4. Visual Components Strategy
-- [ ] Develop component organization strategy
-- [ ] Design reusable component library structure
-- [ ] Create component development workflow
-- [ ] Establish component testing methodology
 
-### Detailed Layer Design Requirements
+### 4.1 Atomic Design Methodology
 
-The following layers must be implemented in the frontend architecture:
+We implement the **Atomic Design** methodology to create a scalable and maintainable component architecture using five distinct levels:
 
-- [ ] **Visual Components** - Component hierarchy and reusable UI components
-- [ ] **Controllers** - Business logic mediation and user input validation
-- [ ] **Model** - Model classes with validation
-- [x] **Middleware** - Request/response interceptors, permissions, error handling, logging *(See section below)*
-- [ ] **Business** - Domain-driven design and business logic services
-- [ ] **Proxy/Client/Services** - API client abstraction layer
-- [ ] **Background/Jobs/Listeners** - Real-time updates and data refresh
-- [ ] **Validators** - Input and data validation
-- [ ] **DTOs** - Data Transfer Objects for API communication
-- [ ] **State Management** - State management solution implementation
-- [ ] **Styles** - CSS management and responsive design
-- [ ] **Utilities** - Utility functions and helpers
-- [ ] **Exception Handling** - Standardized exception handling
-- [ ] **Logging** - Structured logging system
-- [ ] **Security** - Authentication and authorization layers
-- [ ] **Linter Configuration** - Code style rules and conventions
-- [ ] **Build and Deployment Pipeline** - Build process for different environments
+#### Atomic Levels
+
+- **Atoms**: Basic UI elements  
+  _Examples: `Button`, `Input`, `Icon`_
+
+- **Molecules**: Combinations of atoms  
+  _Examples: `SearchBar`, `UserCard`_
+
+- **Organisms**: Complex components composed of molecules and atoms  
+  _Examples: `Header`, `SessionList`_
+
+- **Templates**: Page layouts with placeholders  
+  _Examples: `DashboardTemplate`, `AuthTemplate`_
+
+- **Pages**: Complete views with actual content  
+  _Examples: `Login`, `Profile`_
+
+---
+
+### 4.2 Project Structure
+
+```
+src/
+├── components/
+│   ├── ui/                 # Atoms
+│   │   ├── Button/
+│   │   ├── Input/
+│   │   ├── Card/
+│   │   ├── Modal/
+│   │   ├── Avatar/
+│   │   └── Icon/
+│   ├── molecules/          # Molecules
+│   │   ├── SearchBar/
+│   │   ├── UserCard/
+│   │   ├── FormField/
+│   │   └── Rating/
+│   ├── organisms/          # Organisms
+│   │   ├── Header/
+│   │   ├── Footer/
+│   │   ├── Sidebar/
+│   │   ├── SessionCard/
+│   │   └── CoachGrid/
+│   ├── templates/          # Templates
+│   │   ├── DashboardTemplate/
+│   │   ├── AuthTemplate/
+│   │   └── ProfileTemplate/
+│   └── layout/             # Layout components
+│       ├── AppLayout/
+│       ├── AuthLayout/
+│       └── DashboardLayout/
+├── pages/                  # Pages
+│   ├── Home/
+│   ├── Login/
+│   ├── Register/
+│   ├── Coaches/
+│   ├── Sessions/
+│   └── Profile/
+└── hooks/                  # Custom hooks
+    ├── useAuth.ts
+    ├── useSessionController.ts
+    └── useCoachSearch.ts
+```
+
+---
+
+### 4.3 Component Implementation Standards
+
+#### `Button` Component (Atom)
+
+**File:** `src/components/ui/Button/Button.tsx`
+
+```tsx
+import React from 'react';
+import clsx from 'clsx';
+
+export interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger';
+  size?: 'small' | 'medium' | 'large';
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  className?: string;
+  type?: 'button' | 'submit' | 'reset';
+}
+
+export const Button: React.FC<ButtonProps> = ({
+  variant = 'primary',
+  size = 'medium',
+  children,
+  onClick,
+  disabled = false,
+  loading = false,
+  className = '',
+  type = 'button',
+}) => {
+  const baseClasses = 'font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+
+  const variantClasses = {
+    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
+    secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
+    outline: 'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-blue-500',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+  };
+
+  const sizeClasses = {
+    small: 'px-3 py-1.5 text-sm',
+    medium: 'px-4 py-2 text-base',
+    large: 'px-6 py-3 text-lg',
+  };
+
+  const classes = clsx(
+    baseClasses,
+    variantClasses[variant],
+    sizeClasses[size],
+    className
+  );
+
+  return (
+    <button
+      type={type}
+      className={classes}
+      onClick={onClick}
+      disabled={disabled || loading}
+      aria-disabled={disabled || loading}
+    >
+      {loading ? (
+        <div className="flex items-center justify-center">
+          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          Loading...
+        </div>
+      ) : (
+        children
+      )}
+    </button>
+  );
+};
+```
+
+**Export File:** `src/components/ui/Button/index.ts`
+
+```ts
+export { Button } from './Button';
+export type { ButtonProps } from './Button';
+```
+
+---
+
+### 4.4 Development Workflow
+
+#### Component Creation Process
+
+1. **Analysis**: Define component purpose and props  
+2. **Design**: Create mockups and define variants  
+3. **Implementation**: Code with TypeScript  
+4. **Testing**: Write unit + accessibility tests  
+5. **Documentation**: Add Storybook stories  
+6. **Review**: Peer code review
+
+#### Standard Component Structure
+
+```
+ComponentName/
+├── ComponentName.tsx      # Component implementation
+├── ComponentName.test.tsx # Unit tests
+├── ComponentName.stories.tsx # Storybook stories
+├── index.ts              # Exports
+└── types.ts              # Type definitions (optional)
+```
+
+---
+
+### 4.5 Testing Strategy
+
+**Testing Configuration**
+
+**File:** `jest.config.js`
+
+```js
+module.exports = {
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  moduleNameMapping: {
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+  },
+};
+```
+
+**File:** `src/setupTests.ts`
+
+```ts
+import '@testing-library/jest-dom';
+```
+
+**Button Component Tests**
+
+**File:** `src/components/ui/Button/Button.test.tsx`
+
+```tsx
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Button } from './Button';
+
+describe('Button', () => {
+  test('renders with correct text', () => {
+    render(<Button>Click me</Button>);
+    expect(screen.getByText('Click me')).toBeInTheDocument();
+  });
+
+  test('calls onClick when clicked', () => {
+    const handleClick = jest.fn();
+    render(<Button onClick={handleClick}>Click me</Button>);
+    fireEvent.click(screen.getByText('Click me'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  test('is disabled when disabled prop is true', () => {
+    render(<Button disabled>Click me</Button>);
+    expect(screen.getByText('Click me')).toBeDisabled();
+  });
+
+  test('shows loading state when loading prop is true', () => {
+    render(<Button loading>Click me</Button>);
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+  });
+});
+```
+
+---
+
+### 4.6 Accessibility Standards
+
+We follow **WCAG 2.1 AA** standards:
+
+- ✅ Keyboard navigation
+- ✅ Minimum color contrast (4.5:1)
+- ✅ ARIA attributes
+- ✅ Semantic HTML
+- ✅ Screen reader compatibility
+
+**Accessible Input Example:**
+
+```tsx
+<input
+  aria-describedby="input-helper"
+  aria-invalid={!!error}
+  required
+  className="border px-3 py-2"
+/>
+```
+
+---
+
+### 4.7 Responsive Design
+
+**Approach:** Mobile-First Design
+
+**Breakpoints:**
+
+- `sm`: 640px  
+- `md`: 768px  
+- `lg`: 1024px  
+- `xl`: 1280px  
+- `2xl`: 1536px
+
+**Responsive Header Example:**
+
+```tsx
+<nav className="hidden md:flex space-x-8">
+  <a className="text-gray-700 hover:text-blue-600">Find Coaches</a>
+</nav>
+<Button className="hidden sm:block">Login</Button>
+```
+
+---
+
+### 4.8 Storybook Configuration
+
+**File:** `.storybook/main.ts`
+
+```ts
+import type { StorybookConfig } from '@storybook/react-vite';
+
+const config: StorybookConfig = {
+  framework: {
+    name: '@storybook/react-vite',
+    options: {},
+  },
+  stories: ['../src/**/*.stories.@(ts|tsx)'],
+  addons: ['@storybook/addon-essentials'],
+};
+
+export default config;
+```
+
+Run Storybook locally with:
+
+```bash
+npm run storybook
+```
+
+---
+
+This strategy ensures reusable, testable, and accessible components, improving scalability and maintainability of the 20minCoach platform.
+
 
 ## Current Implementation Status
 
