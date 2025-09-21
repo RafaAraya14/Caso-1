@@ -318,7 +318,7 @@ This structure follows the layered architecture design and ensures separation of
 ## Diagrams
 
 ### Diagram N-Layers
-
+![alt text](<Architecture Diagram.jpg>)
 ### Diagram Classes
 
 ## 4. Visual Components Strategy
