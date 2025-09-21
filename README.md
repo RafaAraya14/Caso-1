@@ -5,7 +5,7 @@
 - **Professor**: Rodrigo Nuñez Nuñez
 - **Team Members**: 
   - Lee-Sang-cheol 2024081079
-  - [Member 2 Name]  
+  - Rafael-Araya-Álvarez 2023029575  
   - [Member 3 Name]
 
 ## Project Description
@@ -36,13 +36,37 @@
 
 ### Design Document Requirements
 
-#### 2. Technology Research and Selection
-- [ ] Research and compare modern frontend frameworks (React, Vue, Angular, etc.)
-- [ ] Evaluate state management solutions (Redux, MobX, etc.)
-- [ ] Research real-time communication technologies (WebSockets, WebRTC)
-- [ ] Select testing frameworks and tools
-- [ ] Choose styling methodologies and tools
-- [ ] Select linter and unit test technology
+## 2. Technology Selection & Justification
+
+### Frontend Framework
+**Choice: React**  
+- **Justification:** We selected React due to its popularity and versatility, enabling seamless integration with other libraries. It boasts an extensive ecosystem and large community support. Its component-based architecture perfectly aligns with the need to build a modular and reusable interface for our application.
+
+### Styling Library
+**Choice: Tailwind CSS**  
+- **Justification:** We chose Tailwind CSS for its utility-first approach, which allows for rapid UI development directly within HTML/JSX. It is excellent for crafting custom designs and provides full control over the appearance, while also offering accessible interactive components.
+
+### State Management
+**Choice: Redux Toolkit & TanStack Query**  
+- **Justification:** Redux Toolkit was selected for managing complex client-side state (user sessions, coach listings). TanStack Query was chosen to handle server-state, data fetching, and caching from APIs. Combining these technologies creates a powerful and scalable state management strategy.
+
+### Real-Time Communication
+**Choice: WebSocket (Socket.io) & WebRTC**  
+- **Justification:** WebSockets (via Socket.io) are essential for real-time notifications. WebRTC enables peer-to-peer audio and video communication with low latency, critical for the core 20-minute coaching sessions.
+
+### Testing Tools
+**Choice: Jest & React Testing Library**  
+- **Justification:** Jest serves as our test runner. React Testing Library tests components by simulating user behavior, ensuring tests are maintainable and user-centric.
+
+### Authentication Provider
+**Choice: Auth0**  
+- **Justification:** Auth0 was selected for its robustness, professional feature set, and generous free tier. Its excellent documentation makes it ideal for implementing secure login and role-based authorization.
+
+### Linter & Formatter
+**Choice: ESLint & Prettier**  
+- **Justification:** ESLint ensures code quality and consistency. Prettier automatically formats code, enforcing a consistent style and improving readability across the project.
+
+
 
 #### 3. N-Layer Architecture Design
 - [ ] Design layered architecture for frontend application
