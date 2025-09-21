@@ -190,8 +190,8 @@ This architecture ensures:
 ## Project Structure
 
 src/
-├── components/ # UI Components Layer
-│ ├── common/ # Reusable common components
+├── components/ # UI Components Layer 
+│ ├── common/ # Reusable common components 
 │ │ ├── Button/
 │ │ │ ├── Button.tsx
 │ │ │ ├── Button.test.tsx
@@ -320,6 +320,7 @@ This structure follows the layered architecture design and ensures separation of
 ### Diagram N-Layers
 ![alt text](<Architecture Diagram.jpg>)
 ### Diagram Classes
+![alt text](<Classes Diagram.jpg>)
 
 ## 4. Visual Components Strategy
 - [ ] Develop component organization strategy
