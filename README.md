@@ -190,112 +190,163 @@ This architecture ensures:
 ## Project Structure
 
 src/
-├── components/ # UI Components Layer 
-│ ├── common/ # Reusable common components 
-│ │ ├── Button/
-│ │ │ ├── Button.tsx
-│ │ │ ├── Button.test.tsx
-│ │ │ └── index.ts
-│ │ ├── Card/
-│ │ │ ├── Card.tsx
-│ │ │ ├── Card.test.tsx
-│ │ │ └── index.ts
-│ │ └── Modal/
-│ │ ├── Modal.tsx
-│ │ ├── Modal.test.tsx
-│ │ └── index.ts
-│ ├── coaches/ # Coach-specific components
-│ │ ├── CoachCard/
-│ │ │ ├── CoachCard.tsx
-│ │ │ ├── CoachCard.test.tsx
-│ │ │ └── index.ts
-│ │ ├── CoachList/
-│ │ │ ├── CoachList.tsx
-│ │ │ ├── CoachList.test.tsx
-│ │ │ └── index.ts
-│ │ └── CoachProfile/
-│ │ ├── CoachProfile.tsx
-│ │ ├── CoachProfile.test.tsx
-│ │ └── index.ts
-│ └── sessions/ # Session-specific components
-│ ├── SessionButton/
-│ │ ├── SessionButton.tsx
-│ │ ├── SessionButton.test.tsx
-│ │ └── index.ts
-│ ├── VideoCallInterface/
-│ │ ├── VideoCallInterface.tsx
-│ │ ├── VideoCallInterface.test.tsx
-│ │ └── index.ts
-│ └── SessionHistory/
-│ ├── SessionHistory.tsx
-│ ├── SessionHistory.test.tsx
-│ └── index.ts
-├── hooks/ # Controllers Layer - Custom hooks
-│ ├── useSessionController.ts
-│ ├── useCoachSearch.ts
-│ ├── useAuth.ts
-│ └── index.ts
-├── models/ # Model Layer
-│ ├── User.ts
-│ ├── Coach.ts
-│ ├── Session.ts
-│ └── index.ts
-├── middleware/ # Middleware Layer
-│ ├── authInterceptor.ts
-│ ├── errorHandlerMiddleware.ts
-│ ├── requestLogger.ts
-│ └── index.ts
-├── services/ # Business Layer
-│ ├── api/ # API Client Layer
-│ │ ├── apiClient.ts
-│ │ ├── coachApi.ts
-│ │ ├── sessionApi.ts
-│ │ └── index.ts
-│ ├── realtime/ # Background Jobs/Listeners Layer
-│ │ ├── notificationListener.ts
-│ │ ├── dataRefreshScheduler.ts
-│ │ └── index.ts
-│ ├── SessionService.ts
-│ ├── PaymentService.ts
-│ └── index.ts
-├── validators/ # Validators Layer
-│ ├── userValidator.ts
-│ ├── sessionValidator.ts
-│ └── index.ts
-├── types/ # DTOs Layer
-│ ├── CreateSessionDTO.ts
-│ ├── CoachResponseDTO.ts
-│ └── index.ts
-├── store/ # State Management Layer - Redux store
-│ ├── slices/
-│ │ ├── authSlice.ts
-│ │ ├── coachesSlice.ts
-│ │ └── sessionsSlice.ts
-│ ├── index.ts
-│ └── store.ts
-├── styles/ # Styles Layer
-│ ├── globals.css
-│ ├── tailwind.css
-│ └── components/
-│ └── Button/
-│ └── styles.module.css
-├── utils/ # Utilities Layer
-│ ├── dateFormatter.ts
-│ ├── urlHelper.ts
-│ └── index.ts
-├── error-handling/ # Exception Handling Layer
-│ ├── AppErrorBoundary.tsx
-│ ├── CustomError.ts
-│ └── index.ts
-├── logging/ # Logging Layer
-│ ├── logger.ts
-│ └── index.ts
-├── auth/ # Security Layer - Auth0 integration
-│ ├── authService.ts
-│ ├── AuthProvider.tsx
-│ └── index.ts
-└── index.ts
-
+├── components/                 # UI Components Layer
+│   ├── ui/                    # Componentes de UI reutilizables
+│   │   ├── Button/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Button.test.tsx
+│   │   │   ├── Button.stories.tsx
+│   │   │   └── index.ts
+│   │   ├── Input/
+│   │   │   ├── Input.tsx
+│   │   │   ├── Input.test.tsx
+│   │   │   ├── Input.stories.tsx
+│   │   │   └── index.ts
+│   │   ├── Card/
+│   │   │   ├── Card.tsx
+│   │   │   ├── Card.test.tsx
+│   │   │   ├── Card.stories.tsx
+│   │   │   └── index.ts
+│   │   └── Modal/
+│   │       ├── Modal.tsx
+│   │       ├── Modal.test.tsx
+│   │       ├── Modal.stories.tsx
+│   │       └── index.ts
+│   ├── layout/                # Componentes de layout
+│   │   ├── Header/
+│   │   │   ├── Header.tsx
+│   │   │   ├── Header.test.tsx
+│   │   │   └── index.ts
+│   │   ├── Footer/
+│   │   │   ├── Footer.tsx
+│   │   │   ├── Footer.test.tsx
+│   │   │   └── index.ts
+│   │   ├── Sidebar/
+│   │   │   ├── Sidebar.tsx
+│   │   │   ├── Sidebar.test.tsx
+│   │   │   └── index.ts
+│   │   └── PageContainer/
+│   │       ├── PageContainer.tsx
+│   │       ├── PageContainer.test.tsx
+│   │       └── index.ts
+│   ├── coaches/               # Componentes específicos de coaches
+│   │   ├── CoachCard/
+│   │   │   ├── CoachCard.tsx
+│   │   │   ├── CoachCard.test.tsx
+│   │   │   └── index.ts
+│   │   ├── CoachList/
+│   │   │   ├── CoachList.tsx
+│   │   │   ├── CoachList.test.tsx
+│   │   │   └── index.ts
+│   │   ├── CoachProfile/
+│   │   │   ├── CoachProfile.tsx
+│   │   │   ├── CoachProfile.test.tsx
+│   │   │   └── index.ts
+│   │   └── CoachSearch/
+│   │       ├── CoachSearch.tsx
+│   │       ├── CoachSearch.test.tsx
+│   │       └── index.ts
+│   ├── sessions/              # Componentes específicos de sesiones
+│   │   ├── SessionButton/
+│   │   │   ├── SessionButton.tsx
+│   │   │   ├── SessionButton.test.tsx
+│   │   │   └── index.ts
+│   │   ├── SessionHistory/
+│   │   │   ├── SessionHistory.tsx
+│   │   │   ├── SessionHistory.test.tsx
+│   │   │   └── index.ts
+│   │   ├── SessionScheduler/
+│   │   │   ├── SessionScheduler.tsx
+│   │   │   ├── SessionScheduler.test.tsx
+│   │   │   └── index.ts
+│   │   └── VideoCallInterface/
+│   │       ├── VideoCallInterface.tsx
+│   │       ├── VideoCallInterface.test.tsx
+│   │       └── index.ts
+│   └── auth/                  # Componentes de autenticación
+│       ├── LoginForm/
+│       │   ├── LoginForm.tsx
+│       │   ├── LoginForm.test.tsx
+│       │   └── index.ts
+│       ├── RegisterForm/
+│       │   ├── RegisterForm.tsx
+│       │   ├── RegisterForm.test.tsx
+│       │   └── index.ts
+│       └── AuthProvider/
+│           ├── AuthProvider.tsx
+│           ├── AuthProvider.test.tsx
+│           └── index.ts
+├── hooks/                     # Controllers Layer - Custom hooks
+│   ├── useSessionController.ts
+│   ├── useCoachSearch.ts
+│   ├── useAuth.ts
+│   └── index.ts
+├── models/                    # Model Layer
+│   ├── User.ts
+│   ├── Coach.ts
+│   ├── Session.ts
+│   └── index.ts
+├── middleware/                # Middleware Layer
+│   ├── authInterceptor.ts
+│   ├── errorHandlerMiddleware.ts
+│   ├── requestLogger.ts
+│   └── index.ts
+├── services/                  # Business Layer
+│   ├── api/                  # API Client Layer
+│   │   ├── supabase/         # Servicio de Supabase
+│   │   │   ├── supabaseService.ts
+│   │   │   └── index.ts
+│   │   ├── coachApi.ts
+│   │   ├── sessionApi.ts
+│   │   └── index.ts
+│   ├── realtime/             # Background Jobs/Listeners Layer
+│   │   ├── notificationListener.ts
+│   │   ├── dataRefreshScheduler.ts
+│   │   └── index.ts
+│   ├── SessionService.ts
+│   ├── PaymentService.ts
+│   └── index.ts
+├── validators/               # Validators Layer
+│   ├── userValidator.ts
+│   ├── sessionValidator.ts
+│   └── index.ts
+├── types/                    # DTOs Layer
+│   ├── supabase/            # Tipos de Supabase
+│   │   └── database.types.ts
+│   ├── CreateSessionDTO.ts
+│   ├── CoachResponseDTO.ts
+│   └── index.ts
+├── store/                    # State Management Layer - Redux store
+│   ├── slices/
+│   │   ├── authSlice.ts
+│   │   ├── coachesSlice.ts
+│   │   └── sessionsSlice.ts
+│   ├── index.ts
+│   └── store.ts
+├── styles/                   # Styles Layer
+│   ├── globals.css
+│   ├── tailwind.css
+│   └── components/
+│       └── Button/
+│           └── styles.module.css
+├── utils/                    # Utilities Layer
+│   ├── dateFormatter.ts
+│   ├── urlHelper.ts
+│   └── index.ts
+├── error-handling/           # Exception Handling Layer
+│   ├── AppErrorBoundary.tsx
+│   ├── CustomError.ts
+│   └── index.ts
+├── logging/                  # Logging Layer
+│   ├── logger.ts
+│   └── index.ts
+├── auth/                     # Security Layer - Supabase integration
+│   ├── authService.ts
+│   ├── AuthProvider.tsx
+│   └── index.ts
+├── App.tsx
+├── index.tsx
+└── react-app-env.d.ts
 
 ### Key File Descriptions
 
