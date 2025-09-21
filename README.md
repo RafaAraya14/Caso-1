@@ -69,10 +69,257 @@
 
 
 ## 3. N-Layer Architecture Design
-- [ ] Design layered architecture for frontend application
-- [ ] Define responsibilities for each layer
-- [ ] Establish communication patterns between layers
-- [ ] Ensure separation of concerns and maintainability
+
+# Overview
+We have designed a layered architecture to ensure separation of concerns, maintainability, and scalability. The following diagram illustrates the high-level structure and flow between layers:
+
+## Layer Details
+
+### 1. UI Components Layer
+- **Responsibility**: Maintain reusable and presentational UI components
+- **Communication**: Receives props from controllers and emits events
+- **Patterns**: Functional Components, Compound Components
+- **Examples**: `CoachCard`, `SessionButton`, `VideoCallInterface`
+
+### 2. Controllers Layer
+- **Responsibility**: Mediates between UI and business logic, handles events
+- **Communication**: Uses custom hooks to connect with business layer and state management
+- **Patterns**: Custom Hooks, Container Components
+- **Examples**: `useSessionController`, `useCoachSearch`
+
+### 3. Model Layer
+- **Responsibility**: Defines data structures and basic validation
+- **Communication**: Used by all layers that manipulate data
+- **Patterns**: TypeScript Interfaces, Validation Classes
+- **Examples**: `User`, `Coach`, `Session` interfaces
+
+### 4. Middleware Layer
+- **Responsibility**: Intercepts requests and responses, validates permissions, handles errors
+- **Communication**: Integrated into the API Client flow
+- **Patterns**: Interceptor, Chain of Responsibility
+- **Examples**: `authInterceptor`, `errorHandlerMiddleware`
+
+### 5. Business Layer
+- **Responsibility**: Contains business logic and specific domain rules
+- **Communication**: Invoked by controllers, uses API Client and State Management
+- **Patterns**: Services, Domain-Driven Design
+- **Examples**: `SessionService`, `PaymentService`
+
+### 6. API Client Layer
+- **Responsibility**: Abstracts API calls to the backend
+- **Communication**: Receives requests from business layer and returns data
+- **Patterns**: Adapter, Singleton
+- **Examples**: `apiClient` with methods for each endpoint
+
+### 7. Background Jobs/Listeners Layer
+- **Responsibility**: Handles real-time updates and periodic tasks
+- **Communication**: Uses WebSockets, connects to State Management
+- **Patterns**: Observer, Pub/Sub
+- **Examples**: `notificationListener`, `dataRefreshScheduler`
+
+### 8. Validators Layer
+- **Responsibility**: Validates input data and models
+- **Communication**: Used by Model Layer and Middleware
+- **Patterns**: Strategy
+- **Examples**: `userValidator`, `sessionValidator` using Zod
+
+### 9. DTOs Layer
+- **Responsibility**: Defines objects for data transfer to the backend
+- **Communication**: Transforms between DTOs and Models
+- **Patterns**: Data Transfer Object, Mapper
+- **Examples**: `CreateSessionDTO`, `CoachResponseDTO`
+
+### 10. State Management Layer
+- **Responsibility**: Manages the entire application state
+- **Communication**: Provides state to application components
+- **Patterns**: Flux, Context API
+- **Examples**: `authSlice`, `coachesSlice`
+
+### 11. Styles Layer
+- **Responsibility**: Manages CSS styles and responsive design
+- **Communication**: Applied directly to components
+- **Patterns**: Utility-First (Tailwind), CSS Modules
+- **Examples**: Tailwind classes, `components/Button/styles.module.css`
+
+### 12. Utilities Layer
+- **Responsibility**: Reusable helper functions
+- **Communication**: Used by multiple layers
+- **Patterns**: Singleton
+- **Examples**: `dateFormatter`, `urlHelper`
+
+### 13. Exception Handling Layer
+- **Responsibility**: Standard exception and error handling
+- **Communication**: Captures errors and passes them to the Logging layer
+- **Patterns**: Global Error Boundary, Custom Exception classes
+- **Examples**: `AppErrorBoundary`, `CustomError` class
+
+### 14. Logging Layer
+- **Responsibility**: Structured logging of events and errors
+- **Communication**: Used by Exception Handling and Middleware
+- **Patterns**: Strategy
+- **Examples**: `logger` with `info`, `warn`, `error` methods
+
+### 15. Security Layer
+- **Responsibility**: Authentication and authorization
+- **Communication**: Integrates with Auth0, provides tokens to API Client
+- **Patterns**: Adapter
+- **Examples**: `authService`
+
+## Architecture Validation
+
+The communication flow between layers has been verified to ensure proper functionality:
+
+1. **UI Components** → **Controllers**: Components use controller hooks for business logic
+2. **Controllers** → **Business Layer**: Controllers invoke business services
+3. **Business Layer** → **API Client**: Business logic makes API calls through the client
+4. **API Client** ↔ **Middleware**: All API calls pass through middleware for interception
+5. **Business Layer** ↔ **State Management**: Business logic reads/writes to global state
+6. **Background Jobs** → **State Management**: Real-time updates modify application state
+7. **Validators** → **Model/Middleware**: Validation used for data integrity and request validation
+8. **DTOs** ↔ **API Client/Models**: Transformation between API and application models
+9. **Exception Handling** → **Logging**: Errors are captured and logged
+10. **Security** → **API Client**: Auth tokens are provided for API authentication
+
+This architecture ensures:
+- Clear separation of concerns
+- Testability of individual components
+- Scalability through modular design
+- Maintainability with well-defined interfaces
+- Reusability of components across the application
+
+## Project Structure
+
+src/
+├── components/ # UI Components Layer
+│ ├── common/ # Reusable common components
+│ │ ├── Button/
+│ │ │ ├── Button.tsx
+│ │ │ ├── Button.test.tsx
+│ │ │ └── index.ts
+│ │ ├── Card/
+│ │ │ ├── Card.tsx
+│ │ │ ├── Card.test.tsx
+│ │ │ └── index.ts
+│ │ └── Modal/
+│ │ ├── Modal.tsx
+│ │ ├── Modal.test.tsx
+│ │ └── index.ts
+│ ├── coaches/ # Coach-specific components
+│ │ ├── CoachCard/
+│ │ │ ├── CoachCard.tsx
+│ │ │ ├── CoachCard.test.tsx
+│ │ │ └── index.ts
+│ │ ├── CoachList/
+│ │ │ ├── CoachList.tsx
+│ │ │ ├── CoachList.test.tsx
+│ │ │ └── index.ts
+│ │ └── CoachProfile/
+│ │ ├── CoachProfile.tsx
+│ │ ├── CoachProfile.test.tsx
+│ │ └── index.ts
+│ └── sessions/ # Session-specific components
+│ ├── SessionButton/
+│ │ ├── SessionButton.tsx
+│ │ ├── SessionButton.test.tsx
+│ │ └── index.ts
+│ ├── VideoCallInterface/
+│ │ ├── VideoCallInterface.tsx
+│ │ ├── VideoCallInterface.test.tsx
+│ │ └── index.ts
+│ └── SessionHistory/
+│ ├── SessionHistory.tsx
+│ ├── SessionHistory.test.tsx
+│ └── index.ts
+├── hooks/ # Controllers Layer - Custom hooks
+│ ├── useSessionController.ts
+│ ├── useCoachSearch.ts
+│ ├── useAuth.ts
+│ └── index.ts
+├── models/ # Model Layer
+│ ├── User.ts
+│ ├── Coach.ts
+│ ├── Session.ts
+│ └── index.ts
+├── middleware/ # Middleware Layer
+│ ├── authInterceptor.ts
+│ ├── errorHandlerMiddleware.ts
+│ ├── requestLogger.ts
+│ └── index.ts
+├── services/ # Business Layer
+│ ├── api/ # API Client Layer
+│ │ ├── apiClient.ts
+│ │ ├── coachApi.ts
+│ │ ├── sessionApi.ts
+│ │ └── index.ts
+│ ├── realtime/ # Background Jobs/Listeners Layer
+│ │ ├── notificationListener.ts
+│ │ ├── dataRefreshScheduler.ts
+│ │ └── index.ts
+│ ├── SessionService.ts
+│ ├── PaymentService.ts
+│ └── index.ts
+├── validators/ # Validators Layer
+│ ├── userValidator.ts
+│ ├── sessionValidator.ts
+│ └── index.ts
+├── types/ # DTOs Layer
+│ ├── CreateSessionDTO.ts
+│ ├── CoachResponseDTO.ts
+│ └── index.ts
+├── store/ # State Management Layer - Redux store
+│ ├── slices/
+│ │ ├── authSlice.ts
+│ │ ├── coachesSlice.ts
+│ │ └── sessionsSlice.ts
+│ ├── index.ts
+│ └── store.ts
+├── styles/ # Styles Layer
+│ ├── globals.css
+│ ├── tailwind.css
+│ └── components/
+│ └── Button/
+│ └── styles.module.css
+├── utils/ # Utilities Layer
+│ ├── dateFormatter.ts
+│ ├── urlHelper.ts
+│ └── index.ts
+├── error-handling/ # Exception Handling Layer
+│ ├── AppErrorBoundary.tsx
+│ ├── CustomError.ts
+│ └── index.ts
+├── logging/ # Logging Layer
+│ ├── logger.ts
+│ └── index.ts
+├── auth/ # Security Layer - Auth0 integration
+│ ├── authService.ts
+│ ├── AuthProvider.tsx
+│ └── index.ts
+└── index.ts
+
+
+### Key File Descriptions
+
+- **components/**: Contains all React components organized by feature
+- **hooks/**: Custom React hooks for business logic and state management
+- **models/**: TypeScript interfaces and classes for data structures
+- **middleware/**: Request/response interceptors and error handling
+- **services/**: Business logic services and API client implementation
+- **validators/**: Data validation utilities using Zod
+- **types/**: Data Transfer Object (DTO) definitions
+- **store/**: Redux store configuration and slices
+- **styles/**: Global styles and component-specific CSS modules
+- **utils/**: Helper functions and utilities
+- **error-handling/**: Custom error classes and error boundary component
+- **logging/**: Structured logging implementation
+- **auth/**: Authentication service and context provider
+
+This structure follows the layered architecture design and ensures separation of concerns while maintaining a clean and organized codebase.
+
+## Diagrams
+
+### Diagram N-Layers
+
+### Diagram Classes
 
 ## 4. Visual Components Strategy
 - [ ] Develop component organization strategy
