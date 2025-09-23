@@ -37,6 +37,22 @@
 ### Design Document Requirements
 
 ## 2. Technology Selection & Justification
+### Technology Comparison Table
+
+| Aspect | React (Selected) ✅ | Vue.js | Angular |
+|--------|-------------------|---------|----------|
+| **Learning Curve** | Moderate - JSX requires learning | Easy - Template syntax familiar | Steep - Full framework |
+| **Performance** | Virtual DOM, Fast with optimization | Virtual DOM, Slightly faster | Real DOM manipulation, heavier |
+| **Ecosystem** | Massive - NPM packages, community | Growing rapidly | Complete built-in solutions |
+| **Real-time Support** | Excellent with Socket.io/WebRTC | Good support | Good support |
+| **State Management** | Redux, Context API, Zustand | Vuex, Pinia | Built-in RxJS |
+| **TypeScript Support** | Excellent | Good | Native (built with TS) |
+| **Component Reusability** | High - Functional components | High - SFC | High - But more complex |
+| **Bundle Size** | ~42KB | ~34KB | ~130KB |
+| **Job Market** | Highest demand | Growing | Enterprise focused |
+| **Testing** | Jest, RTL mature ecosystem | Vue Test Utils | Jasmine/Karma built-in |
+
+**Decision:** React was chosen for its mature ecosystem, extensive community support, and alignment with our team's expertise.
 
 ### Frontend Framework
 **Choice: React**  
@@ -373,6 +389,17 @@ This structure follows the layered architecture design and ensures separation of
 ### Diagram Classes
 ![alt text](<Classes Diagram.jpg>)
 
+### Design Patterns Applied
+
+| Pattern | Implementation | Purpose |
+|---------|---------------|----------|
+| **Singleton** | `SessionService`, `SupabaseService`, `Logger` | Ensure single instance for global services |
+| **Observer** | `SupabaseService` with realtime listeners | Handle real-time updates |
+| **Strategy** | `Logger` with multiple providers | Switch logging providers without changing code |
+| **Adapter** | `AuthService` wrapping Auth0 | Abstract authentication provider |
+| **Interceptor** | Middleware layer | Process requests/responses |
+| **Factory** | Component creation in UI layer | Dynamic component instantiation |
+
 ## 4. Visual Components Strategy
 
 ### 4.1 Atomic Design Methodology
@@ -682,7 +709,35 @@ Run Storybook locally with:
 ```bash
 npm run storybook
 ```
+## 5. Business Layer Implementation
 
+### Domain-Driven Design Approach
+
+The business layer implements Domain-Driven Design principles to encapsulate business logic separate from infrastructure concerns.
+
+### Structure
+```
+src/business/
+├── domain/      # Domain entities with business logic
+├── rules/       # Business rules and validations
+└── useCases/    # Application services orchestrating business operations
+```
+### Key Responsibilities
+
+- **Domain Models**: Encapsulate business logic and rules within domain entities
+- **Business Rules**: Centralized validation and business constraints
+- **Use Cases**: Orchestrate complex business operations across multiple services
+
+### Implementation Examples
+
+Domain models and business rules are implemented in `/src/business/` following DDD patterns. Each domain entity contains its own business logic, while use cases orchestrate operations across multiple domains.
+
+**Pattern Usage:**
+- **Domain Model Pattern**: Rich domain objects with behavior
+- **Use Case Pattern**: Application services for complex operations
+- **Specification Pattern**: Business rules validation
+
+See `/src/business/` for complete implementation.
 ---
 
 This strategy ensures reusable, testable, and accessible components, improving scalability and maintainability of the 20minCoach platform.
