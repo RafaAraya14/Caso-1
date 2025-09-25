@@ -7,7 +7,7 @@
   - Lee-Sang-cheol 2024081079
   - Rafael-Araya-Álvarez 2023029575  
   - Kenneth-Rojas-Jiménez 2021466579
-  - [Member 3 Name]
+  - Otto Segura Ruiz 2020426226
 
 ## Project Description
 20minCoach is a real-time coaching platform that connects users with experts across multiple fields through on-demand 20-minute video sessions. This repository contains the frontend architecture design and implementation for the platform.
