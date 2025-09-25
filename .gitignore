@@ -1,4 +1,4 @@
-# Dependencias
+# Dependencies
 node_modules
 
 # Logs
@@ -6,13 +6,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Archivos de entorno local, para seguridad. 
+# Local .env for security.
 .env
 .env.local
 
-# Archivos de build
+# Build output
 .next/
 out/
 
-# Archivos del sistema operativo
+# OS files
 .DS_Store
