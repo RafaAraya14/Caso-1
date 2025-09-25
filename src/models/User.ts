@@ -9,7 +9,7 @@ export class User {
     ) { }
 
     validateRole(): boolean {
-        // Un ejemplo de validación simple: devuelve true si el rol no está vacío.
+        // True if role is non-empty string
         return this.role.trim().length > 0;
     }
 }
