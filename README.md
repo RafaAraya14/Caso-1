@@ -6,6 +6,7 @@
 - **Team Members**: 
   - Lee-Sang-cheol 2024081079
   - Rafael-Araya-Álvarez 2023029575  
+  - Kenneth-Rojas-Jiménez 2021466579
   - [Member 3 Name]
 
 ## Project Description
