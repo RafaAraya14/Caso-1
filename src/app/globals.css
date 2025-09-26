@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tipografía base y fondo oscuro */
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  @apply bg-slate-950 text-slate-100;
+}
+
+/* Tarjetas y botones reutilizables */
+.card {
+  @apply bg-slate-900/60 backdrop-blur rounded-2xl shadow-soft border border-slate-800;
+}
+.btn {
+  @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition;
+}
+.btn-primary {
+  @apply bg-brand-600 hover:bg-brand-700 text-white;
+}
+.input {
+  @apply w-full rounded-xl bg-slate-900 border border-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 px-4 py-2 placeholder:text-slate-500;
+}
