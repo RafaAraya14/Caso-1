@@ -1,9 +1,10 @@
+
 import React from 'react';
 
-export const CoachProfile = () => {
+export const CoachSearch = () => {
     return (
         <div>
-            <p>CoachProfile Component</p>
+            <p>CoachSearch Component</p>
         </div>
     );
 };
