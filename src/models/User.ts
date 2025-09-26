@@ -5,11 +5,12 @@ export class User {
         public id: string,
         public email: string,
         public name: string,
-        public role: string
+        public role: string,
+        public hasActiveSubscription: boolean,
+        public sessionsRemaining: number
     ) { }
 
     validateRole(): boolean {
-        // True if role is non-empty string
         return this.role.trim().length > 0;
     }
 }
