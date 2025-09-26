@@ -741,6 +741,18 @@ Domain models and business rules are implemented in `/src/business/` following D
 See `/src/business/` for complete implementation.
 ---
 
+## 6. Testing Strategy
+
+Our testing strategy focuses on unit tests to ensure the reliability of individual components and business logic. We use **Jest** as our test runner and **React Testing Library** for testing components from a user's perspective.
+
+### How to Run Tests
+
+To run all the unit tests in the project, simply execute the following command in your terminal:
+
+```bash
+npm test
+```
+
 This strategy ensures reusable, testable, and accessible components, improving scalability and maintainability of the 20minCoach platform.
 
 

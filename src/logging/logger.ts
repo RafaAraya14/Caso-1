@@ -8,9 +8,11 @@ interface ILogProvider {
 // 2. Create concrete providers
 class ConsoleLogger implements ILogProvider {
     log(message: string, data?: object) {
+        // eslint-disable-next-line no-console
         console.log(`[INFO] ${message}`, data || '');
     }
     error(message: string, error: Error, data?: object) {
+        // eslint-disable-next-line no-console
         console.error(`[ERROR] ${message}`, { error: error.message, ...data });
     }
 }
