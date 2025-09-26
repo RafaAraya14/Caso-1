@@ -1,3 +1,5 @@
+// src/business/domain/Coach.ts
+
 export class Coach {
   private minimumRating = 3.5;
   private maxSessionsPerDay = 8;
@@ -7,6 +9,7 @@ export class Coach {
     public name: string,
     public rating: number,
     public specialties: string[],
+    public isAvailable: boolean,
     private sessionsToday: number = 0
   ) { }
 
