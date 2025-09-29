@@ -1,3 +1,4 @@
+// src/components/auth/LoginForm/LoginForm.tsx
 import React, { useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -14,11 +15,18 @@ const LoginForm: React.FC = () => {
     setErr(null);
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+      console.log('[LOGIN] start', { email });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: pass,
+      });
+      console.log('[LOGIN] result', { data, error });
       if (error) throw error;
+
       navigate('/dashboard', { replace: true });
     } catch (e: any) {
-      setErr(e.message ?? 'No se pudo iniciar sesión');
+      console.error('[LOGIN] error', e);
+      setErr(e?.message ?? 'No se pudo iniciar sesión');
     } finally {
       setLoading(false);
     }
@@ -31,7 +39,7 @@ const LoginForm: React.FC = () => {
         type="email"
         placeholder="email@ejemplo.com"
         value={email}
-        onChange={e => setEmail(e.target.value)}
+        onChange={(e) => setEmail(e.target.value)}
         required
       />
       <input
@@ -39,7 +47,7 @@ const LoginForm: React.FC = () => {
         type="password"
         placeholder="••••••••"
         value={pass}
-        onChange={e => setPass(e.target.value)}
+        onChange={(e) => setPass(e.target.value)}
         required
       />
       <button
