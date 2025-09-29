@@ -1,4 +1,4 @@
 // src/components/auth/index.ts
-export * from './LoginForm';
+export { default as LoginForm } from './LoginForm';
 export * from './RegisterForm';
-export * from './AuthProvider';
+export { default as AuthProvider, useAuth } from './AuthProvider/AuthProvider';

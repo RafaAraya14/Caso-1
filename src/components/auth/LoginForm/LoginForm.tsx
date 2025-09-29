@@ -1,9 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { supabase } from '../../../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
-export const LoginForm = () => {
-    return (
-        <form>
-            Login Form
-        </form>
-    );
+const LoginForm: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [pass, setPass] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErr(null);
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+      navigate('/dashboard', { replace: true });
+    } catch (e: any) {
+      setErr(e.message ?? 'No se pudo iniciar sesión');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={onSubmit} className="mx-auto max-w-sm space-y-3">
+      <input
+        className="w-full border px-3 py-2 rounded"
+        type="email"
+        placeholder="email@ejemplo.com"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        required
+      />
+      <input
+        className="w-full border px-3 py-2 rounded"
+        type="password"
+        placeholder="••••••••"
+        value={pass}
+        onChange={e => setPass(e.target.value)}
+        required
+      />
+      <button
+        className="w-full px-3 py-2 rounded bg-brand-700 text-white disabled:opacity-60"
+        disabled={loading}
+        type="submit"
+      >
+        {loading ? 'Ingresando…' : 'Iniciar sesión'}
+      </button>
+      {err && <p className="text-red-600 text-sm">{err}</p>}
+    </form>
+  );
 };
+
+export default LoginForm;
