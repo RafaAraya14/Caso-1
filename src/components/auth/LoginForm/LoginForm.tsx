@@ -15,20 +15,25 @@ const LoginForm: React.FC = () => {
     setErr(null);
     setLoading(true);
     try {
+      // eslint-disable-next-line no-console
       console.log('[LOGIN] start', { email });
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password: pass,
       });
+      // eslint-disable-next-line no-console
       console.log('[LOGIN] result', { data, error });
       if (error) throw error;
 
       navigate('/dashboard', { replace: true });
-    } catch (e: any) {
+    } catch (e) {
+      // eslint-disable-next-line no-console
       console.error('[LOGIN] error', e);
-      setErr(e?.message ?? 'No se pudo iniciar sesión');
-    } finally {
-      setLoading(false);
+      if (e instanceof Error) {
+        setErr(e.message); // Muestra de error
+      } else {
+        setErr('Ocurrió un error inesperado');
+      }
     }
   };
 

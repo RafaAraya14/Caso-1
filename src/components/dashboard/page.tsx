@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { useUserCredits } from '../../hooks/useUserCredits';
 import HireCoachButton from '../sessions/HireCoachButton';
- 
+
 const mockCoaches = [
   { id: 101, name: 'Coach Ana' },
   { id: 102, name: 'Coach Bruno' },
@@ -47,7 +47,7 @@ const DashboardPage: React.FC = () => {
         <h2 className="text-lg font-medium">Coaches disponibles</h2>
         <ul className="space-y-3">
           {mockCoaches.map((c) => (
-            <li className="flex items-center justify-between p-3 border rounded">
+            <li key={c.id} className="flex items-center justify-between p-3 border rounded">
               <span>{c.name}</span>
               <HireCoachButton coachId={c.id} />
             </li>

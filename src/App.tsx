@@ -1,3 +1,4 @@
+import React from 'react';
 import './styles/globals.css';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './components/auth';

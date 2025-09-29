@@ -1,10 +1,12 @@
 // src/components/auth/AuthProvider/AuthProvider.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '../../../lib/supabase' // 👈 3 niveles arriba
+import { supabase } from '../../../lib/supabase'
+import type { User } from '@supabase/supabase-js'
+
 
 type Role = 'BasicUser' | 'PremiumUser'
 type Ctx = {
-  user: any | null
+  user: User | null
   role: Role | null
   loading: boolean
   signOut: () => Promise<void>
@@ -14,15 +16,15 @@ const AuthCtx = createContext<Ctx>({
   user: null,
   role: null,
   loading: true,
-  signOut: async () => {},
+  signOut: async () => { },
 })
 
 const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [user, setUser] = useState<any | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [role, setRole] = useState<Role | null>(null)
   const [loading, setLoading] = useState(true)
 
-  async function loadRole(u: any | null) {
+  async function loadRole(u: User | null) {
     if (!u) return setRole(null)
     const { data } = await supabase
       .from('profiles')
@@ -33,7 +35,7 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   }
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       const { data: { session } } = await supabase.auth.getSession()
       const u = session?.user ?? null
       setUser(u)
