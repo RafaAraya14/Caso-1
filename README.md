@@ -76,8 +76,11 @@
 - **Justification:** Jest serves as our test runner. React Testing Library tests components by simulating user behavior, ensuring tests are maintainable and user-centric.
 
 ### Authentication Provider
-**Choice: Auth0**  
-- **Justification:** Auth0 was selected for its robustness, professional feature set, and generous free tier. Its excellent documentation makes it ideal for implementing secure login and role-based authorization.
+**Choice: Supabase (Selected)**  
+**Justification:** Integra autenticación y base de datos en un mismo stack, habilitando **RLS** (Row Level Security) directamente sobre las tablas del dominio (profiles, sessions, userpackages...). Facilita pruebas de concepto de **autorización por rol** (Basic/Premium) y **reglas de negocio** cercanas a los datos (via **RPC/SQL**). Esto reduce complejidad del PoC y demuestra viabilidad de la arquitectura propuesta.
+
+**Alternative considered: Auth0.** Excelente para producción y enterprise SSO/MFA, pero para este caso académico priorizamos el acople con la BD y RLS de Supabase para acelerar el PoC de seguridad.
+
 
 ### Linter & Formatter
 **Choice: ESLint & Prettier**  
@@ -178,9 +181,10 @@ We have designed a layered architecture to ensure separation of concerns, mainta
 
 ### 15. Security Layer
 - **Responsibility**: Authentication and authorization
-- **Communication**: Integrates with Auth0, provides tokens to API Client
+- **Communication**: Integrates with **Supabase Auth**, provides session to API Client and enables **RLS** at the database level
 - **Patterns**: Adapter
-- **Examples**: `authService`
+- **Examples**: `authService` (wrapping Supabase auth client)
+
 
 ## Architecture Validation
 
@@ -401,9 +405,137 @@ This structure follows the layered architecture design and ensures separation of
 | **Interceptor** | Middleware layer | Process requests/responses |
 | **Factory** | Component creation in UI layer | Dynamic component instantiation |
 
-## 4. Visual Components Strategy
 
-### 4.1 Atomic Design Methodology
+## 4. Authentication & Authorization (PoC)
+**Objetivo:** Demostrar inicio de sesión, **roles** (BasicUser / PremiumUser), **MFA** y **acción restringida** (ej. “Hire coach” solo Premium), reforzado por **RLS** en la BD.
+
+### 4.1 Alcance del PoC (mínimo indispensable)
+- Login con email/password (Supabase).
+- Lectura del **rol** desde `public.profiles` y **gating** en UI (mostrar/ocultar botón).
+- Visualización de **créditos** desde `public.userpackages` (Premium).
+- _(Opcional — Trabajo adicional)_ RPC que **crea sesión y descuenta crédito**.
+
+### 4.2 Evidencias requeridas (screenshots)
+- `profiles`: filas para **BasicUser** y **PremiumUser** (rol visible).
+- `userpackages`: bolsa de créditos (ej. 8) para Premium.
+- Pantallas: **/login** y **/dashboard** mostrando el **rol**.
+- UI: **Basic** sin “Hire coach”, **Premium** con “Hire coach”.
+- _(Opcional)_ MFA habilitado (capturas de configuración y flujo TOTP).
+
+
+### 4.3 Variables de entorno y cliente
+# .env.local como variables de entorno para la conexion con supabase
+- NEXT_PUBLIC_SUPABASE_URL=...
+- NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+
+# // src/lib/supabase.ts  c
+# Conexion con supabase
+import { createClient } from '../supabase/supabase-js'
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  { auth: { persistSession: true, autoRefreshToken: true } }
+)
+
+
+### 4.4 Contexto de sesión + rol (PoC)
+##  src/auth/AuthProvider.tsx
+'use client'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
+
+type Role = 'BasicUser'|'PremiumUser'
+type Ctx = { user:any|null; role:Role|null; loading:boolean; signOut:()=>Promise<void> }
+const AuthCtx = createContext<Ctx>({ user:null, role:null, loading:true, signOut:async()=>{} })
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<any|null>(null)
+  const [role, setRole] = useState<Role|null>(null)
+  const [loading, setLoading] = useState(true)
+  async function loadRole(u:any|null){
+    if(!u) return setRole(null)
+    const { data } = await supabase.from('profiles').select('role').eq('userid', u.id).single()
+    setRole((data?.role as Role) ?? null)
+  }
+  useEffect(() => {
+    (async () => {
+      const { data:{ session } } = await supabase.auth.getSession()
+      const u = session?.user ?? null
+      setUser(u); await loadRole(u); setLoading(false)
+    })()
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_e, s) => {
+      const u = s?.user ?? null
+      setUser(u); await loadRole(u)
+    })
+    return () => sub.subscription.unsubscribe()
+  }, [])
+  const signOut = async () => { await supabase.auth.signOut(); setUser(null); setRole(null) }
+  return <AuthCtx.Provider value={{ user, role, loading, signOut }}>{children}</AuthCtx.Provider>
+}
+export const useAuth = () => useContext(AuthCtx)
+
+### 4.5 Gating por rol (UI)
+## src/components/CoachActions.tsx
+
+import { useAuth } from '../../auth/AuthProvider/AuthProvider'
+export function CoachActions({ selectedCoachId }: { selectedCoachId: number }) {
+  const { role, loading } = useAuth()
+  if (loading) return null
+  return (
+    <div style={{display:'flex',gap:12}}>
+      <button>Check availability</button>
+      {role === 'PremiumUser' && <button>Hire coach</button>}
+    </div>
+  )
+}
+
+### 4.6 Créditos en Dashboard
+## src/hooks/useUserCredits.ts
+'use client'
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
+export function useUserCredits(userId?: string|null){
+  const [credits, setCredits] = useState<number|null>(null)
+  useEffect(()=>{ if(!userId) return
+    supabase.from('userpackages').select('creditsremaining')
+    .eq('useridfk', userId).order('purchasedat', { ascending:false })
+    .limit(1).maybeSingle().then(({data})=>setCredits(data?.creditsremaining ?? null))
+  },[userId])
+  return { credits }
+}
+
+##  src/app/dashboard/page.tsx
+
+
+'use client'
+import { useAuth } from '../../auth/AuthProvider/AuthProvider'
+import { useUserCredits } from '../../hooks/useUserCredits'
+export default function DashboardPage(){
+  const { user, role, loading } = useAuth()
+  const { credits } = useUserCredits(user?.id)
+  if (loading) return null
+  return (
+    <main className="p-6">
+      <p>Rol: {role ?? '—'}</p>
+      <p>Créditos: {credits ?? '—'}</p>
+    </main>
+  )
+}
+
+
+### 4.7 MFA .
+ - Supabase → Auth → Settings → MFA/TOTP: Enabled 
+ - Subir capturas a /docs/screenshots.
+
+### 4.8 RLS (resumen)
+- profiles: cada usuario ve/edita solo su fila.
+
+- userpackages: cada usuario ve/gestiona solo sus bolsas.
+
+- sessions: usuario y coach asignado pueden ver/actualizar.
+## ## 5. Visual Components Strategy
+
+### 5.1 Atomic Design Methodology
 
 We implement the **Atomic Design** methodology to create a scalable and maintainable component architecture using five distinct levels:
 
@@ -426,7 +558,7 @@ We implement the **Atomic Design** methodology to create a scalable and maintain
 
 ---
 
-### 4.2 Project Structure
+### 5.2 Project Structure
 
 ```
 src/
@@ -468,11 +600,13 @@ src/
     ├── useAuth.ts
     ├── useSessionController.ts
     └── useCoachSearch.ts
+    └── useUserCredits.ts
+
 ```
 
 ---
 
-### 4.3 Component Implementation Standards
+### 5.3 Component Implementation Standards
 
 #### `Button` Component (Atom)
 
@@ -558,7 +692,7 @@ export type { ButtonProps } from './Button';
 
 ---
 
-### 4.4 Development Workflow
+### 5.4 Development Workflow
 
 #### Component Creation Process
 
@@ -582,7 +716,7 @@ ComponentName/
 
 ---
 
-### 4.5 Testing Strategy
+### 5.5 Testing Strategy
 
 **Testing Configuration**
 
@@ -640,7 +774,7 @@ describe('Button', () => {
 
 ---
 
-### 4.6 Accessibility Standards
+### 5.6 Accessibility Standards
 
 We follow **WCAG 2.1 AA** standards:
 
@@ -663,7 +797,7 @@ We follow **WCAG 2.1 AA** standards:
 
 ---
 
-### 4.7 Responsive Design
+### 5.7 Responsive Design
 
 **Approach:** Mobile-First Design
 
@@ -686,7 +820,7 @@ We follow **WCAG 2.1 AA** standards:
 
 ---
 
-### 4.8 Storybook Configuration
+### 5.8 Storybook Configuration
 
 **File:** `.storybook/main.ts`
 
@@ -710,7 +844,7 @@ Run Storybook locally with:
 ```bash
 npm run storybook
 ```
-## 5. Business Layer Implementation
+## 6. Business Layer Implementation
 
 ### Domain-Driven Design Approach
 
@@ -741,7 +875,7 @@ Domain models and business rules are implemented in `/src/business/` following D
 See `/src/business/` for complete implementation.
 ---
 
-## 6. Testing Strategy
+## 7. Testing Strategy
 
 Our testing strategy focuses on unit tests to ensure the reliability of individual components and business logic. We use **Jest** as our test runner and **React Testing Library** for testing components from a user's perspective.
 
