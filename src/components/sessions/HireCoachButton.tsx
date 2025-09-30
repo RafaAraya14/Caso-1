@@ -1,6 +1,7 @@
 import React from 'react';
-import { useAuth } from '../auth';                    // barrel de auth dentro de components
+import { useAuth } from '../auth';
 import useSessionController from '../../hooks/useSessionController';
+import { Button } from '../ui/Button';
 
 type Props = { coachId: number; onHired?: (sessionId: string | number) => void };
 
@@ -10,20 +11,24 @@ const HireCoachButton: React.FC<Props> = ({ coachId, onHired }) => {
 
   const onClick = async () => {
     if (!user?.id) return;
-    const sessionId = await hireCoach(coachId, user.id); // ⬅️ AQUÍ va tu línea
+    const sessionId = await hireCoach(coachId, user.id);
     onHired?.(sessionId);
   };
 
   return (
-    <div className="inline-flex flex-col gap-1">
-      <button
+    <div className="space-y-2">
+      <Button
         onClick={onClick}
-        disabled={loading || !user?.id}
-        className="px-3 py-2 rounded border hover:bg-gray-50 disabled:opacity-60"
+        disabled={!user?.id}
+        loading={loading}
+        variant="primary"
+        className="w-full"
       >
         {loading ? 'Creando sesión…' : 'Contratar coach'}
-      </button>
-      {error && <span className="text-sm text-red-600">{error}</span>}
+      </Button>
+      {error && (
+        <p className="text-sm text-red-400">{error}</p>
+      )}
     </div>
   );
 };

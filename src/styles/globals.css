@@ -16,12 +16,67 @@ html, body {
 .card {
   @apply bg-slate-900/60 backdrop-blur rounded-2xl shadow-soft border border-slate-800;
 }
+
+.card-hover {
+  @apply card transition-all duration-300 hover:bg-slate-900/80 hover:border-slate-700 hover:shadow-lg;
+}
+
 .btn {
   @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition;
 }
+
 .btn-primary {
   @apply bg-brand-600 hover:bg-brand-700 text-white;
 }
+
+.btn-secondary {
+  @apply bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-600;
+}
+
+.btn-ghost {
+  @apply bg-transparent hover:bg-slate-800/50 text-slate-300 hover:text-slate-100;
+}
+
 .input {
   @apply w-full rounded-xl bg-slate-900 border border-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 px-4 py-2 placeholder:text-slate-500;
+}
+
+.input-error {
+  @apply border-red-500 focus:ring-red-500;
+}
+
+.label {
+  @apply block text-sm font-medium text-slate-300 mb-2;
+}
+
+/* Estados de loading */
+.loading-spinner {
+  @apply w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-700 rounded-lg;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-600;
 }

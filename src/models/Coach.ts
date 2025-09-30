@@ -1,4 +1,4 @@
-// src/business/domain/Coach.ts
+// src/models/Coach.ts
 
 export class Coach {
   private minimumRating = 3.5;

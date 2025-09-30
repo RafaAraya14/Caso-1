@@ -1,2 +1,2 @@
 // src/components/coaches/CoachSearch/index.ts
-export * from './CoachSearch';
+export { CoachSearch } from './CoachSearchPrototype';

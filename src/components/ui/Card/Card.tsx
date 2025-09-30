@@ -1,9 +1,26 @@
 import React from 'react';
 
-export const Card = ({ children }: { children: React.ReactNode }) => {
-    return (
-        <div>
-            {children}
-        </div>
-    );
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+  padding?: 'none' | 'sm' | 'md' | 'lg';
+}
+
+const paddingClasses = {
+  none: '',
+  sm: 'p-4',
+  md: 'p-6',
+  lg: 'p-8'
+};
+
+export const Card: React.FC<CardProps> = ({ 
+  children, 
+  className = '', 
+  padding = 'md' 
+}) => {
+  return (
+    <div className={`card ${paddingClasses[padding]} ${className}`}>
+      {children}
+    </div>
+  );
 };

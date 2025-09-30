@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { useUserCredits } from '../../hooks/useUserCredits';
 import HireCoachButton from '../sessions/HireCoachButton';
+import { Card } from '../ui/Card';
+import { Button } from '../ui/Button';
 
 const mockCoaches = [
   { id: 101, name: 'Coach Ana' },
@@ -28,32 +30,51 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <main className="p-6 max-w-3xl mx-auto">
-      <header className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold">Dashboard</h1>
-        <button onClick={handleLogout} className="px-3 py-2 rounded border hover:bg-gray-50">
-          Cerrar sesión
-        </button>
-      </header>
+    <main className="min-h-screen p-6">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header */}
+        <Card>
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-slate-100">Dashboard</h1>
+            <Button 
+              onClick={handleLogout} 
+              variant="ghost"
+              size="sm"
+            >
+              Cerrar sesión
+            </Button>
+          </div>
+        </Card>
 
-      {error && <p className="text-red-600 mb-2">{error}</p>}
+        {/* Error Message */}
+        {error && (
+          <Card className="border-red-500/50 bg-red-950/20">
+            <p className="text-red-400">{error}</p>
+          </Card>
+        )}
 
-      <section className="mb-6 space-y-1">
-        <p><strong>Rol:</strong> {role ?? '—'}</p>
-        <p><strong>Créditos:</strong> {creditLoading ? 'Cargando…' : credits ?? '—'}</p>
-      </section>
+        {/* User Info */}
+        <Card>
+          <h2 className="text-lg font-semibold text-slate-200 mb-4">Información del Usuario</h2>
+          <div className="space-y-2 text-slate-300">
+            <p><span className="font-medium text-slate-200">Rol:</span> {role ?? '—'}</p>
+            <p><span className="font-medium text-slate-200">Créditos:</span> {creditLoading ? 'Cargando…' : credits ?? '—'}</p>
+          </div>
+        </Card>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">Coaches disponibles</h2>
-        <ul className="space-y-3">
-          {mockCoaches.map((c) => (
-            <li key={c.id} className="flex items-center justify-between p-3 border rounded">
-              <span>{c.name}</span>
-              <HireCoachButton coachId={c.id} />
-            </li>
-          ))}
-        </ul>
-      </section>
+        {/* Coaches Section */}
+        <Card>
+          <h2 className="text-lg font-semibold text-slate-200 mb-6">Coaches Disponibles</h2>
+          <div className="space-y-4">
+            {mockCoaches.map((c) => (
+              <div key={c.id} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                <span className="text-slate-200 font-medium">{c.name}</span>
+                <HireCoachButton coachId={c.id} />
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
     </main>
   );
 };

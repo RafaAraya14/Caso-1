@@ -1,4 +1,4 @@
-// src/business/domain/Coach.test.ts
+// src/models/Coach.test.ts
 import { Coach } from './Coach';
 
 describe('Coach Class', () => {

@@ -24,7 +24,6 @@ export function useUserCredits(userId?: string | null) {
     },
   });
 
-  // Para que tu UI previa sea fácil de adaptar:
   return {
     credits: q.data ?? null,
     loading: q.isLoading,
