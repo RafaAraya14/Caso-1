@@ -108,12 +108,12 @@ export class SessionListener {
    * Maneja evento de sesión iniciada
    */
   private handleSessionStarted(event: Event): void {
-    const { sessionId, userId, coachId, meetingLink } = event.payload;
+    const { sessionId, userId, coachId, _meetingLink } = event.payload;
 
     logger.session('SessionStarted', 'Processing session start', {
       sessionId,
       userId,
-      metadata: { coachId },
+      metadata: { coachId, _meetingLink },
     });
 
     // Tareas para sesión iniciada:
