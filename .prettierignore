@@ -1,0 +1,73 @@
+# Dependencies
+node_modules/
+
+# Production builds
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Generated files
+*.d.ts
+*.tsbuildinfo
+
+# Package files
+*.tgz
+*.tar.gz
+
+# Cache directories
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.vuepress/dist
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Lock files (optional - you may want to format these)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Documentation that should keep original formatting
+CHANGELOG.md
+LICENSE
+
+# Supabase types (auto-generated)
+src/types/supabase/database.types.ts
+
+# Demo files (might have intentional formatting)
+demo/
+
+# Test snapshots
+**/__snapshots__/

@@ -7,7 +7,7 @@ export enum LogLevel {
   INFO = 1,
   WARN = 2,
   ERROR = 3,
-  CRITICAL = 4
+  CRITICAL = 4,
 }
 
 export interface LogContext {
@@ -54,32 +54,34 @@ class ConsoleLogProvider implements ILogProvider {
   }
 
   log(entry: LogEntry): void {
-    if (!this.shouldLog(entry.level)) return;
+    if (!this.shouldLog(entry.level)) {
+      return;
+    }
 
     const levelName = LogLevel[entry.level];
     const emoji = this.getLevelEmoji(entry.level);
     const timestamp = new Date(entry.timestamp).toLocaleTimeString();
-    
+
     // Formato: [🟢 INFO 14:30:25] [Auth/Login] Usuario iniciando sesión
     let logMessage = `[${emoji} ${levelName} ${timestamp}]`;
-    
+
     if (entry.context?.component) {
-      logMessage += ` [${entry.context.component}${entry.context.action ? '/' + entry.context.action : ''}]`;
+      logMessage += ` [${entry.context.component}${entry.context.action ? `/${entry.context.action}` : ''}]`;
     }
-    
+
     logMessage += ` ${entry.message}`;
 
     // Datos adicionales
     const additionalData: Record<string, unknown> = {};
-    
+
     if (entry.context?.userId) {
       additionalData.userId = entry.context.userId;
     }
-    
+
     if (entry.context?.sessionId) {
       additionalData.sessionId = entry.context.sessionId;
     }
-    
+
     if (entry.context?.metadata) {
       additionalData.metadata = entry.context.metadata;
     }
@@ -105,13 +107,17 @@ class ConsoleLogProvider implements ILogProvider {
         // eslint-disable-next-line no-console
         console.error(logMessage, {
           ...additionalData,
-          error: entry.error
+          error: entry.error,
         });
         break;
     }
 
     // En desarrollo, mostrar stack trace para errores
-    if (this.isDevelopment && entry.error?.stack && (entry.level === LogLevel.ERROR || entry.level === LogLevel.CRITICAL)) {
+    if (
+      this.isDevelopment &&
+      entry.error?.stack &&
+      (entry.level === LogLevel.ERROR || entry.level === LogLevel.CRITICAL)
+    ) {
       // eslint-disable-next-line no-console
       console.error('Stack trace:', entry.error.stack);
     }
@@ -119,12 +125,18 @@ class ConsoleLogProvider implements ILogProvider {
 
   private getLevelEmoji(level: LogLevel): string {
     switch (level) {
-      case LogLevel.DEBUG: return '🔍';
-      case LogLevel.INFO: return '🟢';
-      case LogLevel.WARN: return '🟡';
-      case LogLevel.ERROR: return '🔴';
-      case LogLevel.CRITICAL: return '💥';
-      default: return '📝';
+      case LogLevel.DEBUG:
+        return '🔍';
+      case LogLevel.INFO:
+        return '🟢';
+      case LogLevel.WARN:
+        return '🟡';
+      case LogLevel.ERROR:
+        return '🔴';
+      case LogLevel.CRITICAL:
+        return '💥';
+      default:
+        return '📝';
     }
   }
 }
@@ -146,7 +158,9 @@ class RemoteLogProvider implements ILogProvider {
   }
 
   log(entry: LogEntry): void {
-    if (!this.shouldLog(entry.level)) return;
+    if (!this.shouldLog(entry.level)) {
+      return;
+    }
 
     // En producción, enviar logs críticos a servicio externo
     if (entry.level >= LogLevel.ERROR) {
@@ -163,7 +177,7 @@ class RemoteLogProvider implements ILogProvider {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify(entry),
       });
@@ -180,17 +194,17 @@ class Logger {
 
   constructor() {
     // Provider por defecto
-    this.addProvider(new ConsoleLogProvider(
-      import.meta.env.DEV ? LogLevel.DEBUG : LogLevel.INFO
-    ));
+    this.addProvider(new ConsoleLogProvider(import.meta.env.DEV ? LogLevel.DEBUG : LogLevel.INFO));
 
     // En producción, agregar provider remoto si está configurado
     if (!import.meta.env.DEV && import.meta.env.VITE_LOG_ENDPOINT) {
-      this.addProvider(new RemoteLogProvider(
-        import.meta.env.VITE_LOG_ENDPOINT,
-        import.meta.env.VITE_LOG_API_KEY || '',
-        LogLevel.ERROR
-      ));
+      this.addProvider(
+        new RemoteLogProvider(
+          import.meta.env.VITE_LOG_ENDPOINT,
+          import.meta.env.VITE_LOG_API_KEY || '',
+          LogLevel.ERROR
+        )
+      );
     }
   }
 
@@ -213,14 +227,14 @@ class Logger {
       level,
       message,
       context: { ...this.defaultContext, ...context },
-      environment: import.meta.env.MODE || 'unknown'
+      environment: import.meta.env.MODE || 'unknown',
     };
 
     if (error) {
       entry.error = {
         name: error.name,
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
       };
 
       // Si es CustomError, agregar información adicional
@@ -228,7 +242,7 @@ class Logger {
         entry.error.code = error.code;
         entry.context = {
           ...entry.context,
-          friendlyMessage: error.friendlyMessage
+          friendlyMessage: error.friendlyMessage,
         };
       }
     }
@@ -277,23 +291,31 @@ class Logger {
     this.info(message, {
       ...context,
       component: 'Auth',
-      action
+      action,
     });
   }
 
-  session(action: string, message: string, context?: Omit<LogContext, 'component' | 'action'>): void {
+  session(
+    action: string,
+    message: string,
+    context?: Omit<LogContext, 'component' | 'action'>
+  ): void {
     this.info(message, {
       ...context,
       component: 'Session',
-      action
+      action,
     });
   }
 
-  payment(action: string, message: string, context?: Omit<LogContext, 'component' | 'action'>): void {
+  payment(
+    action: string,
+    message: string,
+    context?: Omit<LogContext, 'component' | 'action'>
+  ): void {
     this.info(message, {
       ...context,
       component: 'Payment',
-      action
+      action,
     });
   }
 
@@ -301,7 +323,7 @@ class Logger {
     this.info(message, {
       ...context,
       component: 'API',
-      action
+      action,
     });
   }
 }
@@ -312,25 +334,26 @@ export const logger = new Logger();
 // Función helper para capturar errores no manejados
 export function setupGlobalErrorHandling(): void {
   // Capturar errores JavaScript no manejados
-  window.addEventListener('error', (event) => {
+  window.addEventListener('error', event => {
     logger.critical('Unhandled JavaScript error', event.error, {
       component: 'Global',
       action: 'UnhandledError',
       metadata: {
         filename: event.filename,
         lineno: event.lineno,
-        colno: event.colno
-      }
+        colno: event.colno,
+      },
     });
   });
 
   // Capturar promesas rechazadas no manejadas
-  window.addEventListener('unhandledrejection', (event) => {
-    logger.critical('Unhandled promise rejection', 
-      event.reason instanceof Error ? event.reason : new Error(String(event.reason)), 
+  window.addEventListener('unhandledrejection', event => {
+    logger.critical(
+      'Unhandled promise rejection',
+      event.reason instanceof Error ? event.reason : new Error(String(event.reason)),
       {
         component: 'Global',
-        action: 'UnhandledRejection'
+        action: 'UnhandledRejection',
       }
     );
   });

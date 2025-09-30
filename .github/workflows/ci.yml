@@ -1,0 +1,177 @@
+# CI/CD Pipeline for 20minCoach
+# Executes quality checks, testing, and deployment
+
+name: 🚀 CI/CD Pipeline
+
+on:
+  # Trigger on push to main and develop branches
+  push:
+    branches: [main, develop]
+  
+  # Trigger on pull requests to main
+  pull_request:
+    branches: [main]
+  
+  # Allow manual execution
+  workflow_dispatch:
+
+# Cancel previous runs if new ones are triggered
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 🔍 Code Quality & Linting
+  lint-and-format:
+    name: 🔍 Code Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 📲 Install dependencies
+        run: npm ci
+      
+      - name: 🔍 Run ESLint
+        run: npm run lint
+      
+      - name: 🎨 Check Prettier formatting
+        run: npm run format -- --check
+      
+      - name: 📊 Upload lint results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: lint-results
+          path: |
+            eslint-report.json
+            prettier-report.txt
+
+  # 🏗️ TypeScript Build & Type Checking
+  build-and-typecheck:
+    name: 🏗️ Build & Type Check
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📦 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: 📲 Install dependencies
+        run: npm ci
+      
+      - name: 🔧 TypeScript type check
+        run: npm run type-check
+      
+      - name: 🏗️ Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+      
+      - name: 📦 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: matrix.node-version == 18
+        with:
+          name: build-artifacts
+          path: dist/
+          retention-days: 7
+
+  # 🧪 Unit Testing
+  test:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 📲 Install dependencies
+        run: npm ci
+      
+      - name: 🧪 Run tests
+        run: npm test -- --coverage --watchAll=false
+        env:
+          CI: true
+      
+      - name: 📊 Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+
+  # 🔒 Security Audit
+  security-audit:
+    name: 🔒 Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 🔍 Run npm audit
+        run: npm audit --audit-level=moderate
+      
+      - name: 🛡️ Run security scan with Snyk
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+  # 📈 Quality Gate Summary
+  quality-gate:
+    name: 📈 Quality Gate
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, build-and-typecheck, test, security-audit]
+    if: always()
+    
+    steps:
+      - name: 📊 Check quality gate status
+        run: |
+          echo "=== Quality Gate Results ==="
+          echo "Linting: ${{ needs.lint-and-format.result }}"
+          echo "Build: ${{ needs.build-and-typecheck.result }}"
+          echo "Tests: ${{ needs.test.result }}"
+          echo "Security: ${{ needs.security-audit.result }}"
+          
+          if [[ "${{ needs.lint-and-format.result }}" == "failure" || 
+                "${{ needs.build-and-typecheck.result }}" == "failure" || 
+                "${{ needs.test.result }}" == "failure" || 
+                "${{ needs.security-audit.result }}" == "failure" ]]; then
+            echo "❌ Quality gate failed!"
+            exit 1
+          else
+            echo "✅ Quality gate passed!"
+          fi

@@ -1,6 +1,7 @@
 // src/error-handling/errorHandler.ts
-import { CustomError, ErrorSeverity, ErrorCategory } from './CustomError';
 import { logger } from '../logging/logger';
+
+import { CustomError, ErrorSeverity, ErrorCategory } from './CustomError';
 
 /**
  * Handler centralizado para manejo de errores
@@ -9,14 +10,17 @@ export class ErrorHandler {
   /**
    * Procesa y loggea un error, retornando el mensaje apropiado para el usuario
    */
-  static handle(error: unknown, context?: {
-    component?: string;
-    action?: string;
-    userId?: string;
-    sessionId?: string;
-  }): string {
+  static handle(
+    error: unknown,
+    context?: {
+      component?: string;
+      action?: string;
+      userId?: string;
+      sessionId?: string;
+    }
+  ): string {
     let customError: CustomError;
-    
+
     // Convertir cualquier error a CustomError
     if (error instanceof CustomError) {
       customError = error;
@@ -29,7 +33,7 @@ export class ErrorHandler {
         'Ha ocurrido un error inesperado. Por favor, intenta nuevamente.',
         {
           severity: ErrorSeverity.HIGH,
-          category: ErrorCategory.SYSTEM
+          category: ErrorCategory.SYSTEM,
         }
       );
     }
@@ -50,7 +54,7 @@ export class ErrorHandler {
         action: context?.action,
         userId: context?.userId,
         sessionId: context?.sessionId,
-        friendlyMessage: customError.friendlyMessage
+        friendlyMessage: customError.friendlyMessage,
       });
     } else {
       logger.error(customError.message, customError, {
@@ -58,13 +62,14 @@ export class ErrorHandler {
         action: context?.action,
         userId: context?.userId,
         sessionId: context?.sessionId,
-        friendlyMessage: customError.friendlyMessage
+        friendlyMessage: customError.friendlyMessage,
       });
     }
 
     // Retornar mensaje apropiado para el usuario
-    return customError.shouldShowToUser() ? customError.getUserMessage() : 
-           'Ha ocurrido un error interno. Por favor, contacta soporte si el problema persiste.';
+    return customError.shouldShowToUser()
+      ? customError.getUserMessage()
+      : 'Ha ocurrido un error interno. Por favor, contacta soporte si el problema persiste.';
   }
 
   /**
@@ -73,23 +78,23 @@ export class ErrorHandler {
   private static convertToCustomError(error: Error): CustomError {
     // Mapear errores comunes
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      return CustomError.network('Network request failed: ' + error.message);
+      return CustomError.network(`Network request failed: ${error.message}`);
     }
-    
+
     if (error.name === 'SyntaxError') {
-      return CustomError.validation('Invalid data format: ' + error.message);
+      return CustomError.validation(`Invalid data format: ${error.message}`);
     }
-    
+
     if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-      return CustomError.authentication('Authentication failed: ' + error.message);
+      return CustomError.authentication(`Authentication failed: ${error.message}`);
     }
-    
+
     if (error.message.includes('403') || error.message.includes('Forbidden')) {
-      return CustomError.authorization('Authorization failed: ' + error.message);
+      return CustomError.authorization(`Authorization failed: ${error.message}`);
     }
-    
+
     if (error.message.includes('500') || error.message.includes('Internal Server Error')) {
-      return CustomError.database('Database error: ' + error.message);
+      return CustomError.database(`Database error: ${error.message}`);
     }
 
     // Error genérico
@@ -102,8 +107,8 @@ export class ErrorHandler {
         category: ErrorCategory.SYSTEM,
         metadata: {
           originalErrorName: error.name,
-          originalStack: error.stack
-        }
+          originalStack: error.stack,
+        },
       }
     );
   }
@@ -161,10 +166,7 @@ export class ErrorHandler {
 /**
  * Decorator para métodos que necesitan manejo automático de errores
  */
-export function withErrorHandling(
-  component: string,
-  action?: string
-) {
+export function withErrorHandling(component: string, action?: string) {
   return function (target: unknown, propertyName: string, descriptor: PropertyDescriptor) {
     const method = descriptor.value;
 
@@ -174,7 +176,7 @@ export function withErrorHandling(
       } catch (error) {
         const errorMessage = ErrorHandler.handle(error, {
           component,
-          action: action || propertyName
+          action: action || propertyName,
         });
         throw new CustomError(
           `Error in ${component}.${action || propertyName}`,

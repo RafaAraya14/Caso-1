@@ -1,16 +1,22 @@
 import React from 'react';
-import { useAuth } from '../auth';
+
 import useSessionController from '../../hooks/useSessionController';
+import { useAuth } from '../auth';
 import { Button } from '../ui/Button';
 
-type Props = { coachId: number; onHired?: (sessionId: string | number) => void };
+interface Props {
+  coachId: number;
+  onHired?: (sessionId: string | number) => void;
+}
 
 const HireCoachButton: React.FC<Props> = ({ coachId, onHired }) => {
   const { user } = useAuth();
   const { hireCoach, loading, error } = useSessionController();
 
   const onClick = async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      return;
+    }
     const sessionId = await hireCoach(coachId, user.id);
     onHired?.(sessionId);
   };
@@ -26,9 +32,7 @@ const HireCoachButton: React.FC<Props> = ({ coachId, onHired }) => {
       >
         {loading ? 'Creando sesión…' : 'Contratar coach'}
       </Button>
-      {error && (
-        <p className="text-sm text-red-400">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-400">{error}</p>}
     </div>
   );
 };

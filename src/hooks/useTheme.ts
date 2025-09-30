@@ -12,7 +12,7 @@ export const useTheme = () => {
   useEffect(() => {
     // Save theme to localStorage
     localStorage.setItem('theme', theme);
-    
+
     // Apply theme to document
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -24,7 +24,7 @@ export const useTheme = () => {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   return { theme, toggleTheme };

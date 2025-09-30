@@ -11,11 +11,10 @@ export class Coach {
     public specialties: string[],
     public isAvailable: boolean,
     private sessionsToday: number = 0
-  ) { }
+  ) {}
 
   canAcceptSession(): boolean {
-    return this.sessionsToday < this.maxSessionsPerDay &&
-      this.rating >= this.minimumRating;
+    return this.sessionsToday < this.maxSessionsPerDay && this.rating >= this.minimumRating;
   }
 
   calculateEarnings(sessions: number, tierMultiplier: number): number {

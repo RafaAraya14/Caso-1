@@ -16,7 +16,7 @@ interface InputProps {
   label?: string;
 }
 
-export const Input: React.FC<InputProps> = ({ 
+export const Input: React.FC<InputProps> = ({
   type = 'text',
   placeholder,
   value,
@@ -29,15 +29,12 @@ export const Input: React.FC<InputProps> = ({
   name,
   autoComplete,
   error,
-  label
+  label,
 }) => {
   return (
     <div className="space-y-1">
       {label && (
-        <label 
-          htmlFor={id} 
-          className="block text-sm font-medium text-slate-300"
-        >
+        <label htmlFor={id} className="block text-sm font-medium text-slate-300">
           {label}
           {required && <span className="text-red-400 ml-1">*</span>}
         </label>
@@ -55,9 +52,7 @@ export const Input: React.FC<InputProps> = ({
         autoComplete={autoComplete}
         className={`input ${error ? 'border-red-500 focus:ring-red-500' : ''} ${className}`}
       />
-      {error && (
-        <p className="text-sm text-red-400">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-400">{error}</p>}
     </div>
   );
 };

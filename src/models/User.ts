@@ -1,16 +1,18 @@
 // src/models/User.ts
 
-export class User {
-    constructor(
-        public id: string,
-        public email: string,
-        public name: string,
-        public role: string,
-        public hasActiveSubscription: boolean,
-        public sessionsRemaining: number
-    ) { }
+export type UserRole = 'BasicUser' | 'PremiumUser' | 'AdminUser';
 
-    validateRole(): boolean {
-        return this.role.trim().length > 0;
-    }
+export class User {
+  constructor(
+    public id: string,
+    public email: string,
+    public name: string,
+    public role: UserRole,
+    public hasActiveSubscription: boolean,
+    public sessionsRemaining: number
+  ) {}
+
+  validateRole(): boolean {
+    return this.role.trim().length > 0;
+  }
 }

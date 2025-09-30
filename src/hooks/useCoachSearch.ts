@@ -1,10 +1,12 @@
 // src/hooks/useCoachSearch.ts
-import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Coach } from '../models/Coach';
-import { getAllCoachesWithFallback } from '../services/api/coachApi';
-import { logger } from '../logging';
+import { useState, useEffect, useMemo } from 'react';
+
 import { ErrorHandler } from '../error-handling';
+import { logger } from '../logging';
+import { getAllCoachesWithFallback } from '../services/api/coachApi';
+
+import type { Coach } from '../models/Coach';
 
 export interface SearchFilters {
   name?: string;
@@ -36,15 +38,15 @@ const defaultFilters: SearchFilters = {
   minRating: 0,
   availableOnly: true,
   sortBy: 'rating',
-  sortOrder: 'desc'
+  sortOrder: 'desc',
 };
 
 export function useCoachSearch(initialFilters?: Partial<SearchFilters>): UseCoachSearchResult {
   const [filters, setFiltersState] = useState<SearchFilters>({
     ...defaultFilters,
-    ...initialFilters
+    ...initialFilters,
   });
-  
+
   const [searchTerm, setSearchTerm] = useState(filters.name || '');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
 
@@ -61,7 +63,7 @@ export function useCoachSearch(initialFilters?: Partial<SearchFilters>): UseCoac
   useEffect(() => {
     setFiltersState(prev => ({
       ...prev,
-      name: debouncedSearchTerm
+      name: debouncedSearchTerm,
     }));
   }, [debouncedSearchTerm]);
 
@@ -70,7 +72,7 @@ export function useCoachSearch(initialFilters?: Partial<SearchFilters>): UseCoac
     data: allCoaches = [],
     isLoading,
     error: queryError,
-    refetch
+    refetch,
   } = useQuery<Coach[], Error>({
     queryKey: ['coaches'],
     queryFn: getAllCoachesWithFallback,
@@ -79,16 +81,16 @@ export function useCoachSearch(initialFilters?: Partial<SearchFilters>): UseCoac
     onError: (error: Error) => {
       logger.error('Failed to fetch coaches', error, {
         component: 'UseCoachSearch',
-        action: 'FetchCoaches'
+        action: 'FetchCoaches',
       });
     },
     onSuccess: (data: Coach[]) => {
       logger.info('Coaches fetched successfully', {
         component: 'UseCoachSearch',
         action: 'FetchCoaches',
-        metadata: { count: data.length }
+        metadata: { count: data.length },
       });
-    }
+    },
   });
 
   // Filtrar y ordenar coaches localmente
@@ -98,17 +100,13 @@ export function useCoachSearch(initialFilters?: Partial<SearchFilters>): UseCoac
     // Filtro por nombre
     if (filters.name && filters.name.trim()) {
       const searchLower = filters.name.toLowerCase().trim();
-      result = result.filter(coach => 
-        coach.name.toLowerCase().includes(searchLower)
-      );
+      result = result.filter(coach => coach.name.toLowerCase().includes(searchLower));
     }
 
     // Filtro por especialidades
     if (filters.specialties && filters.specialties.length > 0) {
-      result = result.filter(coach => 
-        filters.specialties!.some(specialty => 
-          coach.specialties.includes(specialty)
-        )
+      result = result.filter(coach =>
+        filters.specialties!.some(specialty => coach.specialties.includes(specialty))
       );
     }
 
@@ -161,29 +159,30 @@ export function useCoachSearch(initialFilters?: Partial<SearchFilters>): UseCoac
 
   const setFilters = (newFilters: Partial<SearchFilters>) => {
     setFiltersState(prev => ({ ...prev, ...newFilters }));
-    
+
     logger.debug('Coach search filters updated', {
       component: 'UseCoachSearch',
       action: 'UpdateFilters',
-      metadata: { newFilters, currentFilters: filters }
+      metadata: { newFilters, currentFilters: filters },
     });
   };
 
   const resetFilters = () => {
     setFiltersState(defaultFilters);
     setSearchTerm('');
-    
+
     logger.debug('Coach search filters reset', {
       component: 'UseCoachSearch',
-      action: 'ResetFilters'
+      action: 'ResetFilters',
     });
   };
 
-  const error = queryError ? 
-    ErrorHandler.handle(queryError, {
-      component: 'UseCoachSearch',
-      action: 'FetchCoaches'
-    }) : null;
+  const error = queryError
+    ? ErrorHandler.handle(queryError, {
+        component: 'UseCoachSearch',
+        action: 'FetchCoaches',
+      })
+    : null;
 
   return {
     coaches: allCoaches || [],
@@ -197,7 +196,7 @@ export function useCoachSearch(initialFilters?: Partial<SearchFilters>): UseCoac
     setSearchTerm,
     totalCount: filteredCoaches.length,
     hasResults: filteredCoaches.length > 0,
-    refetch
+    refetch,
   };
 }
 
@@ -207,13 +206,13 @@ export function useCoachSearch(initialFilters?: Partial<SearchFilters>): UseCoac
 export function useQuickCoachSearch(searchTerm: string) {
   const { filteredCoaches, loading, error } = useCoachSearch({
     name: searchTerm,
-    availableOnly: true
+    availableOnly: true,
   });
 
   return {
     coaches: filteredCoaches,
     loading,
-    error
+    error,
   };
 }
 
@@ -225,13 +224,13 @@ export function useCoachesBySpecialty(specialty: string) {
     specialties: [specialty],
     availableOnly: true,
     sortBy: 'rating',
-    sortOrder: 'desc'
+    sortOrder: 'desc',
   });
 
   return {
     coaches: filteredCoaches,
     loading,
-    error
+    error,
   };
 }
 

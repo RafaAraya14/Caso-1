@@ -1,27 +1,33 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
+
 import './styles/globals.css';
-import { CoachSearch } from './components/coaches/CoachSearch/CoachSearchPrototype';
 import SimpleLoginForm from './components/auth/SimpleLogin';
+import { CoachSearch } from './components/coaches/CoachSearch/CoachSearchPrototype';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { supabase } from './lib/supabase';
-import { User } from '@supabase/supabase-js';
+
+import type { User } from '@supabase/supabase-js';
 
 interface UserProfile {
   is_premium?: boolean;
 }
 
 // Header component for logged-in users
-const Header: React.FC<{ user: User; profile: UserProfile | null; onLogout: () => void }> = ({ user, profile, onLogout }) => {
+const Header: React.FC<{ user: User; profile: UserProfile | null; onLogout: () => void }> = ({
+  user,
+  profile,
+  onLogout,
+}) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow-md">
       <div className="container mx-auto px-6 py-3 flex justify-between items-center">
-        <div className="text-lg font-semibold text-gray-800 dark:text-white">
-          20minCoach
-        </div>
+        <div className="text-lg font-semibold text-gray-800 dark:text-white">20minCoach</div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-gray-700 dark:text-gray-300 text-sm hidden sm:block">{user.email}</span>
+            <span className="text-gray-700 dark:text-gray-300 text-sm hidden sm:block">
+              {user.email}
+            </span>
             {profile?.is_premium && (
               <span className="bg-yellow-400 dark:bg-yellow-500 text-gray-800 dark:text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
                 Premium
@@ -68,13 +74,16 @@ const PublicNavigation: React.FC = () => {
 };
 
 // A layout for authenticated users
-const ProtectedLayout: React.FC<{ user: User; profile: UserProfile | null; onLogout: () => void; children: React.ReactNode }> = ({ user, profile, onLogout, children }) => {
+const ProtectedLayout: React.FC<{
+  user: User;
+  profile: UserProfile | null;
+  onLogout: () => void;
+  children: React.ReactNode;
+}> = ({ user, profile, onLogout, children }) => {
   return (
     <>
       <Header user={user} profile={profile} onLogout={onLogout} />
-      <main className="pt-20">
-        {children}
-      </main>
+      <main className="pt-20">{children}</main>
     </>
   );
 };
@@ -107,7 +116,9 @@ export default function App() {
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
@@ -117,10 +128,12 @@ export default function App() {
     };
     getSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
-      
+
       if (_event === 'SIGNED_IN' && currentUser) {
         await fetchUserProfile(currentUser);
         navigate('/dashboard');
@@ -138,18 +151,27 @@ export default function App() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center"><p className="text-white">Loading...</p></div>;
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+        <p className="text-white">Loading...</p>
+      </div>
+    );
   }
 
   return (
     <div className="App">
       {!user && <PublicNavigation />}
       <Routes>
-        <Route path="/login" element={!user ? <SimpleLoginForm onLoginSuccess={() => {}} /> : <Navigate to="/dashboard" />} />
-        
+        <Route
+          path="/login"
+          element={
+            !user ? <SimpleLoginForm onLoginSuccess={() => {}} /> : <Navigate to="/dashboard" />
+          }
+        />
+
         {/* Protected Route */}
-        <Route 
-          path="/dashboard" 
+        <Route
+          path="/dashboard"
           element={
             user ? (
               <ProtectedLayout user={user} profile={profile} onLogout={handleLogout}>
@@ -158,10 +180,10 @@ export default function App() {
             ) : (
               <Navigate to="/login" />
             )
-          } 
+          }
         />
 
-        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
+        <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} />} />
       </Routes>
     </div>
   );

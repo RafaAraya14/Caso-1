@@ -1,0 +1,154 @@
+## CASO #1 - COACHING PLATFORM
+### UPDATED ARCHITECTURE DIAGRAM (POST FASE 1 & 2)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND LAYER (React + TypeScript)                     │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │   Auth Components │  │  Coach Components│  │ Session Components│ │Dashboard Components│ │
+│  │  • SimpleLogin   │  │  • CoachCard     │  │ • HireCoachButton │ │  • Dashboard     │ │
+│  │  • LoginForm     │  │  • CoachList     │  │ • SessionManager  │ │  • Analytics     │ │
+│  │  • AuthProvider  │  │  • CoachProfile  │  │                   │ │                  │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+│                                                                                       │
+│  ┌─────────────────────────────────────────────────────────────────────────────────┐ │
+│  │                        UI COMPONENTS (Reusable)                                  │ │
+│  │    Button  │  Card  │  Input  │  Modal  │  ThemeToggle  │  Loading  │  Error     │ │
+│  └─────────────────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                                            │
+                                            ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                         BUSINESS LOGIC LAYER (FASE 1)                              │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │  Business Rules │  │   Use Cases     │  │      DTOs       │  │   Validators    │ │
+│  │  • SessionRules │  │ • BookSessionUC │  │ • CreateSession │  │ • BaseValidator │ │
+│  │  • CoachRules   │  │ • SearchCoachUC │  │ • SearchCoach   │  │ • SessionValid  │ │
+│  │  • CreditRules  │  │ • PaymentUC     │  │ • PaymentDTO    │  │ • CoachValid    │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+│                                                                                       │
+│  ┌─────────────────────────────────────────────────────────────────────────────────┐ │
+│  │                          TRANSFORMERS (Factory Pattern)                         │ │
+│  │      CoachTransformer  │  SessionTransformer  │  UserTransformer                │ │
+│  └─────────────────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                                            │
+                                            ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                  BACKGROUND JOBS & EVENT SYSTEM (FASE 2)                           │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────────────────────────────────────────────────────────────────┐ │
+│  │                         EVENT BUS (Singleton Pattern)                           │ │
+│  │  • Real-time event publishing/subscribing • Async job management               │ │
+│  │  • Event type filtering • Event history • Error handling                       │ │
+│  └─────────────────────────────────────────────────────────────────────────────────┘ │
+│                                            │                                         │
+│  ┌─────────────────┐  ┌─────────────────┐  │  ┌─────────────────┐                   │
+│  │ NotificationSvc │  │ Event Listeners │  │  │ Background Jobs │                   │
+│  │  (Singleton)    │  │ • SessionListener│  │  │ • EmailService  │                   │
+│  │ • Email alerts  │  │ • CoachListener │  │  │ • ReportGenerat │                   │
+│  │ • Push notifs   │  │ • UserListener  │  │  │ • DataCleanup   │                   │
+│  └─────────────────┘  └─────────────────┘  │  └─────────────────┘                   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                                            │
+                                            ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                         UTILITIES LAYER (FASE 2)                                   │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │  ConfigManager  │  │  CacheManager   │  │   Formatters    │  │  Validation     │ │
+│  │   (Singleton)   │  │  (Strategy)     │  │ • DateFormatter │  │ • ValidationUtils│ │
+│  │ • Environment   │  │ • Memory Cache  │  │ • StringFormat  │  │ • ArrayUtils    │ │
+│  │ • API Keys      │  │ • Persistent    │  │ • NumberFormat  │  │ • ObjectUtils   │ │
+│  │ • Settings      │  │ • Redis Cache   │  │                 │  │ • BrowserUtils  │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                                            │
+                                            ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                            SERVICES LAYER                                          │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐                     │
+│  │ PaymentService  │  │ SessionService  │  │   API Layer     │                     │
+│  │ • Stripe integ  │  │ • Booking logic │  │ • CoachAPI      │                     │
+│  │ • Credit system │  │ • Notifications │  │ • SupabaseAPI   │                     │
+│  │ • Refunds       │  │ • Scheduling    │  │ • External APIs │                     │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                                            │
+                                            ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                              DATA LAYER                                            │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐                     │
+│  │ Domain Models   │  │ Supabase DB     │  │ Supabase Storage│                     │
+│  │ • Coach         │  │ • Users table   │  │ • Profile pics  │                     │
+│  │ • User          │  │ • Sessions table│  │ • Documents     │                     │
+│  │ • Session       │  │ • Coaches table │  │ • Videos        │                     │
+│  │ • Payment       │  │ • Payments table│  │                 │                     │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                                            │
+                                            ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                         INFRASTRUCTURE LAYER                                       │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │   Middleware    │  │ Error Handling  │  │ Logging System  │  │  React Hooks    │ │
+│  │ • AuthIntercept │  │ • CustomError   │  │ • Logger        │  │ • useAuth       │ │
+│  │ • ErrorHandler  │  │ • ErrorHandler  │  │ • Analytics     │  │ • useCoachSearch│ │
+│  │ • RequestLogger │  │ • ErrorBoundary │  │ • Monitoring    │  │ • useTheme      │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════════════
+                              DESIGN PATTERNS IMPLEMENTED
+═══════════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│  SINGLETON      │ │   STRATEGY      │ │   OBSERVER      │ │   FACTORY       │
+│ • EventBus      │ │ • BaseValidator │ │ • EventBus      │ │ • Transformers  │
+│ • NotificationSvc│ │ • CacheManager  │ │ • Listeners     │ │ • UseCases      │
+│ • ConfigManager │ │ • CacheStrategy │ │ • Subscribers   │ │ • Validators    │
+└─────────────────┘ └─────────────────┘ └─────────────────┘ └─────────────────┘
+
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│   COMMAND       │ │   BUILDER       │ │    FACADE       │ │  REPOSITORY     │
+│ • UseCases      │ │ • DTO Builders  │ │ • SessionFacade │ │ • Data Access   │
+│ • CommandBus    │ │ • Query Builder │ │ • CoachFacade   │ │ • Abstractions  │
+│ • Async Commands│ │ • Config Builder│ │ • API Facade    │ │ • Interfaces    │
+└─────────────────┘ └─────────────────┘ └─────────────────┘ └─────────────────┘
+
+┌─────────────────┐ ┌─────────────────┐
+│   DECORATOR     │ │   COMPOSITE     │
+│ • Logging       │ │ • Validation    │
+│ • Caching       │ │ • Forms         │
+│ • Validation    │ │ • UI Components │
+└─────────────────┘ └─────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════════════
+                                  TECHNOLOGY STACK
+═══════════════════════════════════════════════════════════════════════════════════════
+
+Frontend:           Backend:            Development:        Deployment:
+• React 18.2.0      • Supabase 2.58.0   • Jest 29.7.0      • Vercel/Netlify
+• TypeScript 5.2.2  • PostgreSQL        • ESLint           • GitHub Actions
+• Vite 6.3.6        • Realtime subs     • Prettier         • Docker (optional)
+• Tailwind CSS      • Row Level Security• Husky Git Hooks   • CI/CD Pipeline
+
+═══════════════════════════════════════════════════════════════════════════════════════
+
+Key Features Implemented:
+✅ N-layer architecture with separation of concerns
+✅ 10 design patterns for maintainable code
+✅ Real-time event system with pub/sub pattern
+✅ Comprehensive utility system with professional formatters
+✅ Background job processing with event-driven architecture
+✅ Complete business logic layer with validation and transformation
+✅ Error handling and logging throughout all layers
+✅ Type-safe DTOs and data transformation
+✅ Caching strategies for performance optimization
+✅ Professional code organization and documentation
+```

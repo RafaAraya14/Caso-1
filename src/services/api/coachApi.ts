@@ -1,8 +1,8 @@
 // src/services/api/coachApi.ts
-import { supabase } from '../../lib/supabase';
-import { Coach } from '../../models/Coach';
-import { logger } from '../../logging';
 import { ErrorHandler } from '../../error-handling';
+import { supabase } from '../../lib/supabase';
+import { logger } from '../../logging';
+import { Coach } from '../../models/Coach';
 
 /**
  * Convierte datos de la base de datos a un objeto Coach
@@ -10,11 +10,11 @@ import { ErrorHandler } from '../../error-handling';
 function mapToCoach(data: Record<string, unknown>): Coach {
   return new Coach(
     data.id?.toString() || '0',
-    data.name as string || 'Unknown Coach',
-    data.rating as number || 0,
-    data.specialties as string[] || [],
-    data.is_available as boolean || false,
-    data.sessions_today as number || 0
+    (data.name as string) || 'Unknown Coach',
+    (data.rating as number) || 0,
+    (data.specialties as string[]) || [],
+    (data.is_available as boolean) || false,
+    (data.sessions_today as number) || 0
   );
 }
 
@@ -24,7 +24,7 @@ function mapToCoach(data: Record<string, unknown>): Coach {
 export async function getAllCoaches(): Promise<Coach[]> {
   try {
     logger.api('GetAllCoaches', 'Fetching all coaches from database');
-    
+
     const { data, error } = await supabase
       .from('coaches')
       .select('*')
@@ -35,16 +35,16 @@ export async function getAllCoaches(): Promise<Coach[]> {
     }
 
     const coaches = (data || []).map(mapToCoach);
-    
+
     logger.api('GetAllCoaches', 'Coaches fetched successfully', {
-      metadata: { count: coaches.length }
+      metadata: { count: coaches.length },
     });
-    
+
     return coaches;
   } catch (error) {
     const errorMessage = ErrorHandler.handle(error, {
       component: 'CoachAPI',
-      action: 'GetAllCoaches'
+      action: 'GetAllCoaches',
     });
     throw new Error(errorMessage);
   }
@@ -56,12 +56,8 @@ export async function getAllCoaches(): Promise<Coach[]> {
 export async function getCoachById(id: string): Promise<Coach | null> {
   try {
     logger.api('GetCoachById', `Fetching coach with ID: ${id}`);
-    
-    const { data, error } = await supabase
-      .from('coaches')
-      .select('*')
-      .eq('id', id)
-      .single();
+
+    const { data, error } = await supabase.from('coaches').select('*').eq('id', id).single();
 
     if (error) {
       if (error.code === 'PGRST116') {
@@ -74,7 +70,7 @@ export async function getCoachById(id: string): Promise<Coach | null> {
   } catch (error) {
     const errorMessage = ErrorHandler.handle(error, {
       component: 'CoachAPI',
-      action: 'GetCoachById'
+      action: 'GetCoachById',
     });
     throw new Error(errorMessage);
   }
@@ -88,7 +84,7 @@ const mockCoaches: Coach[] = [
   new Coach('2', 'Bruno Silva', 4.6, ['Business Coaching', 'Leadership'], true, 1),
   new Coach('3', 'Carla López', 4.9, ['Health & Wellness', 'Nutrition'], true, 0),
   new Coach('4', 'David Rodriguez', 4.4, ['Mindfulness', 'Stress Management'], false, 5),
-  new Coach('5', 'Elena Martín', 4.7, ['Executive Coaching', 'Communication'], true, 3)
+  new Coach('5', 'Elena Martín', 4.7, ['Executive Coaching', 'Communication'], true, 3),
 ];
 
 /**
@@ -101,9 +97,9 @@ export async function getAllCoachesWithFallback(): Promise<Coach[]> {
   } catch {
     logger.warn('Failed to fetch coaches from database, using mock data', {
       component: 'CoachAPI',
-      action: 'GetAllCoachesWithFallback'
+      action: 'GetAllCoachesWithFallback',
     });
-    
+
     // Retornar mock data si falla
     return mockCoaches;
   }

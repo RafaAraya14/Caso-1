@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+
 import { Button } from '../../ui/Button';
 import { Input } from '../../ui/Input';
-import { Card } from '../../ui/Card';
 
 interface Coach {
   id: string;
@@ -30,7 +30,7 @@ const mockCoaches: Coach[] = [
     avatar: '👨‍🔧',
     isAvailable: true,
     responseTime: '< 2 min',
-    experience: '8 años'
+    experience: '8 años',
   },
   {
     id: '2',
@@ -43,7 +43,7 @@ const mockCoaches: Coach[] = [
     avatar: '👩‍⚕️',
     isAvailable: true,
     responseTime: '< 5 min',
-    experience: '12 años'
+    experience: '12 años',
   },
   {
     id: '3',
@@ -56,7 +56,7 @@ const mockCoaches: Coach[] = [
     avatar: '👩‍🎨',
     isAvailable: false,
     responseTime: '< 10 min',
-    experience: '6 años'
+    experience: '6 años',
   },
   {
     id: '4',
@@ -69,8 +69,8 @@ const mockCoaches: Coach[] = [
     avatar: '👨‍💻',
     isAvailable: true,
     responseTime: '< 3 min',
-    experience: '10 años'
-  }
+    experience: '10 años',
+  },
 ];
 
 const specialties = [
@@ -82,7 +82,7 @@ const specialties = [
   'Salud y Bienestar',
   'Derecho',
   'Agricultura',
-  'Servicios Cloud'
+  'Servicios Cloud',
 ];
 
 export const CoachSearch: React.FC = () => {
@@ -96,16 +96,15 @@ export const CoachSearch: React.FC = () => {
     let filteredCoaches = mockCoaches;
 
     if (searchQuery) {
-      filteredCoaches = filteredCoaches.filter(coach =>
-        coach.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        coach.specialty.toLowerCase().includes(searchQuery.toLowerCase())
+      filteredCoaches = filteredCoaches.filter(
+        coach =>
+          coach.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          coach.specialty.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (selectedSpecialty !== 'Todas las especialidades') {
-      filteredCoaches = filteredCoaches.filter(coach =>
-        coach.specialty === selectedSpecialty
-      );
+      filteredCoaches = filteredCoaches.filter(coach => coach.specialty === selectedSpecialty);
     }
 
     if (showOnlyAvailable) {
@@ -129,8 +128,8 @@ export const CoachSearch: React.FC = () => {
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               onClick={() => setSelectedCoach(null)}
               className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-200 border-gray-700"
             >
@@ -146,14 +145,18 @@ export const CoachSearch: React.FC = () => {
               <div className="text-center lg:text-left">
                 <div className="relative inline-block mb-6">
                   <div className="text-8xl mb-4">{selectedCoach.avatar}</div>
-                  <div className={`absolute -bottom-2 -right-2 flex items-center px-4 py-2 rounded-full text-sm font-medium ${
-                    selectedCoach.isAvailable 
-                      ? 'bg-green-500 text-white' 
-                      : 'bg-gray-600 text-gray-300'
-                  }`}>
-                    <div className={`w-3 h-3 rounded-full mr-2 ${
-                      selectedCoach.isAvailable ? 'bg-white' : 'bg-gray-400'
-                    }`}></div>
+                  <div
+                    className={`absolute -bottom-2 -right-2 flex items-center px-4 py-2 rounded-full text-sm font-medium ${
+                      selectedCoach.isAvailable
+                        ? 'bg-green-500 text-white'
+                        : 'bg-gray-600 text-gray-300'
+                    }`}
+                  >
+                    <div
+                      className={`w-3 h-3 rounded-full mr-2 ${
+                        selectedCoach.isAvailable ? 'bg-white' : 'bg-gray-400'
+                      }`}
+                    />
                     {selectedCoach.isAvailable ? 'Disponible' : 'Ocupado'}
                   </div>
                 </div>
@@ -163,7 +166,7 @@ export const CoachSearch: React.FC = () => {
               <div className="flex-1">
                 <h2 className="text-4xl font-bold text-white mb-3">{selectedCoach.name}</h2>
                 <p className="text-2xl text-blue-400 mb-6">{selectedCoach.specialty}</p>
-                
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
@@ -184,7 +187,7 @@ export const CoachSearch: React.FC = () => {
                       <span>{selectedCoach.experience} de experiencia</span>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gray-900 rounded-xl p-6 border border-gray-600">
                     <div className="text-4xl font-bold text-green-400 mb-2">
                       ${selectedCoach.price.toLocaleString()}
@@ -195,19 +198,19 @@ export const CoachSearch: React.FC = () => {
 
                 {/* Action Buttons */}
                 <div className="flex gap-4">
-                  <Button 
-                    variant="primary" 
+                  <Button
+                    variant="primary"
                     onClick={() => handleBookSession(selectedCoach)}
                     disabled={!selectedCoach.isAvailable}
                     className={`px-8 py-4 text-lg font-semibold rounded-xl flex items-center gap-3 ${
-                      selectedCoach.isAvailable 
-                        ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                      selectedCoach.isAvailable
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                     }`}
                   >
                     {selectedCoach.isAvailable ? '🎥 Conectar Ahora' : 'No Disponible'}
                   </Button>
-                  <Button 
+                  <Button
                     variant="secondary"
                     className="px-8 py-4 text-lg font-semibold rounded-xl bg-gray-700 hover:bg-gray-600 text-gray-200 border border-gray-600"
                   >
@@ -222,9 +225,10 @@ export const CoachSearch: React.FC = () => {
           <div className="bg-gray-800 rounded-2xl p-8 mb-6 border border-gray-700">
             <h3 className="text-2xl font-bold text-white mb-6">Sobre {selectedCoach.name}</h3>
             <p className="text-gray-300 text-lg leading-relaxed">
-              Especialista en {selectedCoach.specialty.toLowerCase()} con {selectedCoach.experience} de experiencia. 
-              Ayudo a resolver problemas específicos en sesiones de 20 minutos enfocadas y efectivas. 
-              Mi enfoque es práctico y directo, buscando siempre dar soluciones concretas.
+              Especialista en {selectedCoach.specialty.toLowerCase()} con {selectedCoach.experience}{' '}
+              de experiencia. Ayudo a resolver problemas específicos en sesiones de 20 minutos
+              enfocadas y efectivas. Mi enfoque es práctico y directo, buscando siempre dar
+              soluciones concretas.
             </p>
           </div>
 
@@ -239,8 +243,8 @@ export const CoachSearch: React.FC = () => {
                   <span className="text-gray-400">hace 2 días</span>
                 </div>
                 <p className="text-gray-300 text-lg">
-                  Excelente sesión. Me ayudó a identificar el problema de mi auto en minutos. 
-                  Muy profesional y directo.
+                  Excelente sesión. Me ayudó a identificar el problema de mi auto en minutos. Muy
+                  profesional y directo.
                 </p>
               </div>
               <div className="border-b border-gray-700 pb-6">
@@ -280,14 +284,14 @@ export const CoachSearch: React.FC = () => {
               <Input
                 placeholder="¿Qué necesitas? Ej: 'Mi auto hace ruido'"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
                 className="bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-lg py-4 px-6 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div>
               <select
                 value={selectedSpecialty}
-                onChange={(e) => setSelectedSpecialty(e.target.value)}
+                onChange={e => setSelectedSpecialty(e.target.value)}
                 className="w-full px-6 py-4 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {specialties.map(specialty => (
@@ -298,8 +302,8 @@ export const CoachSearch: React.FC = () => {
               </select>
             </div>
             <div>
-              <Button 
-                onClick={handleSearch} 
+              <Button
+                onClick={handleSearch}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 px-6 rounded-xl text-lg font-semibold transition-colors"
               >
                 🔍 Buscar Coaches
@@ -312,7 +316,7 @@ export const CoachSearch: React.FC = () => {
               <input
                 type="checkbox"
                 checked={showOnlyAvailable}
-                onChange={(e) => setShowOnlyAvailable(e.target.checked)}
+                onChange={e => setShowOnlyAvailable(e.target.checked)}
                 className="w-5 h-5 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500"
               />
               <span className="text-gray-300 text-lg">Solo disponibles ahora</span>
@@ -325,25 +329,29 @@ export const CoachSearch: React.FC = () => {
 
         {/* Results */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {coaches.map((coach) => (
+          {coaches.map(coach => (
             <div key={coach.id} onClick={() => handleCoachSelect(coach)}>
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-300 dark:border-gray-700 hover:border-blue-500 transition-all cursor-pointer hover:shadow-xl hover:shadow-blue-500/10">
                 {/* Coach Card Content */}
                 <div className="text-center mb-6">
                   <div className="text-5xl mb-4">{coach.avatar}</div>
-                  <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${
-                    coach.isAvailable 
-                      ? 'bg-green-500 text-white' 
-                      : 'bg-gray-600 text-gray-300'
-                  }`}>
-                    <div className={`w-2 h-2 rounded-full mr-2 ${
-                      coach.isAvailable ? 'bg-white' : 'bg-gray-400'
-                    }`}></div>
+                  <div
+                    className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${
+                      coach.isAvailable ? 'bg-green-500 text-white' : 'bg-gray-600 text-gray-300'
+                    }`}
+                  >
+                    <div
+                      className={`w-2 h-2 rounded-full mr-2 ${
+                        coach.isAvailable ? 'bg-white' : 'bg-gray-400'
+                      }`}
+                    />
                     {coach.isAvailable ? 'Disponible' : 'Ocupado'}
                   </div>
                 </div>
 
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 text-center">{coach.name}</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 text-center">
+                  {coach.name}
+                </h3>
                 <p className="text-blue-400 text-center mb-6">{coach.specialty}</p>
 
                 <div className="space-y-4 mb-6">
@@ -364,11 +372,11 @@ export const CoachSearch: React.FC = () => {
                   </div>
                 </div>
 
-                <Button 
-                  variant={coach.isAvailable ? "primary" : "secondary"}
+                <Button
+                  variant={coach.isAvailable ? 'primary' : 'secondary'}
                   className={`w-full py-3 rounded-xl font-semibold transition-colors ${
-                    coach.isAvailable 
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    coach.isAvailable
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
                       : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
                   }`}
                   disabled={!coach.isAvailable}
@@ -383,12 +391,8 @@ export const CoachSearch: React.FC = () => {
         {coaches.length === 0 && (
           <div className="text-center py-16">
             <div className="text-8xl mb-6">🔍</div>
-            <h3 className="text-2xl font-semibold text-white mb-4">
-              No se encontraron coaches
-            </h3>
-            <p className="text-gray-400 text-lg">
-              Intenta ajustar tus filtros de búsqueda
-            </p>
+            <h3 className="text-2xl font-semibold text-white mb-4">No se encontraron coaches</h3>
+            <p className="text-gray-400 text-lg">Intenta ajustar tus filtros de búsqueda</p>
           </div>
         )}
       </div>

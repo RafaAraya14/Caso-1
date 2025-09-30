@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { supabase } from '../../lib/supabase';
-import { User } from '@supabase/supabase-js';
 
 interface SimpleLoginFormProps {
   onLoginSuccess: () => void;
@@ -10,27 +11,32 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
-    setMessage('');
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
+      setIsLoading(true);
+      setError('');
+
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      if (error) {
-        setMessage(`❌ Error: ${error.message}`);
-      } else {
-        setMessage('✅ Login successful! Redirecting...');
-        onLoginSuccess();
+      if (signInError) {
+        setError(signInError.message);
+        return;
       }
-    } catch (error) {
-      setMessage('❌ Unexpected error occurred');
+
+      if (data.user) {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -42,8 +48,8 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
 
     try {
       const { data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
+        email,
+        password,
       });
 
       if (error) {
@@ -58,15 +64,9 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
     }
   };
 
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) {
-      // This component no longer handles logout state directly
-      // The parent component (App.tsx) will handle it
-      setMessage('👋 Logged out successfully');
-      setEmail('');
-      setPassword('');
-    }
+  // Esta función se podría usar para logout
+  const _handleLogout = () => {
+    supabase.auth.signOut();
   };
 
   return (
@@ -79,7 +79,9 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
 
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-500/30 rounded-xl p-4 mb-6">
           <h3 className="text-blue-800 dark:text-blue-300 font-semibold mb-2">🔐 Real Auth:</h3>
-          <p className="text-sm text-blue-700 dark:text-blue-200">This connects to actual Supabase authentication</p>
+          <p className="text-sm text-blue-700 dark:text-blue-200">
+            This connects to actual Supabase authentication
+          </p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -90,7 +92,7 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               placeholder="your@email.com"
               required
               className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -104,7 +106,7 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
               required
               className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -119,7 +121,7 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
             >
               {isLoading ? '⏳ Logging in...' : '🔐 Login'}
             </button>
-            
+
             <button
               type="button"
               onClick={handleSignUp}
@@ -132,11 +134,12 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
         </form>
 
         {message && (
-          <div className={`mt-4 p-4 rounded-xl ${
-            message.includes('❌') 
-              ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 text-red-800 dark:text-red-300' 
-              : 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-500/30 text-green-800 dark:text-green-300'
-          }`}>
+          <div
+            className={`mt-4 p-4 rounded-xl ${message.includes('❌')
+                ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 text-red-800 dark:text-red-300'
+                : 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-500/30 text-green-800 dark:text-green-300'
+              }`}
+          >
             <p className="text-sm">{message}</p>
           </div>
         )}

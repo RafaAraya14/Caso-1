@@ -1,7 +1,7 @@
 // src/services/SessionService.ts
+import { ErrorHandler, CustomError } from '../error-handling';
 import { supabase } from '../lib/supabase';
 import { logger } from '../logging';
-import { ErrorHandler, CustomError } from '../error-handling';
 
 /**
  * Crea una sesión y consume 1 crédito del último paquete del usuario.
@@ -17,9 +17,9 @@ export async function createSessionAndConsumeCredit(
 ): Promise<string> {
   logger.session('CreateSession', 'Iniciando creación de sesión', {
     userId,
-    metadata: { coachId }
+    metadata: { coachId },
   });
-  
+
   try {
     // 1) Buscar el último paquete del usuario (el "activo")
     const { data: pkg, error: pkgError } = await supabase
@@ -33,23 +33,19 @@ export async function createSessionAndConsumeCredit(
     if (pkgError) {
       throw CustomError.database(`Error al cargar paquete: ${pkgError.message}`);
     }
-    
+
     if (!pkg) {
-      throw CustomError.businessLogic(
-        'No user packages found',
-        'No tienes paquetes activos.'
-      );
+      throw CustomError.businessLogic('No user packages found', 'No tienes paquetes activos.');
     }
-    
+
     if ((pkg.creditsremaining ?? 0) <= 0) {
-      throw CustomError.businessLogic(
-        'No credits available',
-        'No tienes créditos disponibles.'
-      );
+      throw CustomError.businessLogic('No credits available', 'No tienes créditos disponibles.');
     }
 
     // 2) Crear la sesión
-    type SessionRow = { id: string };
+    interface SessionRow {
+      id: string;
+    }
     const { data: session, error: sessionError } = await supabase
       .from('sessions')
       .insert({ userid: userId, coachid: coachId, createdat: new Date().toISOString() })
@@ -73,27 +69,27 @@ export async function createSessionAndConsumeCredit(
         await supabase.from('sessions').delete().eq('id', session.id);
         logger.session('CreateSession', 'Rollback de sesión completado', {
           userId,
-          sessionId: session.id
+          sessionId: session.id,
         });
       } catch (rollbackError) {
         logger.error('Error durante rollback de sesión', rollbackError as Error, {
           component: 'Session',
           action: 'CreateSession',
           userId,
-          sessionId: session.id
+          sessionId: session.id,
         });
       }
-      
+
       throw CustomError.database(`No se pudo descontar el crédito: ${updError.message}`);
     }
 
     logger.session('CreateSession', 'Sesión creada y crédito descontado exitosamente', {
       userId,
       sessionId: session.id,
-      metadata: { 
+      metadata: {
         coachId,
-        creditsRemaining: (pkg.creditsremaining as number) - 1
-      }
+        creditsRemaining: (pkg.creditsremaining as number) - 1,
+      },
     });
 
     return session.id;
@@ -101,16 +97,14 @@ export async function createSessionAndConsumeCredit(
     const errorMessage = ErrorHandler.handle(error, {
       component: 'Session',
       action: 'CreateSession',
-      userId
+      userId,
     });
-    
+
     // Re-lanzar el error para que el llamador pueda manejarlo
     if (error instanceof CustomError) {
       throw error;
     } else {
-      throw CustomError.database(
-        `Error inesperado creando sesión: ${errorMessage}`
-      );
+      throw CustomError.database(`Error inesperado creando sesión: ${errorMessage}`);
     }
   }
 }

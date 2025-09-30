@@ -1,7 +1,7 @@
 // src/middleware/authInterceptor.ts
+import { CustomError } from '../error-handling';
 import { supabase } from '../lib/supabase';
 import { logger } from '../logging';
-import { CustomError } from '../error-handling';
 
 /**
  * Interceptor para agregar automáticamente tokens de autenticación a las requests
@@ -11,7 +11,10 @@ export class AuthInterceptor {
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
   private isRefreshing = false;
-  private failedQueue: Array<{ resolve: (value?: unknown) => void; reject: (reason?: unknown) => void }> = [];
+  private failedQueue: {
+    resolve: (value?: unknown) => void;
+    reject: (reason?: unknown) => void;
+  }[] = [];
 
   private constructor() {
     this.initializeTokens();
@@ -27,19 +30,21 @@ export class AuthInterceptor {
 
   private async initializeTokens(): Promise<void> {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session) {
         this.accessToken = session.access_token;
         this.refreshToken = session.refresh_token;
         logger.debug('Auth tokens initialized', {
           component: 'AuthInterceptor',
-          action: 'InitializeTokens'
+          action: 'InitializeTokens',
         });
       }
     } catch (error) {
       logger.error('Failed to initialize auth tokens', error as Error, {
         component: 'AuthInterceptor',
-        action: 'InitializeTokens'
+        action: 'InitializeTokens',
       });
     }
   }
@@ -49,23 +54,21 @@ export class AuthInterceptor {
       logger.debug(`Auth state changed: ${event}`, {
         component: 'AuthInterceptor',
         action: 'AuthStateChange',
-        metadata: { event, hasSession: !!session }
+        metadata: { event, hasSession: !!session },
       });
 
       if (session) {
         this.accessToken = session.access_token;
         this.refreshToken = session.refresh_token;
-        
+
         // Procesar cola de requests fallidas
         this.processFailedQueue(null);
       } else {
         this.accessToken = null;
         this.refreshToken = null;
-        
+
         // Rechazar requests en cola
-        this.processFailedQueue(
-          CustomError.authentication('Session expired, please login again')
-        );
+        this.processFailedQueue(CustomError.authentication('Session expired, please login again'));
       }
     });
   }
@@ -78,7 +81,7 @@ export class AuthInterceptor {
         resolve();
       }
     });
-    
+
     this.failedQueue = [];
     this.isRefreshing = false;
   }
@@ -88,11 +91,11 @@ export class AuthInterceptor {
    */
   async interceptRequest(url: string, options: RequestInit = {}): Promise<Response> {
     const requestId = Math.random().toString(36).substr(2, 9);
-    
+
     logger.debug('Intercepting request', {
       component: 'AuthInterceptor',
       action: 'InterceptRequest',
-      metadata: { url, requestId, hasToken: !!this.accessToken }
+      metadata: { url, requestId, hasToken: !!this.accessToken },
     });
 
     // Agregar headers de autorización si existe token
@@ -100,58 +103,61 @@ export class AuthInterceptor {
     if (this.accessToken) {
       headers.set('Authorization', `Bearer ${this.accessToken}`);
     }
-    
+
     // Agregar headers adicionales
     headers.set('Content-Type', 'application/json');
     headers.set('X-Request-ID', requestId);
-    
+
     const modifiedOptions: RequestInit = {
       ...options,
-      headers
+      headers,
     };
 
     try {
       const response = await fetch(url, modifiedOptions);
-      
+
       // Si el token expiró, intentar refrescar
       if (response.status === 401 && this.accessToken) {
         logger.warn('Token expired, attempting refresh', {
           component: 'AuthInterceptor',
           action: 'TokenRefresh',
-          metadata: { url, requestId }
+          metadata: { url, requestId },
         });
-        
+
         const refreshedResponse = await this.handleTokenRefresh(url, modifiedOptions);
         return refreshedResponse;
       }
-      
+
       // Log successful request
       if (response.ok) {
         logger.debug('Request completed successfully', {
           component: 'AuthInterceptor',
           action: 'RequestSuccess',
-          metadata: { url, status: response.status, requestId }
+          metadata: { url, status: response.status, requestId },
         });
       } else {
         logger.warn('Request failed', {
           component: 'AuthInterceptor',
           action: 'RequestFailed',
-          metadata: { url, status: response.status, requestId }
+          metadata: { url, status: response.status, requestId },
         });
       }
-      
+
       return response;
     } catch (error) {
       logger.error('Request error', error as Error, {
         component: 'AuthInterceptor',
         action: 'RequestError',
-        metadata: { url, requestId }
+        metadata: { url, requestId },
       });
       throw error;
     }
   }
 
-  private async handleTokenRefresh(originalUrl: string, originalOptions: RequestInit): Promise<Response> {
+  private async handleTokenRefresh(
+    originalUrl: string,
+    originalOptions: RequestInit
+  ): Promise<Response> {
     // Si ya estamos refrescando, agregar a la cola
     if (this.isRefreshing) {
       return new Promise((resolve, reject) => {
@@ -159,7 +165,7 @@ export class AuthInterceptor {
           resolve: () => {
             resolve(this.interceptRequest(originalUrl, originalOptions));
           },
-          reject
+          reject,
         });
       });
     }
@@ -168,33 +174,32 @@ export class AuthInterceptor {
 
     try {
       const { data, error } = await supabase.auth.refreshSession({
-        refresh_token: this.refreshToken!
+        refresh_token: this.refreshToken!,
       });
-      
+
       if (error || !data.session) {
         throw CustomError.authentication('Failed to refresh session');
       }
-      
+
       this.accessToken = data.session.access_token;
       this.refreshToken = data.session.refresh_token;
-      
+
       logger.info('Token refreshed successfully', {
         component: 'AuthInterceptor',
-        action: 'TokenRefresh'
+        action: 'TokenRefresh',
       });
-      
+
       // Procesar cola y reintentar request original
       this.processFailedQueue(null);
-      
+
       // Reintentar el request original con nuevo token
       const headers = new Headers(originalOptions.headers);
       headers.set('Authorization', `Bearer ${this.accessToken}`);
-      
+
       return fetch(originalUrl, {
         ...originalOptions,
-        headers
+        headers,
       });
-      
     } catch (error) {
       this.processFailedQueue(error as Error);
       throw error;
@@ -230,7 +235,7 @@ export class AuthInterceptor {
     this.refreshToken = null;
     logger.info('Auth tokens cleared', {
       component: 'AuthInterceptor',
-      action: 'ClearTokens'
+      action: 'ClearTokens',
     });
   }
 }
@@ -239,5 +244,5 @@ export class AuthInterceptor {
 export const authInterceptor = AuthInterceptor.getInstance();
 
 // Helper function para uso fácil
-export const authenticatedFetch = (url: string, options?: RequestInit) => 
+export const authenticatedFetch = (url: string, options?: RequestInit) =>
   authInterceptor.authenticatedFetch(url, options);

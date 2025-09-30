@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+
 import { supabase } from '../lib/supabase';
 
 /**
@@ -8,10 +9,12 @@ import { supabase } from '../lib/supabase';
 export function useUserCredits(userId?: string | null) {
   const q = useQuery({
     queryKey: ['credits', userId],
-    enabled: !!userId,          // solo corre si hay userId
-    staleTime: 60_000,          // 1 min "fresco" en cache
+    enabled: !!userId, // solo corre si hay userId
+    staleTime: 60_000, // 1 min "fresco" en cache
     queryFn: async () => {
-      if (!userId) return null;
+      if (!userId) {
+        return null;
+      }
       const { data, error } = await supabase
         .from('userpackages')
         .select('creditsremaining')
@@ -19,7 +22,9 @@ export function useUserCredits(userId?: string | null) {
         .order('purchasedat', { ascending: false })
         .limit(1)
         .maybeSingle();
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
       return (data?.creditsremaining ?? null) as number | null;
     },
   });

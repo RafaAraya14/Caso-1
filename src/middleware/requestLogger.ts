@@ -44,20 +44,20 @@ export class RequestLogger {
     const requestId = Math.random().toString(36).substr(2, 9);
     const timestamp = new Date().toISOString();
     const method = options.method || 'GET';
-    
+
     const requestData: RequestLogData = {
       url,
       method,
       headers: this.extractHeaders(options.headers),
       body: this.sanitizeBody(options.body),
       timestamp,
-      requestId
+      requestId,
     };
 
     // Guardar para calcular tiempo de respuesta
     this.activeRequests.set(requestId, {
       startTime: Date.now(),
-      data: requestData
+      data: requestData,
     });
 
     // Log del request
@@ -66,8 +66,8 @@ export class RequestLogger {
         requestId,
         headers: requestData.headers,
         bodySize: this.getBodySize(options.body),
-        url: this.sanitizeUrl(url)
-      }
+        url: this.sanitizeUrl(url),
+      },
     });
 
     return requestId;
@@ -82,7 +82,7 @@ export class RequestLogger {
       logger.warn('Response logged for unknown request', {
         component: 'RequestLogger',
         action: 'LogResponse',
-        metadata: { requestId }
+        metadata: { requestId },
       });
       return;
     }
@@ -106,8 +106,8 @@ export class RequestLogger {
           status: response.status,
           responseTime,
           url: this.sanitizeUrl(requestData.url),
-          method: requestData.method
-        }
+          method: requestData.method,
+        },
       });
     } else if (logLevel === 'warn') {
       logger.warn(message, {
@@ -118,8 +118,8 @@ export class RequestLogger {
           status: response.status,
           responseTime,
           url: this.sanitizeUrl(requestData.url),
-          method: requestData.method
-        }
+          method: requestData.method,
+        },
       });
     } else {
       logger.api('Response', message, {
@@ -128,8 +128,8 @@ export class RequestLogger {
           status: response.status,
           responseTime,
           url: this.sanitizeUrl(requestData.url),
-          method: requestData.method
-        }
+          method: requestData.method,
+        },
       });
     }
   }
@@ -142,24 +142,28 @@ export class RequestLogger {
     if (activeRequest) {
       const responseTime = Date.now() - activeRequest.startTime;
       const { data: requestData } = activeRequest;
-      
-      logger.error(`${requestData.method} ${this.sanitizeUrl(requestData.url)} - ERROR (${responseTime}ms)`, error, {
-        component: 'API',
-        action: 'RequestError',
-        metadata: {
-          requestId,
-          responseTime,
-          url: this.sanitizeUrl(requestData.url),
-          method: requestData.method
+
+      logger.error(
+        `${requestData.method} ${this.sanitizeUrl(requestData.url)} - ERROR (${responseTime}ms)`,
+        error,
+        {
+          component: 'API',
+          action: 'RequestError',
+          metadata: {
+            requestId,
+            responseTime,
+            url: this.sanitizeUrl(requestData.url),
+            method: requestData.method,
+          },
         }
-      });
-      
+      );
+
       this.activeRequests.delete(requestId);
     } else {
       logger.error('Request error for unknown request', error, {
         component: 'RequestLogger',
         action: 'LogError',
-        metadata: { requestId }
+        metadata: { requestId },
       });
     }
   }
@@ -169,7 +173,7 @@ export class RequestLogger {
    */
   async loggedFetch(url: string, options: RequestInit = {}): Promise<Response> {
     const requestId = this.logRequest(url, options);
-    
+
     try {
       const response = await fetch(url, options);
       this.logResponse(requestId, response);
@@ -181,10 +185,12 @@ export class RequestLogger {
   }
 
   private extractHeaders(headers?: HeadersInit): Record<string, string> | undefined {
-    if (!headers) return undefined;
-    
+    if (!headers) {
+      return undefined;
+    }
+
     const result: Record<string, string> = {};
-    
+
     if (headers instanceof Headers) {
       headers.forEach((value, key) => {
         if (!this.isSensitiveHeader(key)) {
@@ -204,19 +210,19 @@ export class RequestLogger {
         }
       });
     }
-    
+
     return Object.keys(result).length > 0 ? result : undefined;
   }
 
   private extractResponseHeaders(response: Response): Record<string, string> | undefined {
     const result: Record<string, string> = {};
-    
+
     response.headers.forEach((value, key) => {
       if (!this.isSensitiveHeader(key)) {
         result[key] = value;
       }
     });
-    
+
     return Object.keys(result).length > 0 ? result : undefined;
   }
 
@@ -226,8 +232,10 @@ export class RequestLogger {
   }
 
   private sanitizeBody(body: unknown): unknown {
-    if (!body) return undefined;
-    
+    if (!body) {
+      return undefined;
+    }
+
     try {
       if (typeof body === 'string') {
         const parsed = JSON.parse(body);
@@ -238,29 +246,31 @@ export class RequestLogger {
     } catch {
       return '[Non-JSON body]';
     }
-    
+
     return '[Binary body]';
   }
 
   private removeSensitiveFields(obj: unknown): unknown {
-    if (!obj || typeof obj !== 'object') return obj;
-    
+    if (!obj || typeof obj !== 'object') {
+      return obj;
+    }
+
     const sensitiveFields = ['password', 'token', 'secret', 'key', 'auth'];
     const result = { ...obj } as Record<string, unknown>;
-    
+
     sensitiveFields.forEach(field => {
       if (field in result) {
         result[field] = '[REDACTED]';
       }
     });
-    
+
     return result;
   }
 
   private sanitizeUrl(url: string): string {
     try {
       const urlObj = new URL(url);
-      
+
       // Remover parámetros sensibles
       const sensitiveParams = ['token', 'key', 'secret', 'password'];
       sensitiveParams.forEach(param => {
@@ -268,7 +278,7 @@ export class RequestLogger {
           urlObj.searchParams.set(param, '[REDACTED]');
         }
       });
-      
+
       return urlObj.toString();
     } catch {
       return url;
@@ -276,8 +286,10 @@ export class RequestLogger {
   }
 
   private getBodySize(body: unknown): number | undefined {
-    if (!body) return undefined;
-    
+    if (!body) {
+      return undefined;
+    }
+
     if (typeof body === 'string') {
       return new Blob([body]).size;
     } else if (body instanceof Blob) {
@@ -286,7 +298,7 @@ export class RequestLogger {
       // FormData no tiene size property, así que no podemos calcularlo fácilmente
       return undefined;
     }
-    
+
     return undefined;
   }
 
@@ -296,8 +308,12 @@ export class RequestLogger {
   }
 
   private getLogLevel(status: number): 'info' | 'warn' | 'error' {
-    if (status >= 500) return 'error';
-    if (status >= 400) return 'warn';
+    if (status >= 500) {
+      return 'error';
+    }
+    if (status >= 400) {
+      return 'warn';
+    }
     return 'info';
   }
 
@@ -311,15 +327,16 @@ export class RequestLogger {
   /**
    * Limpiar requests antiguos (para evitar memory leaks)
    */
-  cleanupOldRequests(maxAgeMs: number = 300000): void { // 5 minutos por defecto
+  cleanupOldRequests(maxAgeMs: number = 300000): void {
+    // 5 minutos por defecto
     const now = Date.now();
-    
+
     for (const [requestId, request] of this.activeRequests.entries()) {
       if (now - request.startTime > maxAgeMs) {
         logger.warn('Cleaning up old request', {
           component: 'RequestLogger',
           action: 'CleanupOldRequest',
-          metadata: { requestId, age: now - request.startTime }
+          metadata: { requestId, age: now - request.startTime },
         });
         this.activeRequests.delete(requestId);
       }
@@ -331,7 +348,7 @@ export class RequestLogger {
 export const requestLogger = RequestLogger.getInstance();
 
 // Helper function para uso fácil
-export const loggedFetch = (url: string, options?: RequestInit) => 
+export const loggedFetch = (url: string, options?: RequestInit) =>
   requestLogger.loggedFetch(url, options);
 
 // Setup cleanup periódico

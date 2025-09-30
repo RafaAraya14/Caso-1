@@ -4,7 +4,7 @@ export enum ErrorSeverity {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 export enum ErrorCategory {
@@ -15,7 +15,7 @@ export enum ErrorCategory {
   DATABASE = 'database',
   BUSINESS_LOGIC = 'business_logic',
   EXTERNAL_SERVICE = 'external_service',
-  SYSTEM = 'system'
+  SYSTEM = 'system',
 }
 
 export interface ErrorMetadata {
@@ -55,7 +55,7 @@ export class CustomError extends Error {
     super(message, { cause: options.cause });
     this.name = 'CustomError';
 
-    // 'code' unique code to identify the error 
+    // 'code' unique code to identify the error
     this.code = code;
 
     // 'friendlyMessage' safe and friendly message to show the user
@@ -66,12 +66,12 @@ export class CustomError extends Error {
     this.category = options.category ?? ErrorCategory.SYSTEM;
     this.isRetryable = options.isRetryable ?? false;
     this.statusCode = options.statusCode;
-    
+
     this.metadata = {
       timestamp: new Date().toISOString(),
       url: typeof window !== 'undefined' ? window.location.href : undefined,
       userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
-      ...options.metadata
+      ...options.metadata,
     };
 
     // Maintain proper stack trace
@@ -87,7 +87,7 @@ export class CustomError extends Error {
       {
         severity: ErrorSeverity.LOW,
         category: ErrorCategory.VALIDATION,
-        metadata: { field, value }
+        metadata: { field, value },
       }
     );
   }
@@ -100,7 +100,7 @@ export class CustomError extends Error {
       {
         severity: ErrorSeverity.HIGH,
         category: ErrorCategory.AUTHENTICATION,
-        statusCode: 401
+        statusCode: 401,
       }
     );
   }
@@ -113,7 +113,7 @@ export class CustomError extends Error {
       {
         severity: ErrorSeverity.HIGH,
         category: ErrorCategory.AUTHORIZATION,
-        statusCode: 403
+        statusCode: 403,
       }
     );
   }
@@ -126,7 +126,7 @@ export class CustomError extends Error {
       {
         severity: ErrorSeverity.MEDIUM,
         category: ErrorCategory.NETWORK,
-        isRetryable
+        isRetryable,
       }
     );
   }
@@ -139,21 +139,16 @@ export class CustomError extends Error {
       {
         severity: ErrorSeverity.HIGH,
         category: ErrorCategory.DATABASE,
-        statusCode: 500
+        statusCode: 500,
       }
     );
   }
 
   static businessLogic(message: string, friendlyMessage: string): CustomError {
-    return new CustomError(
-      message,
-      'BUSINESS_ERROR',
-      friendlyMessage,
-      {
-        severity: ErrorSeverity.MEDIUM,
-        category: ErrorCategory.BUSINESS_LOGIC
-      }
-    );
+    return new CustomError(message, 'BUSINESS_ERROR', friendlyMessage, {
+      severity: ErrorSeverity.MEDIUM,
+      category: ErrorCategory.BUSINESS_LOGIC,
+    });
   }
 
   static externalService(message: string, serviceName: string): CustomError {
@@ -165,15 +160,14 @@ export class CustomError extends Error {
         severity: ErrorSeverity.MEDIUM,
         category: ErrorCategory.EXTERNAL_SERVICE,
         isRetryable: true,
-        metadata: { serviceName }
+        metadata: { serviceName },
       }
     );
   }
 
   // Helper method to check if error should be shown to user
   shouldShowToUser(): boolean {
-    return this.severity !== ErrorSeverity.CRITICAL && 
-           this.category !== ErrorCategory.SYSTEM;
+    return this.severity !== ErrorSeverity.CRITICAL && this.category !== ErrorCategory.SYSTEM;
   }
 
   // Helper method to get user-friendly message
@@ -193,7 +187,7 @@ export class CustomError extends Error {
       isRetryable: this.isRetryable,
       statusCode: this.statusCode,
       metadata: this.metadata,
-      stack: this.stack
+      stack: this.stack,
     };
   }
 }
