@@ -330,7 +330,18 @@ export const CoachSearch: React.FC = () => {
         {/* Results */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {coaches.map(coach => (
-            <div key={coach.id} onClick={() => handleCoachSelect(coach)}>
+            <div
+              key={coach.id}
+              onClick={() => handleCoachSelect(coach)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleCoachSelect(coach);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+            >
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-300 dark:border-gray-700 hover:border-blue-500 transition-all cursor-pointer hover:shadow-xl hover:shadow-blue-500/10">
                 {/* Coach Card Content */}
                 <div className="text-center mb-6">
