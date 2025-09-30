@@ -2,13 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-
 /* Tipografía base y fondo oscuro */
 :root {
   color-scheme: dark;
 }
 
-html, body {
+html,
+body {
   @apply bg-slate-950 text-slate-100;
 }
 
@@ -56,8 +56,14 @@ html, body {
 
 /* Animaciones */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .fade-in {

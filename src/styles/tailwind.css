@@ -1,13 +1,13 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 /* Estilos base para tipografía */
 @layer base {
   html {
     font-family: system-ui, sans-serif;
   }
-  
+
   body {
     @apply antialiased;
   }
@@ -18,7 +18,7 @@
   .text-gradient {
     @apply bg-gradient-to-r from-brand-400 to-brand-600 bg-clip-text text-transparent;
   }
-  
+
   .glass {
     @apply bg-white/5 backdrop-blur-sm border border-white/10;
   }
