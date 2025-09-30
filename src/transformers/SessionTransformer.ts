@@ -15,7 +15,7 @@ export class SessionTransformer {
   /**
    * Convierte datos de solicitud y entidades a formato de API
    */
-  static toApiCreateData(dto: CreateSessionDTO, user: User, coach: Coach): any {
+  static toApiCreateData(dto: CreateSessionDTO, user: User, _coach: Coach): any {
     return {
       user_id: dto.userId,
       coach_id: dto.coachId,
@@ -34,7 +34,7 @@ export class SessionTransformer {
    */
   static fromApiCreateResponse(
     apiData: any,
-    originalRequest: CreateSessionDTO
+    _originalRequest: CreateSessionDTO
   ): CreateSessionResponseDTO {
     return {
       sessionId: apiData.id,

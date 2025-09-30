@@ -359,8 +359,8 @@ export const formatCompactNumber = (number: number): string => {
 
 export const convertCurrency = async (
   amount: number,
-  fromCurrency: string,
-  toCurrency: string
+  _fromCurrency: string,
+  _toCurrency: string
 ): Promise<number> => {
   // En una implementación real, esto haría una llamada a una API de exchange rates
   // Por ahora, retornamos el valor sin conversión
@@ -393,13 +393,11 @@ export const convertUnits = (value: number, fromUnit: string, toUnit: string): n
       day: 86400,
     },
   };
-
-  for (const [category, units] of Object.entries(conversions)) {
+  for (const [, units] of Object.entries(conversions)) {
     if (fromUnit in units && toUnit in units) {
       const valueInBase = value * units[fromUnit];
       return valueInBase / units[toUnit];
     }
   }
-
   throw new Error(`Cannot convert from ${fromUnit} to ${toUnit}`);
 };

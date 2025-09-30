@@ -318,7 +318,7 @@ export class SessionListener {
     console.log(`[SessionListener] Tracking active session: ${sessionId}`);
   }
 
-  private trackSessionCancellation(sessionId: string, reason: string, cancelledBy: string): void {
+  private trackSessionCancellation(sessionId: string, reason: string, _cancelledBy: string): void {
     // Analytics tracking
     console.log(`[SessionListener] Tracking cancellation: ${sessionId}, reason: ${reason}`);
   }

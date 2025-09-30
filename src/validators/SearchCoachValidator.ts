@@ -1,7 +1,7 @@
 // src/validators/SearchCoachValidator.ts
-import { BaseValidator } from './BaseValidator';
+// src/validators/SearchCoachValidator.ts
+import { BaseValidator, type ValidationResult } from './BaseValidator';
 
-import type { ValidationResult } from './BaseValidator';
 import type { SearchCoachDTO } from '../types/dtos/SearchCoachDTO';
 
 /**
@@ -222,7 +222,7 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
    */
   static validateBasicSearch(specialty?: string, minRating?: number): ValidationResult {
     const validator = new SearchCoachValidator();
-    const _data: SearchCoachDTO = { specialty, minRating };
+    // Data variable removed since it's not used
 
     // Solo validar los campos proporcionados
     const errors = [];

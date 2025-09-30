@@ -1,7 +1,6 @@
 // src/validators/CreateSessionValidator.ts
-import { BaseValidator } from './BaseValidator';
+import { BaseValidator, type ValidationResult } from './BaseValidator';
 
-import type { ValidationResult } from './BaseValidator';
 import type { CreateSessionDTO } from '../types/dtos/CreateSessionDTO';
 
 /**

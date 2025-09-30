@@ -45,7 +45,7 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess: _onLo
     setMessage('');
 
     try {
-      const { data: _data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
       });
@@ -60,11 +60,6 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess: _onLo
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Esta función se podría usar para logout
-  const _handleLogout = () => {
-    supabase.auth.signOut();
   };
 
   return (

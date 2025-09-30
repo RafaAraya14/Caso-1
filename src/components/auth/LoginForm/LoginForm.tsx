@@ -179,13 +179,12 @@ const LoginForm: React.FC = () => {
               disabled={loading}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold"
             >
-              {loading
-                ? mode === 'login'
-                  ? 'Iniciando sesión...'
-                  : 'Creando cuenta...'
-                : mode === 'login'
-                  ? '🔐 Iniciar Sesión'
-                  : '✨ Crear Cuenta'}
+              {(() => {
+                if (loading) {
+                  return mode === 'login' ? 'Iniciando sesión...' : 'Creando cuenta...';
+                }
+                return mode === 'login' ? '🔐 Iniciar Sesión' : '✨ Crear Cuenta';
+              })()}
             </Button>
 
             {err && (
