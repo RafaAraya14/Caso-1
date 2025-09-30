@@ -133,7 +133,7 @@ export class BookSessionUseCase {
   /**
    * Simula crear una sesión
    */
-  private static async createSession(request: BookSessionRequest, cost: number): Promise<string> {
+  private static async createSession(request: BookSessionRequest, _cost: number): Promise<string> {
     // Simulación - en implementación real sería persistencia
     const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 

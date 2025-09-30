@@ -222,7 +222,7 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
    */
   static validateBasicSearch(specialty?: string, minRating?: number): ValidationResult {
     const validator = new SearchCoachValidator();
-    const data: SearchCoachDTO = { specialty, minRating };
+    const _data: SearchCoachDTO = { specialty, minRating };
 
     // Solo validar los campos proporcionados
     const errors = [];

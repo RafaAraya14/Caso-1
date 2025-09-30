@@ -11,7 +11,7 @@ export const handleApiError = (
   if (error instanceof CustomError) {
     logger.error(error.message, error, {
       component: 'errorHandlerMiddleware',
-      metadata: { errorCode: (error as any).code }
+      metadata: { errorCode: (error as any).code },
     });
     // Return a friendly message based on the error type
     return error.friendlyMessage;

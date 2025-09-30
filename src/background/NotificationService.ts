@@ -272,7 +272,7 @@ export class NotificationService {
   /**
    * Simula obtener usuarios suscritos a un coach
    */
-  private async getSubscribedUsers(coachId: string): Promise<string[]> {
+  private async getSubscribedUsers(_coachId: string): Promise<string[]> {
     // Simulación - en implementación real vendría de base de datos
     return ['user1', 'user2', 'user3'];
   }

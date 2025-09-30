@@ -159,7 +159,7 @@ export class CoachListener {
   private async notifySubscribedUsers(
     coachId: string,
     coachName: string,
-    specialties: string[]
+    _specialties: string[]
   ): Promise<void> {
     // Obtener usuarios suscritos (simulado)
     const subscribedUsers = await this.getSubscribedUsers(coachId);
@@ -293,12 +293,12 @@ export class CoachListener {
     console.log(`[CoachListener] Updating benefits for coach ${coachId} to tier ${tier}`);
   }
 
-  private async getSubscribedUsers(coachId: string): Promise<string[]> {
+  private async getSubscribedUsers(_coachId: string): Promise<string[]> {
     // Simulación - en implementación real sería query a base de datos
     return ['user1', 'user2', 'user3'];
   }
 
-  private getUpcomingSessions(coachId: string): string[] {
+  private getUpcomingSessions(_coachId: string): string[] {
     // Simulación - en implementación real sería query a base de datos
     return ['session1', 'session2'];
   }

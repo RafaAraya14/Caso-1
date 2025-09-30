@@ -119,7 +119,7 @@ export const CoachSearch: React.FC = () => {
   };
 
   const handleBookSession = (coach: Coach) => {
-    alert(`¡Sesión solicitada con ${coach.name}! El coach será notificado.`);
+    console.log(`¡Sesión solicitada con ${coach.name}! El coach será notificado.`);
   };
 
   if (selectedCoach) {

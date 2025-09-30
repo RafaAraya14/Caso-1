@@ -7,11 +7,10 @@ interface SimpleLoginFormProps {
   onLoginSuccess: () => void;
 }
 
-const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => {
+const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess: _onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -20,7 +19,7 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
 
     try {
       setIsLoading(true);
-      setError('');
+      setMessage('');
 
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
@@ -28,7 +27,7 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
       });
 
       if (signInError) {
-        setError(signInError.message);
+        setMessage(signInError.message);
         return;
       }
 
@@ -36,18 +35,17 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
         navigate('/dashboard');
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      setMessage('An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }
   };
-
   const handleSignUp = async () => {
     setIsLoading(true);
     setMessage('');
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { data: _data, error } = await supabase.auth.signUp({
         email,
         password,
       });
@@ -86,10 +84,14 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
               Email
             </label>
             <input
+              id="email"
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
@@ -100,10 +102,14 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
               Password
             </label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
@@ -135,10 +141,11 @@ const SimpleLoginForm: React.FC<SimpleLoginFormProps> = ({ onLoginSuccess }) => 
 
         {message && (
           <div
-            className={`mt-4 p-4 rounded-xl ${message.includes('❌')
+            className={`mt-4 p-4 rounded-xl ${
+              message.includes('❌')
                 ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 text-red-800 dark:text-red-300'
                 : 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-500/30 text-green-800 dark:text-green-300'
-              }`}
+            }`}
           >
             <p className="text-sm">{message}</p>
           </div>

@@ -308,12 +308,12 @@ export class SessionListener {
     console.log(`[SessionListener] Cancelling reminders for session ${sessionId}`);
   }
 
-  private trackSessionCreation(sessionId: string, userId: string, coachId: string): void {
+  private trackSessionCreation(sessionId: string, _userId: string, _coachId: string): void {
     // Analytics tracking
     console.log(`[SessionListener] Tracking session creation: ${sessionId}`);
   }
 
-  private trackActiveSession(sessionId: string, userId: string, coachId: string): void {
+  private trackActiveSession(sessionId: string, _userId: string, _coachId: string): void {
     // Analytics tracking
     console.log(`[SessionListener] Tracking active session: ${sessionId}`);
   }

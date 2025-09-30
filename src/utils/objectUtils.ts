@@ -36,7 +36,7 @@ export const deepClone = <T>(obj: T): T => {
   if (typeof obj === 'object') {
     const cloned = {} as any;
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         cloned[key] = deepClone(obj[key]);
       }
     }
@@ -50,7 +50,7 @@ export const deepMerge = <T extends object, U extends object>(target: T, source:
   const result = { ...target } as any;
 
   for (const key in source) {
-    if (source.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(source, key)) {
       const sourceValue = source[key];
       const targetValue = result[key];
 
