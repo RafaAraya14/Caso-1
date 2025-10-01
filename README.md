@@ -23,6 +23,16 @@
 
 ---
 
+## 📚 Quick Documentation Access
+
+| Category | Location | Description |
+|----------|----------|-------------|
+| **Architecture** | `docs/archive/v2-text-updated/` | Latest architecture diagrams |
+| **Design Patterns** | `docs/Design-Patterns-Documentation.md` | 10 patterns implementation |
+| **Dev Guides** | `docs/guides/` | Component creation, linting, performance |
+| **Testing** | `docs/UX-Testing-Results.md` | UX testing methodology & results |
+| **Security** | `docs/Two-Factor-Authentication.md` | 2FA implementation guide |
+
 ## Project Overview
 
 ### System Description
@@ -1600,16 +1610,20 @@ components documented:
 ```
 Caso-1/
 ├── README.md                          # Complete design documentation
-├── diagrams/                          # Architecture visuals
-│   ├── Architecture Diagram.pdf      # N-Layer architecture diagram
-│   ├── Classes Diagram.pdf           # Object design with patterns
-│   ├── Architecture-Diagram-Updated.txt
-│   └── Classes-Diagram-Updated.txt
-├── docs/                              # Supporting documentation
-│   ├── UX-Testing-Results.md          # UX testing evidence
+├── docs/
+│   ├── archive/
+│   │   ├── v1-original/             # Initial PDF/JPG Diagrams
+│   │   ├── v2-text-updated/         # FASE 1&2 Updates (TXT)
+│   │   └── v3-markdown/             # Markdown Converted Version
+│   ├── guides/
+│   │   ├── Component-Creation-Guide.md
+│   │   ├── linting-guide.md
+│   │   ├── performance-hooks-guidelines.md
+│   │   └── Background-Jobs-Examples.md
 │   ├── Design-Patterns-Documentation.md
-│   ├── Background-Jobs-Examples.md
-│   └── ci-cd-pipeline.md
+│   ├── ci-cd-pipeline.md
+│   ├── UX-Testing-Results.md
+│   └── Two-Factor-Authentication.md
 ├── src/                               # Complete project structure
 │   ├── components/                    # UI Components layer
 │   ├── business/                      # Business logic layer
@@ -1905,16 +1919,21 @@ Caso-1/
 │   └── extensions.json         # Recommended VSCode extensions
 ├── coverage/                    # Test Coverage Reports
 │   └── lcov-report/            # Detailed coverage analysis
-├── diagrams/                    # Architecture Documentation
-│   ├── Architecture Diagram.pdf # Complete N-Layer architecture
-│   ├── Classes Diagram.pdf     # Design patterns & relationships
-│   ├── Architecture-Diagram-Updated.txt # Updated architecture notes
-│   └── Classes-Diagram-Updated.txt # Updated class relationships
-├── docs/                        # Project Documentation
-│   ├── UX-Testing-Results.md   # Complete UX testing evidence
-│   ├── Design-Patterns-Documentation.md # Pattern implementation guide
-│   ├── Background-Jobs-Examples.md # Event system documentation
-│   └── ci-cd-pipeline.md       # DevOps & deployment guide
+docs/
+├── guides/                      # Development Guide 
+│   ├── Component-Creation-Guide.md
+│   ├── linting-guide.md
+│   ├── performance-hooks-guidelines.md
+│   └── Background-Jobs-Examples.md
+├── archive/                    # Version History  
+│   ├── README.md               # Archive Description  
+│   ├── v1-original/
+│   ├── v2-text-updated/
+│   └── v3-markdown/
+├── Design-Patterns-Documentation.md  # Core Documents (Maintained)
+├── ci-cd-pipeline.md
+├── UX-Testing-Results.md
+└── Two-Factor-Authentication.md
 ├── scripts/                     # Build & Deployment Scripts
 │   ├── quality-check.ps1       # Quality assurance script
 │   └── run-ci-pipeline.ps1     # CI/CD automation script
@@ -2129,23 +2148,27 @@ lib/
 ### 📂 Documentation
 ```
 docs/
-├── UX-Testing-Results.md        # UX testing documentation
-├── Background-Jobs-Examples.md  # Background jobs documentation
-├── Design-Patterns-Documentation.md # Design patterns guide
-├── Architecture-Diagram.md      # Architecture documentation
-├── Classes-Diagram.md           # Classes documentation
-└── Middleware_v1.docx           # Middleware documentation
+├── guides/                      # Development Guide  
+│   ├── Component-Creation-Guide.md
+│   ├── linting-guide.md
+│   ├── performance-hooks-guidelines.md
+│   └── Background-Jobs-Examples.md
+├── archive/                     # Version History 
+│   ├── README.md               # Archive Description 
+│   ├── v1-original/
+│   ├── v2-text-updated/
+│   └── v3-markdown/
+├── Design-Patterns-Documentation.md  # Core Documents (Maintained)  
+├── ci-cd-pipeline.md
+├── UX-Testing-Results.md
+└── Two-Factor-Authentication.md
 ```
 
 ### 📂 Visual Documentation
 ```
 diagrams/
-├── Architecture Diagram.jpg     # Original architecture diagram
-├── Architecture Diagram.pdf     # Original architecture PDF
-├── Classes Diagram.jpg          # Original classes diagram
-├── Classes Diagram.pdf          # Original classes PDF
-├── Architecture-Diagram-Updated.txt # Updated architecture (FASE 1-2)
-└── Classes-Diagram-Updated.txt  # Updated classes (FASE 1-2)
+└── README.md                    # Description of diagram version history
+    (original files have been moved to docs/archive/)
 ```
 
 ### 📂 Testing & Demos
@@ -3428,6 +3451,29 @@ Our project includes comprehensive documentation covering all aspects:
   ├── Command: 2 implementations
   └── 5 additional patterns
 ```
+## 📁 Documentation Organization
+
+### Core Documentation
+- **Design Patterns**: Complete implementation guide for all 10 patterns
+- **CI/CD Pipeline**: DevOps and deployment configuration
+- **UX Testing**: User experience testing results and methodology
+- **Security**: Two-factor authentication implementation
+
+### Development Guides
+Located in `docs/guides/`:
+- **Component Creation**: Templates and patterns for new components
+- **Linting Guide**: ESLint configuration and rules
+- **Performance Hooks**: Guidelines for React optimization
+- **Background Jobs**: Event system and async processing examples
+
+### Version History
+Located in `docs/archive/`:
+- **v1-original**: Initial design diagrams (PDF/JPG)
+- **v2-text-updated**: FASE 1&2 implementation updates (TXT)
+- **v3-markdown**: Web documentation versions (MD)
+
+Each version includes timestamp and purpose documentation.
+
 
 ## 👥 Team & Academic Information
 
