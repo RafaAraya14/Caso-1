@@ -26,7 +26,7 @@ const HireCoachButton: React.FC<Props> = ({ coachId, onHired }) => {
       <Button
         onClick={onClick}
         disabled={!user?.id}
-        loading={loading}
+        isLoading={loading}
         variant="primary"
         className="w-full"
       >

@@ -2,23 +2,23 @@
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'jsdom',
+    roots: ['<rootDir>/src'],
+    testMatch: [
+        '**/__tests__/**/*.+(ts|tsx|js)',
+        '**/*.(test|spec).+(ts|tsx|js)'
+    ],
+    transform: {
+        '^.+\\.(ts|tsx)$': 'ts-jest',
+    },
     setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
     moduleNameMapper: {
         '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-        '^../logging$': '<rootDir>/src/__mocks__/logging.ts',
-        '^../lib/supabase$': '<rootDir>/src/__mocks__/lib.ts',
         '^@/(.*)$': '<rootDir>/src/$1'
     },
-    transform: {
-        '^.+\\.(ts|tsx)?$': 'ts-jest',
-        '^.+\\.(js|jsx)$': 'babel-jest',
-    },
-    globals: {
-        'ts-jest': {
-            useESM: true
-        }
-    },
-    transformIgnorePatterns: [
-        'node_modules/(?!(.*\\.mjs$))'
+    collectCoverageFrom: [
+        'src/**/*.{ts,tsx}',
+        '!src/**/*.d.ts',
+        '!src/index.tsx',
+        '!src/prototype.tsx'
     ]
 };
