@@ -1,10 +1,10 @@
-# 🚀 CI/CD Pipeline Documentation
+# CI/CD Pipeline Documentation
 
-## Descripción General
+## Overview
 
-El pipeline de CI/CD para 20minCoach implementa integración y despliegue continuo con múltiples etapas de calidad, testing automatizado y deployment seguro.
+The CI/CD pipeline for 20minCoach implements continuous integration and deployment with multiple quality stages, automated testing, and secure deployment.
 
-## 🏗️ Arquitectura del Pipeline
+## Pipeline Architecture
 
 ```mermaid
 graph TD
@@ -31,28 +31,28 @@ graph TD
     N --> P[Dependency Audit]
 ```
 
-## 📋 Workflows Configurados
+## Configured Workflows
 
-### 1. 🔍 CI Pipeline (`ci.yml`)
+### 1. CI Pipeline (`ci.yml`)
 
 **Triggers:**
-- Push a `main` y `develop`
-- Pull Requests a `main`
-- Ejecución manual
+- Push to `main` and `develop`
+- Pull Requests to `main`
+- Manual execution
 
 **Jobs:**
-- **lint-and-format**: Verificación de código con ESLint y Prettier
-- **build-and-typecheck**: Compilación y verificación de tipos (Node 18/20)
-- **test**: Tests unitarios con coverage
-- **security-audit**: Auditoría de seguridad con npm audit y Snyk
-- **quality-gate**: Resumen de calidad y gate de aprobación
+- **lint-and-format**: Code verification with ESLint and Prettier
+- **build-and-typecheck**: Compilation and type checking (Node 18/20)
+- **test**: Unit tests with coverage
+- **security-audit**: Security auditing with npm audit and Snyk
+- **quality-gate**: Quality summary and approval gate
 
-### 2. 🚀 Deployment Pipeline (`deploy.yml`)
+### 2. Deployment Pipeline (`deploy.yml`)
 
 **Triggers:**
-- Push a `main` (producción)
-- Push a `develop` (staging)
-- Deployment manual
+- Push to `main` (production)
+- Push to `develop` (staging)
+- Manual deployment
 
 **Environments:**
 - **Staging**: `https://staging.20mincoach.app`
@@ -61,12 +61,12 @@ graph TD
 **Features:**
 - Pre-deployment quality checks
 - Environment-specific builds
-- Smoke tests post-deployment
+- Post-deployment smoke tests
 - Rollback capabilities
 
-### 3. 📊 Quality Monitoring (`quality-monitoring.yml`)
+### 3. Quality Monitoring (`quality-monitoring.yml`)
 
-**Schedule:** Diario a las 6:00 AM UTC
+**Schedule:** Daily at 6:00 AM UTC
 
 **Monitoring:**
 - Daily quality audits
@@ -75,7 +75,7 @@ graph TD
 - Bundle size analysis
 - Automated issue creation
 
-## 🛠️ Configuración Requerida
+## Required Configuration
 
 ### GitHub Secrets
 
@@ -114,21 +114,21 @@ Pull Requests: Write
 - Restrict pushes to matching branches
 ```
 
-## 📊 Quality Gates y Métricas
+## Quality Gates and Metrics
 
 ### Quality Gate Criteria
 
-| Criterio | Threshold | Acción en Fallo |
-|----------|-----------|-----------------|
-| **ESLint Errors** | 0 | Bloquea deployment |
-| **Build Success** | 100% | Bloquea deployment |
-| **TypeScript Errors** | 0 | Bloquea deployment |
-| **Security Issues** | Critical: 0 | Bloquea deployment |
+| Criteria | Threshold | Action on Failure |
+|----------|-----------|------------------|
+| **ESLint Errors** | 0 | Blocks deployment |
+| **Build Success** | 100% | Blocks deployment |
+| **TypeScript Errors** | 0 | Blocks deployment |
+| **Security Issues** | Critical: 0 | Blocks deployment |
 | **Test Coverage** | >80% | Warning |
 
 ### Performance Thresholds
 
-| Métrica | Target | Error Threshold |
+| Metric | Target | Error Threshold |
 |---------|--------|-----------------|
 | **Performance Score** | >80 | <70 |
 | **Accessibility Score** | >90 | <85 |
@@ -138,12 +138,12 @@ Pull Requests: Write
 | **Largest Contentful Paint** | <3s | >4s |
 | **Cumulative Layout Shift** | <0.1 | >0.2 |
 
-## 🔧 Comandos Locales
+## Local Commands
 
-### Simular Pipeline Localmente
+### Simulate Pipeline Locally
 
 ```bash
-# Quality checks (como en CI)
+# Quality checks (as in CI)
 npm run lint                       # ESLint analysis
 npm run format -- --check         # Prettier check
 npm run type-check                 # TypeScript validation
@@ -161,7 +161,7 @@ npm audit fix                      # Fix vulnerabilities
 ### Pre-commit Simulation
 
 ```bash
-# Simular git hook
+# Simulate git hook
 npm run pre-commit                 # Runs all quality checks
 
 # Manual quality check
@@ -169,7 +169,7 @@ npm run lint:fix                   # Fix linting issues
 npm run format                     # Format code
 ```
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Pipeline Failures
 
@@ -238,7 +238,7 @@ npx webpack-bundle-analyzer dist/  # Analyze bundle
 # 4. Asset optimization
 ```
 
-## 📈 Monitoring y Alertas
+## Monitoring and Alerts
 
 ### Automated Monitoring
 
@@ -271,7 +271,7 @@ npx lighthouse http://localhost:4173 --output json
 npx lighthouse http://localhost:4173 --output html
 ```
 
-## 🔄 Maintenance
+## Maintenance
 
 ### Weekly Tasks
 - [ ] Review quality reports
@@ -291,7 +291,7 @@ npx lighthouse http://localhost:4173 --output html
 - [ ] Optimize build and deployment processes
 - [ ] Update documentation
 
-## 📚 Resources
+## Resources
 
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [Vercel Deployment Guide](https://vercel.com/docs)
@@ -301,4 +301,4 @@ npx lighthouse http://localhost:4173 --output html
 
 ---
 
-*Documentación actualizada: FASE 3 - CI/CD Implementation*
+*Documentation updated: FASE 3 - CI/CD Implementation*

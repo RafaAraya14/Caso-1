@@ -1,10 +1,10 @@
 # Design Patterns Documentation
 
-## Descripción General
+## Overview
 
-Este documento detalla todos los patrones de diseño implementados en el proyecto Caso #1. Los patrones de diseño son soluciones probadas a problemas recurrentes en el desarrollo de software que mejoran la mantenibilidad, escalabilidad y legibilidad del código.
+This document details all design patterns implemented in the Case #1 project. Design patterns are proven solutions to recurring problems in software development that improve maintainability, scalability, and code readability.
 
-## Índice de Patrones Implementados
+## Table of Implemented Patterns
 
 1. [Singleton Pattern](#singleton-pattern)
 2. [Strategy Pattern](#strategy-pattern)
@@ -21,9 +21,9 @@ Este documento detalla todos los patrones de diseño implementados en el proyect
 
 ## Singleton Pattern
 
-**Propósito**: Garantizar que una clase tenga una única instancia y proporcionar un punto de acceso global a ella.
+**Purpose**: Ensure a class has only one instance and provide global access to it.
 
-### Implementaciones
+### Implementations
 
 #### 1. EventBus (src/background/EventBus.ts)
 ```typescript
@@ -31,7 +31,7 @@ export class EventBus {
   private static instance: EventBus;
   
   private constructor() {
-    // Constructor privado para prevenir instanciación directa
+    // Private constructor to prevent direct instantiation
   }
   
   public static getInstance(): EventBus {
@@ -43,10 +43,10 @@ export class EventBus {
 }
 ```
 
-**Uso en el proyecto**:
-- Sistema de eventos centralizado para comunicación entre componentes
-- Garantiza que todos los componentes usen el mismo bus de eventos
-- Mantiene el estado global de suscripciones y eventos
+**Usage in project**:
+- Centralized event system for component communication
+- Ensures all components use the same event bus
+- Maintains global state of subscriptions and events
 
 #### 2. NotificationService (src/background/NotificationService.ts)
 ```typescript
@@ -62,9 +62,9 @@ export class NotificationService {
 }
 ```
 
-**Ventajas**:
-- Servicio global de notificaciones accesible desde cualquier parte de la aplicación
-- Configuración centralizada de templates y proveedores
+**Advantages**:
+- Global notification service accessible from anywhere in the application
+- Centralized configuration of templates and providers
 
 #### 3. ConfigManager (src/utils/ConfigManager.ts)
 ```typescript
@@ -80,56 +80,56 @@ export class ConfigManager {
 }
 ```
 
-**Beneficios**:
-- Configuración global de la aplicación
-- Punto único de acceso a variables de entorno y configuraciones
+**Benefits**:
+- Global application configuration
+- Single point of access to environment variables and settings
 
 #### 4. CacheManager (src/utils/CacheManager.ts)
-Similar implementación para gestión centralizada de cache.
+Similar implementation for centralized cache management.
 
-### Cuándo usar Singleton
-✅ **Usar cuando**:
-- Necesitas exactamente una instancia (configuración global, logging, cache)
-- Requieres acceso global a recursos compartidos
-- Necesitas controlar el acceso a recursos limitados
+### When to use Singleton
+✅ **Use when**:
+- You need exactly one instance (global config, logging, cache)
+- You require global access to shared resources
+- You need to control access to limited resources
 
-❌ **Evitar cuando**:
-- El estado global no es necesario
-- Puede complicar las pruebas unitarias
-- Puede crear dependencias ocultas
+❌ **Avoid when**:
+- Global state is not necessary
+- It may complicate unit testing
+- It may create hidden dependencies
 
 ---
 
 ## Strategy Pattern
 
-**Propósito**: Definir una familia de algoritmos, encapsular cada uno y hacerlos intercambiables.
+**Purpose**: Define a family of algorithms, encapsulate each one, and make them interchangeable.
 
-### Implementaciones
+### Implementations
 
-#### 1. Validadores (src/validators/)
+#### 1. Validators (src/validators/)
 ```typescript
-// Strategy base
+// Base strategy
 export abstract class BaseValidator<T> {
   abstract validate(data: T): ValidationResult;
 }
 
-// Estrategias concretas
+// Concrete strategies
 export class CreateSessionValidator extends BaseValidator<CreateSessionDTO> {
   validate(data: CreateSessionDTO): ValidationResult {
-    // Implementación específica para validar sesiones
+    // Specific implementation for validating sessions
   }
 }
 
 export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
   validate(data: SearchCoachDTO): ValidationResult {
-    // Implementación específica para validar búsquedas
+    // Specific implementation for validating searches
   }
 }
 ```
 
-**Uso**:
+**Usage**:
 ```typescript
-// Context que usa las estrategias
+// Context that uses the strategies
 export class ValidationService {
   private validator: BaseValidator<any>;
   
@@ -151,26 +151,26 @@ abstract class CacheStrategy {
 }
 
 class MemoryCacheStrategy extends CacheStrategy {
-  // Implementación en memoria
+  // In-memory implementation
 }
 
 class PersistentCacheStrategy extends CacheStrategy {
-  // Implementación persistente en localStorage
+  // Persistent localStorage implementation
 }
 ```
 
-### Ventajas del Strategy Pattern
-- **Flexibilidad**: Permite cambiar algoritmos en tiempo de ejecución
-- **Extensibilidad**: Fácil agregar nuevas estrategias sin modificar código existente
-- **Testabilidad**: Cada estrategia se puede probar independientemente
+### Advantages of Strategy Pattern
+- **Flexibility**: Allows changing algorithms at runtime
+- **Extensibility**: Easy to add new strategies without modifying existing code
+- **Testability**: Each strategy can be tested independently
 
 ---
 
 ## Observer Pattern
 
-**Propósito**: Definir una dependencia uno-a-muchos entre objetos para que cuando un objeto cambie su estado, todos sus dependientes sean notificados automáticamente.
+**Purpose**: Define a one-to-many dependency between objects so when one object changes state, all dependents are automatically notified.
 
-### Implementaciones
+### Implementations
 
 #### 1. EventBus + Listeners
 ```typescript
@@ -184,7 +184,7 @@ export class EventBus {
     }
     this.subscribers.get(eventType)!.push(callback);
     
-    // Retorna función de unsubscribe
+    // Return unsubscribe function
     return () => {
       const callbacks = this.subscribers.get(eventType);
       if (callbacks) {
@@ -213,16 +213,16 @@ export class SessionListener {
   }
   
   private handleSessionCreated(data: any): void {
-    // Reaccionar a creación de sesión
+    // React to session creation
   }
 }
 ```
 
-#### 2. NotificationService como Observer
+#### 2. NotificationService as Observer
 ```typescript
 export class NotificationService {
   constructor() {
-    // Se suscribe a eventos del EventBus
+    // Subscribe to EventBus events
     EventBus.getInstance().subscribe('session:created', this.onSessionCreated.bind(this));
     EventBus.getInstance().subscribe('coach:status_changed', this.onCoachStatusChanged.bind(this));
   }
@@ -237,18 +237,18 @@ export class NotificationService {
 }
 ```
 
-### Beneficios del Observer Pattern
-- **Desacoplamiento**: Los subjects no conocen detalles específicos de sus observers
-- **Comunicación dinámica**: Los observers pueden suscribirse/desuscribirse en tiempo de ejecución
-- **Extensibilidad**: Fácil agregar nuevos observers sin modificar el subject
+### Benefits of Observer Pattern
+- **Decoupling**: Subjects don't know specific details of their observers
+- **Dynamic communication**: Observers can subscribe/unsubscribe at runtime
+- **Extensibility**: Easy to add new observers without modifying the subject
 
 ---
 
 ## Factory Pattern
 
-**Propósito**: Crear objetos sin especificar la clase exacta a crear.
+**Purpose**: Create objects without specifying the exact class to create.
 
-### Implementaciones
+### Implementations
 
 #### 1. Transformer Factory (src/transformers/)
 ```typescript
@@ -294,18 +294,18 @@ export class UseCaseFactory {
 }
 ```
 
-### Ventajas del Factory Pattern
-- **Encapsulación**: La lógica de creación está centralizada
-- **Flexibilidad**: Fácil cambiar la implementación de objetos creados
-- **Reutilización**: La lógica de creación se puede reutilizar
+### Advantages of Factory Pattern
+- **Encapsulation**: Creation logic is centralized
+- **Flexibility**: Easy to change implementation of created objects
+- **Reusability**: Creation logic can be reused
 
 ---
 
 ## Builder Pattern
 
-**Propósito**: Construir objetos complejos paso a paso.
+**Purpose**: Build complex objects step by step.
 
-### Implementaciones
+### Implementations
 
 #### 1. DTO Builder (src/types/dtos/)
 ```typescript
@@ -340,7 +340,7 @@ export class CreateSessionDTOBuilder {
   }
 }
 
-// Uso:
+// Usage:
 const sessionDTO = new CreateSessionDTOBuilder()
   .setCoachId('coach-123')
   .setUserId('user-456')
@@ -349,7 +349,7 @@ const sessionDTO = new CreateSessionDTOBuilder()
   .build();
 ```
 
-#### 2. Query Builder para búsquedas
+#### 2. Query Builder for searches
 ```typescript
 export class CoachSearchQueryBuilder {
   private query: Partial<SearchCoachDTO> = {};
@@ -380,18 +380,18 @@ export class CoachSearchQueryBuilder {
 }
 ```
 
-### Beneficios del Builder Pattern
-- **Legibilidad**: Código más legible y fluido
-- **Flexibilidad**: Construcción paso a paso opcional
-- **Validación**: Validación en el momento de construcción
+### Benefits of Builder Pattern
+- **Readability**: More readable and fluent code
+- **Flexibility**: Optional step-by-step construction
+- **Validation**: Validation at construction time
 
 ---
 
 ## Facade Pattern
 
-**Propósito**: Proporcionar una interfaz unificada a un conjunto de interfaces en un subsistema.
+**Purpose**: Provide a unified interface to a set of interfaces in a subsystem.
 
-### Implementaciones
+### Implementations
 
 #### 1. Session Management Facade
 ```typescript
@@ -409,7 +409,7 @@ export class SessionFacade {
   }
   
   async bookSession(sessionData: CreateSessionDTO): Promise<Session> {
-    // Coordina múltiples operaciones
+    // Coordinate multiple operations
     const session = await this.bookSessionUseCase.execute(sessionData);
     await this.notificationService.sendSessionConfirmation(session);
     return session;
@@ -430,7 +430,7 @@ export class CoachFacade {
   private cacheManager: CacheManager;
   
   async searchCoaches(criteria: SearchCoachDTO): Promise<Coach[]> {
-    // Simplifica la búsqueda con cache
+    // Simplify search with cache
     const cacheKey = `search:${JSON.stringify(criteria)}`;
     
     let results = this.cacheManager.get<Coach[]>(cacheKey);
@@ -444,18 +444,18 @@ export class CoachFacade {
 }
 ```
 
-### Ventajas del Facade Pattern
-- **Simplicidad**: Interfaz simple para operaciones complejas
-- **Desacoplamiento**: Los clientes no dependen de clases internas del subsistema
-- **Mantenibilidad**: Cambios internos no afectan a los clientes
+### Advantages of Facade Pattern
+- **Simplicity**: Simple interface for complex operations
+- **Decoupling**: Clients don't depend on internal subsystem classes
+- **Maintainability**: Internal changes don't affect clients
 
 ---
 
 ## Repository Pattern
 
-**Propósito**: Encapsular la lógica de acceso a datos y proporcionar una interfaz más orientada a objetos.
+**Purpose**: Encapsulate data access logic and provide a more object-oriented interface.
 
-### Implementaciones
+### Implementations
 
 #### 1. Coach Repository (conceptual - src/services/)
 ```typescript
@@ -505,20 +505,20 @@ export interface SessionRepository {
 }
 ```
 
-### Beneficios del Repository Pattern
-- **Abstracción**: Abstrae la fuente de datos (base de datos, API, cache)
-- **Testabilidad**: Fácil crear mocks para pruebas
-- **Mantenibilidad**: Cambios en el acceso a datos no afectan la lógica de negocio
+### Benefits of Repository Pattern
+- **Abstraction**: Abstracts data source (database, API, cache)
+- **Testability**: Easy to create mocks for testing
+- **Maintainability**: Changes in data access don't affect business logic
 
 ---
 
 ## Command Pattern
 
-**Propósito**: Encapsular una solicitud como un objeto, permitiendo parametrizar clientes con diferentes solicitudes.
+**Purpose**: Encapsulate a request as an object, allowing you to parameterize clients with different requests.
 
-### Implementaciones
+### Implementations
 
-#### 1. Use Cases como Commands
+#### 1. Use Cases as Commands
 ```typescript
 export interface Command<T, R> {
   execute(input: T): Promise<R>;
@@ -526,7 +526,7 @@ export interface Command<T, R> {
 
 export class BookSessionUseCase implements Command<CreateSessionDTO, Session> {
   async execute(input: CreateSessionDTO): Promise<Session> {
-    // Lógica de negocio encapsulada
+    // Encapsulated business logic
     const validation = this.validateInput(input);
     if (!validation.isValid) {
       throw new Error(validation.error);
@@ -558,20 +558,20 @@ export class CommandBus {
 }
 ```
 
-### Ventajas del Command Pattern
-- **Desacoplamiento**: El invocador no conoce al receptor
-- **Flexibilidad**: Fácil agregar nuevos commands
-- **Logging/Undo**: Posibilidad de implementar logging y operaciones undo
+### Advantages of Command Pattern
+- **Decoupling**: Invoker doesn't know the receiver
+- **Flexibility**: Easy to add new commands
+- **Logging/Undo**: Possibility to implement logging and undo operations
 
 ---
 
 ## Decorator Pattern
 
-**Propósito**: Agregar funcionalidad a objetos dinámicamente sin alterar su estructura.
+**Purpose**: Add functionality to objects dynamically without altering their structure.
 
-### Implementaciones
+### Implementations
 
-#### 1. Logging Decorator para Use Cases
+#### 1. Logging Decorator for Use Cases
 ```typescript
 export function withLogging<T extends { execute: (...args: any[]) => any }>(
   target: T
@@ -597,7 +597,7 @@ export function withLogging<T extends { execute: (...args: any[]) => any }>(
   return target;
 }
 
-// Uso:
+// Usage:
 const bookSessionUseCase = withLogging(new BookSessionUseCase());
 ```
 
@@ -625,18 +625,18 @@ export function withCache(cacheKey: (args: any[]) => string, ttl: number = 30000
 }
 ```
 
-### Beneficios del Decorator Pattern
-- **Composición**: Agregar funcionalidad por composición, no herencia
-- **Flexibilidad**: Combinaciones dinámicas de funcionalidades
-- **Responsabilidad única**: Cada decorator tiene una responsabilidad específica
+### Benefits of Decorator Pattern
+- **Composition**: Add functionality by composition, not inheritance
+- **Flexibility**: Dynamic combinations of functionalities
+- **Single Responsibility**: Each decorator has one specific responsibility
 
 ---
 
 ## Composite Pattern
 
-**Propósito**: Componer objetos en estructuras de árbol para representar jerarquías.
+**Purpose**: Compose objects into tree structures to represent hierarchies.
 
-### Implementaciones
+### Implementations
 
 #### 1. Validation Composite
 ```typescript
@@ -680,21 +680,21 @@ export class ValidationComposite extends ValidationComponent {
   }
 }
 
-// Uso:
+// Usage:
 const formValidator = new ValidationComposite();
 formValidator.add(new RequiredFieldValidator());
 formValidator.add(new EmailValidator());
 formValidator.add(new PasswordStrengthValidator());
 ```
 
-### Beneficios del Composite Pattern
-- **Uniformidad**: Tratamiento uniforme de objetos individuales y compuestos
-- **Flexibilidad**: Fácil agregar nuevos tipos de componentes
-- **Recursión**: Estructura recursiva natural
+### Benefits of Composite Pattern
+- **Uniformity**: Uniform treatment of individual and composite objects
+- **Flexibility**: Easy to add new types of components
+- **Recursion**: Natural recursive structure
 
 ---
 
-## Resumen de Patrones por Archivo
+## Pattern Summary by File
 
 ### src/background/
 - **EventBus.ts**: Singleton + Observer (Subject)
@@ -722,46 +722,46 @@ formValidator.add(new PasswordStrengthValidator());
 - **CacheManager.ts**: Singleton + Strategy
 - **validationUtils.ts**: Strategy + Composite
 
-## Beneficios Generales de los Patrones Implementados
+## General Benefits of Implemented Patterns
 
-### 1. **Mantenibilidad**
-- Código más organizardo y predecible
-- Separación clara de responsabilidades
-- Fácil localización y corrección de bugs
+### 1. **Maintainability**
+- More organized and predictable code
+- Clear separation of responsibilities
+- Easy bug location and fixing
 
-### 2. **Escalabilidad**
-- Fácil agregar nuevas funcionalidades
-- Estructuras flexibles que crecen con la aplicación
-- Reutilización de código
+### 2. **Scalability**
+- Easy to add new functionality
+- Flexible structures that grow with the application
+- Code reusability
 
-### 3. **Testabilidad**
-- Dependencias claramente definidas
-- Fácil crear mocks y stubs
-- Pruebas unitarias más simples
+### 3. **Testability**
+- Clearly defined dependencies
+- Easy to create mocks and stubs
+- Simpler unit testing
 
-### 4. **Legibilidad**
-- Código autodocumentado
-- Patrones reconocibles por otros desarrolladores
-- Intención clara del diseño
+### 4. **Readability**
+- Self-documenting code
+- Recognizable patterns for other developers
+- Clear design intent
 
-### 5. **Reutilización**
-- Componentes reutilizables
-- Lógica centralizada
-- Evita duplicación de código
+### 5. **Reusability**
+- Reusable components
+- Centralized logic
+- Avoids code duplication
 
-## Mejores Prácticas Aplicadas
+## Applied Best Practices
 
-1. **Single Responsibility Principle**: Cada clase tiene una responsabilidad única
-2. **Open/Closed Principle**: Clases abiertas para extensión, cerradas para modificación
-3. **Dependency Inversion**: Dependencia de abstracciones, no de concreciones
-4. **Interface Segregation**: Interfaces específicas y cohesivas
-5. **Don't Repeat Yourself (DRY)**: Evitar duplicación de código
+1. **Single Responsibility Principle**: Each class has one unique responsibility
+2. **Open/Closed Principle**: Classes open for extension, closed for modification
+3. **Dependency Inversion**: Dependency on abstractions, not concretions
+4. **Interface Segregation**: Specific and cohesive interfaces
+5. **Don't Repeat Yourself (DRY)**: Avoid code duplication
 
-## Consideraciones de Performance
+## Performance Considerations
 
-- **Singletons**: Instancia única reduce uso de memoria
-- **Strategy Pattern**: Permite optimizaciones específicas por algoritmo
-- **Observer Pattern**: Comunicación eficiente entre componentes
-- **Cache en Facade**: Reduce llamadas repetitivas a servicios
+- **Singletons**: Single instance reduces memory usage
+- **Strategy Pattern**: Allows algorithm-specific optimizations
+- **Observer Pattern**: Efficient communication between components
+- **Facade Cache**: Reduces repetitive service calls
 
-Este conjunto de patrones de diseño proporciona una base sólida para el desarrollo continuo de la aplicación, facilitando la adición de nuevas características y el mantenimiento del código existente.
+This set of design patterns provides a solid foundation for continued application development, facilitating the addition of new features and maintenance of existing code.
