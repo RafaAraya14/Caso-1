@@ -1,54 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 
-import SimpleLoginForm from './components/auth/SimpleLogin';
-import { CoachSearch } from './components/coaches/CoachSearch/CoachSearchPrototype';
-import { ThemeToggle } from './components/ui/ThemeToggle';
+import AuthFlow from './components/auth/AuthFlow';
+import CoachApp from './components/coaches/CoachApp';
 import { supabase } from './lib/supabase';
 import './styles/globals.css';
 
 import type { User } from '@supabase/supabase-js';
-
-// Simple header for logged in users
-const Header: React.FC<{ user: User; onLogout: () => void; loading?: boolean }> = ({
-  user,
-  onLogout,
-  loading = false,
-}) => {
-  return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow-md">
-      <div className="container mx-auto px-6 py-3 flex justify-between items-center">
-        <div className="text-lg font-semibold text-gray-800 dark:text-white">20minCoach</div>
-        <div className="flex items-center gap-4">
-          <span className="text-gray-700 dark:text-gray-300 text-sm">{user.email}</span>
-          <ThemeToggle />
-          <button
-            onClick={onLogout}
-            disabled={loading}
-            className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg font-semibold transition-colors text-sm flex items-center gap-2"
-          >
-            {loading && (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-            )}
-            {loading ? 'Logging out...' : 'Logout'}
-          </button>
-        </div>
-      </div>
-    </header>
-  );
-};
-
-// Public navigation for non-logged users
-const PublicNavigation: React.FC = () => {
-  return (
-    <nav className="fixed top-4 right-4 z-50 bg-white dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-700 p-2 shadow-lg">
-      <div className="flex gap-2 items-center">
-        <span className="text-gray-700 dark:text-gray-300 text-sm">Login to continue</span>
-        <ThemeToggle />
-      </div>
-    </nav>
-  );
-};
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -161,14 +119,12 @@ export default function App() {
 
   return (
     <div className="App">
-      {!user && <PublicNavigation />}
-
       <Routes>
         <Route
           path="/login"
           element={
             !user ? (
-              <SimpleLoginForm onLoginSuccess={() => navigate('/dashboard')} />
+              <AuthFlow onAuthSuccess={() => navigate('/dashboard')} />
             ) : (
               <Navigate to="/dashboard" />
             )
@@ -179,12 +135,7 @@ export default function App() {
           path="/dashboard"
           element={
             user ? (
-              <>
-                <Header user={user} onLogout={handleLogout} loading={loading} />
-                <main className="pt-20">
-                  <CoachSearch />
-                </main>
-              </>
+              <CoachApp onLogout={handleLogout} user={{ email: user.email || '' }} />
             ) : (
               <Navigate to="/login" />
             )

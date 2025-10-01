@@ -36,6 +36,54 @@
 }
 
 /* ===========================================
+   MODERN AUTH STYLES
+   =========================================== */
+
+/* Transiciones suaves para el cambio de tema (claro/oscuro) */
+body {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+/* Animación de entrada para las páginas */
+.page {
+  animation: fadeIn 0.5s ease-in-out;
+  width: 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Fondo con gradientes sutiles para el modo oscuro */
+.gradient-bg {
+  background-color: #0f172a;
+  background-image:
+    radial-gradient(at 27% 37%, hsla(215, 98%, 43%, 0.1) 0px, transparent 50%),
+    radial-gradient(at 97% 21%, hsla(125, 98%, 43%, 0.1) 0px, transparent 50%),
+    radial-gradient(at 27% 37%, hsla(215, 98%, 43%, 0.1) 0px, transparent 50%),
+    radial-gradient(at 75% 85%, hsla(200, 98%, 43%, 0.1) 0px, transparent 50%);
+}
+
+/* Fondo con gradientes sutiles para el modo claro */
+:root:not(.dark) .gradient-bg {
+  background-color: #f1f5f9;
+  background-image:
+    radial-gradient(at 27% 37%, hsla(215, 98%, 43%, 0.05) 0px, transparent 50%),
+    radial-gradient(at 97% 21%, hsla(125, 98%, 43%, 0.05) 0px, transparent 50%),
+    radial-gradient(at 27% 37%, hsla(215, 98%, 43%, 0.05) 0px, transparent 50%),
+    radial-gradient(at 75% 85%, hsla(200, 98%, 43%, 0.05) 0px, transparent 50%);
+}
+
+/* ===========================================
    BASE STYLES
    =========================================== */
 * {

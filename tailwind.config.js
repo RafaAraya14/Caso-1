@@ -8,6 +8,9 @@ module.exports = {
   darkMode: 'class', // Enable class-based dark mode
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
         brand: {
           50:  "#f5f3ff",

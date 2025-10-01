@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>20minCoach - App</title>
+    <!-- Incluyendo Tailwind CSS desde CDN para prototipado rápido -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Incluyendo Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Incluyendo la fuente 'Inter' de Google Fonts para un diseño más moderno -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Script de configuración para Tailwind CSS -->
+    <script>
+        // Aquí se personaliza la configuración de Tailwind CSS.
+        tailwind.config = {
+            darkMode: 'class', // Habilita el modo oscuro basado en una clase en el tag <html>.
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'], // Establece 'Inter' como la fuente por defecto.
+                    },
+                    colors: {
+                        // Define una paleta de colores personalizada para la aplicación.
+                        primary: {
+                            DEFAULT: '#4F46E5', // Color principal (indigo-600)
+                            'hover': '#4338CA', // Color para el estado 'hover' (indigo-700)
+                            'light': '#6366F1', // Tono más claro (indigo-500)
+                        },
+                        // Se extiende la paleta de colores 'slate' para tener más control.
+                        slate: {
+                           50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1',
+                           400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155',
+                           800: '#1e293b', 900: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Estilos CSS personalizados -->
+    <style>
+        /* Transiciones suaves para el cambio de tema (claro/oscuro) */
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        /* Animación de entrada para las páginas */
+        .page {
+            animation: fadeIn 0.5s ease-in-out;
+            width: 100%;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        /* Fondo con gradientes sutiles para el modo oscuro */
+        .gradient-bg {
+            background-color: #0f172a;
+            background-image: radial-gradient(at 27% 37%, hsla(215, 98%, 43%, 0.1) 0px, transparent 50%), radial-gradient(at 97% 21%, hsla(125, 98%, 43%, 0.1) 0px, transparent 50%), radial-gradient(at 27% 37%, hsla(215, 98%, 43%, 0.1) 0px, transparent 50%), radial-gradient(at 75% 85%, hsla(200, 98%, 43%, 0.1) 0px, transparent 50%);
+        }
+        /* Fondo con gradientes sutiles para el modo claro */
+        .light .gradient-bg {
+             background-color: #f1f5f9;
+             background-image: radial-gradient(at 27% 37%, hsla(215, 98%, 43%, 0.05) 0px, transparent 50%), radial-gradient(at 97% 21%, hsla(125, 98%, 43%, 0.05) 0px, transparent 50%), radial-gradient(at 27% 37%, hsla(215, 98%, 43%, 0.05) 0px, transparent 50%), radial-gradient(at 75% 85%, hsla(200, 98%, 43%, 0.05) 0px, transparent 50%);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 font-sans gradient-bg">
+
+    <!-- BOTÓN PARA CAMBIAR TEMA (CLARO/OSCURO) -->
+    <!-- Este botón tiene una posición fija para estar siempre visible. -->
+    <button id="theme-toggle" class="fixed top-4 right-4 p-2 rounded-full text-slate-600 dark:text-slate-300 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm shadow-lg hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none z-30">
+        <svg id="sun-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        <svg id="moon-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+    </button>
+
+    <!-- BOTÓN DE LOGOUT -->
+    <!-- Inicialmente oculto, se mostrará después de iniciar sesión. -->
+    <button id="logout-button" class="hidden fixed bottom-4 right-4 w-12 h-12 rounded-full text-slate-600 dark:text-slate-300 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm shadow-lg hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none z-30 flex items-center justify-center">
+        <i class="fas fa-sign-out-alt text-lg"></i>
+    </button>
+
+    <!-- CONTENEDOR PRINCIPAL DE LA APLICACIÓN -->
+    <div id="app-container" class="min-h-screen flex flex-col">
+        <!-- El 'main' es el contenedor flexible donde se renderizarán las diferentes páginas. -->
+        <main class="flex-grow flex items-center justify-center p-4">
+            
+            <!-- PÁGINA 1: LOGIN -->
+            <!-- Esta es la primera página que ve el usuario. -->
+            <div id="page-login" class="page w-full max-w-md">
+                <div class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl shadow-2xl rounded-2xl p-8 text-center">
+                    <div class="flex flex-col items-center mb-6">
+                        <!-- Logo Minimalista SVG -->
+                        <svg class="w-24 h-24" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="gradLogin1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a5b4fc"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>
+                                <linearGradient id="gradLogin2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f9a8d4"/><stop offset="100%" stop-color="#be185d"/></linearGradient>
+                            </defs>
+                            <circle cx="50" cy="50" r="48" fill="none" stroke="url(#gradLogin1)" stroke-width="4"/><path d="M25 50 C 35 30, 65 30, 75 50 C 65 70, 35 70, 25 50 Z" stroke="url(#gradLogin2)" stroke-width="4" fill="none"/><circle cx="50" cy="50" r="10" fill="url(#gradLogin1)"/>
+                        </svg>
+                        <h1 class="text-3xl font-bold text-slate-800 dark:text-white mt-2">20min<span class="text-primary">Coach</span></h1>
+                    </div>
+                    <h2 class="text-2xl font-semibold text-center text-slate-800 dark:text-white mb-6">Bienvenido de Nuevo</h2>
+                    <form class="text-left">
+                        <div class="mb-4">
+                            <label for="email" class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2">Correo Electrónico</label>
+                            <input type="email" id="email" class="shadow-sm appearance-none border-2 border-slate-300 dark:border-slate-700 focus:border-primary rounded-lg w-full py-3 px-4 text-slate-700 dark:text-slate-200 bg-slate-200 dark:bg-slate-700/50 leading-tight focus:outline-none focus:ring-0 transition-colors" placeholder="tu@correo.com">
+                        </div>
+                        <div class="mb-6">
+                            <label for="password" class="block text-slate-700 dark:text-slate-300 text-sm font-bold mb-2">Contraseña</label>
+                            <input type="password" id="password" class="shadow-sm appearance-none border-2 border-slate-300 dark:border-slate-700 focus:border-primary rounded-lg w-full py-3 px-4 text-slate-700 dark:text-slate-200 bg-slate-200 dark:bg-slate-700/50 leading-tight focus:outline-none focus:ring-0 transition-colors" placeholder="******************">
+                        </div>
+                        <div class="flex items-center justify-center mt-8">
+                            <button id="login-button" type="button" class="w-full bg-primary hover:bg-primary-hover text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 transform hover:scale-105">Acceder</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- PÁGINA 2: AUTENTICACIÓN DE DOS PASOS (2FA) -->
+            <!-- Esta página aparece después del login. Inicialmente está oculta. -->
+            <div id="page-2fa" class="page hidden w-full max-w-md">
+                <div class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl shadow-2xl rounded-2xl p-8">
+                    <h2 class="text-3xl font-bold text-center text-slate-800 dark:text-white mb-4">Verificación Requerida</h2>
+                    <p class="text-center text-slate-600 dark:text-slate-400 mb-8">Ingresa el código de 6 dígitos enviado a tu correo.</p>
+                    <form>
+                        <div class="mb-6">
+                            <label for="2fa-code" class="sr-only">Código de Verificación</label>
+                            <input type="text" id="2fa-code" inputmode="numeric" pattern="[0-9]*" class="shadow-sm appearance-none border-2 border-slate-300 dark:border-slate-700 focus:border-primary rounded-lg w-full py-3 px-4 text-slate-700 dark:text-slate-200 bg-slate-200 dark:bg-slate-700/50 leading-tight focus:outline-none focus:ring-0 text-center text-3xl tracking-[.5em]" placeholder="------" maxlength="6">
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <button id="verify-2fa-button" type="button" class="w-full bg-primary hover:bg-primary-hover text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 transform hover:scale-105">Verificar Código</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- PÁGINA 3: BÚSQUEDA DE COACHES -->
+            <!-- La página principal después de iniciar sesión. -->
+            <div id="page-search" class="page hidden container mx-auto p-4">
+                 <div class="max-w-7xl mx-auto">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center gap-3 mb-2">
+                           <!-- Logo SVG Pequeño -->
+                           <svg class="w-12 h-12" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="gradSearch1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a5b4fc"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>
+                                    <linearGradient id="gradSearch2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f9a8d4"/><stop offset="100%" stop-color="#be185d"/></linearGradient>
+                                </defs>
+                                <circle cx="50" cy="50" r="48" fill="none" stroke="url(#gradSearch1)" stroke-width="4"/><path d="M25 50 C 35 30, 65 30, 75 50 C 65 70, 35 70, 25 50 Z" stroke="url(#gradSearch2)" stroke-width="4" fill="none"/><circle cx="50" cy="50" r="10" fill="url(#gradSearch1)"/>
+                           </svg>
+                           <h1 class="text-2xl font-bold text-slate-800 dark:text-white">20min<span class="text-primary">Coach</span></h1>
+                        </div>
+                        <h2 class="text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white">Encuentra tu Coach Ideal</h2>
+                        <p class="text-slate-600 dark:text-slate-300 mt-2 text-lg">Conecta con expertos en tiempo real.</p>
+                    </div>
+                    
+                    <div class="flex justify-center gap-4 mb-8">
+                        <button id="subscriptions-button" class="px-5 py-2.5 rounded-lg text-slate-700 dark:text-slate-200 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm shadow-lg hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none flex items-center transition-all duration-300 font-semibold">
+                            <i class="fas fa-gem mr-2 text-primary"></i>
+                            <span>Mis Planes</span>
+                        </button>
+                    </div>
+
+                    <!-- Panel de Búsqueda y Filtros -->
+                    <div class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl shadow-xl rounded-2xl p-6 mb-8">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                            <!-- Input de texto con icono de micrófono -->
+                            <div class="relative col-span-12 md:col-span-5">
+                                <input type="text" id="search-input" placeholder="Busca por especialidad o nombre..." class="w-full bg-slate-100 dark:bg-slate-700/50 border-2 border-slate-300 dark:border-slate-700 rounded-lg py-3 pl-4 pr-12 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-0 focus:border-primary transition-colors">
+                                <button class="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-slate-500 hover:text-primary">
+                                    <i class="fas fa-microphone text-xl"></i>
+                                </button>
+                            </div>
+                            <!-- Filtro de especialidades -->
+                            <div class="col-span-12 md:col-span-3">
+                               <select id="specialty-filter" class="w-full bg-slate-100 dark:bg-slate-700/50 border-2 border-slate-300 dark:border-slate-700 rounded-lg py-3 px-4 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-0 focus:border-primary transition-colors">
+                                    <option value="">Todas las Especialidades</option>
+                                    <option>Mecánica Automotriz</option>
+                                    <option>Psicología Clínica</option>
+                                    <option>Pintura y Arte</option>
+                                    <option>Programación Web</option>
+                                </select>
+                            </div>
+                            <!-- Botón para ejecutar la búsqueda -->
+                             <div class="col-span-12 md:col-span-4">
+                               <button class="w-full bg-primary hover:bg-primary-hover text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center transform hover:scale-105">
+                                    <i class="fas fa-search mr-2"></i>
+                                    Buscar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mt-4 text-sm">
+                            <div class="flex items-center">
+                                <input id="available-now" type="checkbox" class="h-4 w-4 rounded text-primary focus:ring-primary border-gray-300 dark:border-gray-600 bg-slate-200 dark:bg-slate-700">
+                                <label for="available-now" class="ml-2 text-slate-600 dark:text-slate-300">Solo disponibles ahora</label>
+                            </div>
+                            <span id="coaches-count" class="text-slate-500 dark:text-slate-400 font-medium"></span>
+                        </div>
+                    </div>
+                    <!-- Grid donde se mostrarán los coaches dinámicamente -->
+                    <div id="coaches-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    </div>
+                 </div>
+            </div>
+
+            <!-- PÁGINA 4: PERFIL DEL COACH -->
+            <div id="page-coach-profile" class="page hidden container mx-auto p-4">
+                <div class="max-w-4xl mx-auto">
+                    <div class="mb-6">
+                        <button id="back-to-search-button" class="text-primary hover:underline flex items-center font-semibold">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Volver
+                        </button>
+                    </div>
+                    <div class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl shadow-xl rounded-2xl p-8 mb-8 flex flex-col md:flex-row gap-8">
+                        <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                            <div class="relative mb-4">
+                               <i id="profile-avatar" class="fas fa-user-circle text-8xl"></i>
+                               <span id="profile-status-dot" class="absolute bottom-1 right-1 block h-6 w-6 border-4 border-white dark:border-slate-800 rounded-full"></span>
+                           </div>
+                           <span id="profile-status-text" class="text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2"></span>
+                        </div>
+                        <div id="profile-actions" class="w-full">
+                           <h3 id="profile-name" class="text-3xl font-bold text-slate-800 dark:text-white"></h3>
+                           <p id="profile-specialties" class="text-primary text-lg mb-3 font-medium"></p>
+                           <div class="flex items-center text-slate-600 dark:text-slate-300 space-x-4 text-sm">
+                               <span><i class="fas fa-star text-yellow-400 mr-1"></i><span id="profile-rating"></span></span>
+                               <span><i class="fas fa-map-marker-alt text-red-500 mr-1"></i><span id="profile-location"></span></span>
+                           </div>
+                            <div class="mt-6 flex space-x-4">
+                                <button id="connect-now-btn" class="w-full bg-primary hover:bg-primary-hover text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center transform hover:scale-105 transition-transform"><i class="fas fa-bolt mr-2"></i>Conectar Ahora</button>
+                                <button id="send-message-btn" class="w-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center transform hover:scale-105 transition-transform"><i class="fas fa-envelope mr-2"></i>Mensaje</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl shadow-xl rounded-2xl p-8 mb-8">
+                        <h4 class="text-xl font-bold text-slate-800 dark:text-white mb-4">Sobre <span id="profile-about-name"></span></h4>
+                        <p id="profile-bio" class="text-slate-600 dark:text-slate-300 leading-relaxed"></p>
+                    </div>
+                    <div class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl shadow-xl rounded-2xl p-8">
+                         <h4 class="text-xl font-bold text-slate-800 dark:text-white mb-4">Reseñas Recientes</h4>
+                         <div id="profile-reviews-container" class="space-y-6"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PÁGINA 5: PLANES DE SUSCRIPCIÓN -->
+            <div id="page-subscriptions" class="page hidden container mx-auto p-4">
+                <div class="max-w-4xl mx-auto">
+                    <div class="mb-6">
+                        <button id="back-to-search-from-subs-button" class="text-primary hover:underline flex items-center font-semibold">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Volver
+                        </button>
+                    </div>
+                    <div class="text-center mb-12">
+                        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white">Elige tu Plan Ideal</h1>
+                        <p class="text-slate-600 dark:text-slate-300 mt-2 text-lg">Desbloquea tu potencial con el plan perfecto para ti.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div id="free-plan-card" class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl shadow-xl rounded-2xl p-8 flex flex-col items-center text-center border-2 border-transparent transition-all duration-300">
+                            <i class="fas fa-seedling text-5xl text-green-500 mb-4"></i>
+                            <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Plan Gratuito</h3>
+                            <p class="text-4xl font-bold text-slate-800 dark:text-white mb-2">₡0<span class="text-lg font-medium text-slate-500 dark:text-slate-400">/mes</span></p>
+                            <p class="text-slate-500 dark:text-slate-400 mb-6">Para empezar a explorar.</p>
+                            <ul class="space-y-4 text-slate-600 dark:text-slate-300 mb-8 text-left">
+                                <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i><span>10 sesiones a la semana</span></li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i><span>Acceso a todos los coaches</span></li>
+                            </ul>
+                            <button id="free-plan-btn" class="w-full mt-auto bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold py-3 px-4 rounded-lg cursor-not-allowed">Plan Actual</button>
+                        </div>
+                        <div id="premium-plan-card" class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl shadow-xl rounded-2xl p-8 flex flex-col items-center text-center relative border-2 border-transparent transition-all duration-300">
+                            <div class="absolute top-0 -translate-y-1/2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">MÁS POPULAR</div>
+                            <i class="fas fa-rocket text-5xl text-primary mb-4"></i>
+                            <h3 class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Plan Premium</h3>
+                             <p class="text-4xl font-bold text-slate-800 dark:text-white mb-2">₡10.000<span class="text-lg font-medium text-slate-500 dark:text-slate-400">/mes</span></p>
+                            <p class="text-slate-500 dark:text-slate-400 mb-6">Para un crecimiento ilimitado.</p>
+                            <ul class="space-y-4 text-slate-600 dark:text-slate-300 mb-8 text-left">
+                                <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i><span class="font-bold">Sesiones ilimitadas</span></li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i><span>Acceso a todos los coaches</span></li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-3"></i><span>Soporte prioritario</span></li>
+                            </ul>
+                            <button id="premium-plan-btn" class="w-full mt-auto bg-primary hover:bg-primary-hover text-white font-bold py-3 px-4 rounded-lg">Cambiar a Premium</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PÁGINA 6: VIDEOLLAMADA -->
+            <div id="page-video-call" class="page hidden fixed inset-0 bg-slate-900 text-white flex flex-col z-20">
+                <div class="flex-grow bg-black flex items-center justify-center relative">
+                    <i class="fas fa-user-circle text-9xl text-slate-600"></i>
+                    <p class="absolute top-4 left-4 text-lg font-semibold" id="video-call-coach-name"></p>
+                    <div class="absolute bottom-24 right-4 w-48 h-32 bg-slate-800 rounded-lg shadow-lg flex items-center justify-center border-2 border-slate-700">
+                        <i class="fas fa-user-circle text-5xl text-slate-500"></i>
+                         <p class="absolute bottom-2 left-2 text-sm">Tú</p>
+                    </div>
+                </div>
+                <div class="bg-slate-800 p-4 flex justify-center items-center space-x-6">
+                    <button id="mic-btn" class="bg-slate-600 hover:bg-slate-500 p-4 rounded-full transition-colors">
+                        <i id="mic-icon" class="fas fa-microphone text-xl"></i>
+                    </button>
+                    <button id="cam-btn" class="bg-slate-600 hover:bg-slate-500 p-4 rounded-full transition-colors">
+                        <i id="cam-icon" class="fas fa-video text-xl"></i>
+                    </button>
+                    <button class="bg-slate-600 hover:bg-slate-500 p-4 rounded-full transition-colors">
+                        <i class="fas fa-desktop text-xl"></i>
+                    </button>
+                    <button id="end-call-btn" class="bg-red-600 hover:bg-red-700 p-4 rounded-full transition-colors">
+                        <i class="fas fa-phone-slash text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PÁGINA 7: CHAT -->
+            <div id="page-chat" class="page hidden container mx-auto p-4">
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl shadow-xl rounded-2xl flex flex-col h-[80vh]">
+                        <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <button id="back-to-profile-from-chat-btn" class="text-primary mr-4"><i class="fas fa-arrow-left"></i></button>
+                                <i id="chat-avatar" class="fas fa-user-circle text-3xl mr-3"></i>
+                                <div>
+                                    <h3 id="chat-coach-name" class="font-bold text-slate-800 dark:text-white"></h3>
+                                    <p id="chat-coach-status" class="text-xs"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="chat-messages" class="flex-grow p-4 space-y-4 overflow-y-auto">
+                        </div>
+                        <div class="p-4 border-t border-slate-200 dark:border-slate-700 flex items-center">
+                            <input id="chat-input" type="text" placeholder="Escribe un mensaje..." class="w-full bg-slate-100 dark:bg-slate-700/50 rounded-lg py-2 px-4 focus:outline-none focus:ring-0 focus:border-primary border-2 border-transparent transition-colors">
+                            <button id="send-chat-btn" class="ml-4 bg-primary hover:bg-primary-hover text-white font-bold p-2 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- INICIO DEL SCRIPT PRINCIPAL DE LA APLICACIÓN -->
+    <script>
+        // --- 1. BASE DE DATOS (SIMULADA) ---
+        // En una aplicación real, estos datos vendrían de una API conectada a tu base de datos Supabase.
+        // La estructura de este array de objetos imita las tablas que definiste.
+        const coachesData = [ 
+            { 
+                id: 1, // coaches.id
+                userId: 'uuid-user-1', // coaches.userId (para relacionar con auth.users)
+                displayname: 'Carlos Mendoza', // coaches.displayname
+                specialties: 'Mecánica Automotriz', // coaches.specialties
+                rating: 4.8, // coaches.rating (probablemente un valor calculado)
+                city: 'Bogotá', // coaches.city
+                country: 'Colombia', // coaches.country
+                status: 'Disponible', // Este valor se determinaría en tiempo real con la tabla 'availability'.
+                reviewsCount: 127, // Este valor se calcularía con un COUNT en la tabla 'ratings'.
+                bio: 'Especialista en mecánica automotriz...', // Este campo podría estar en 'coaches' o 'profiles'.
+                // 'reviews' simula un JOIN con la tabla 'ratings' para este coach.
+                reviews: [ 
+                    { name: 'Juan Carlos', date: 'hace 2 días', stars: 5, comment: 'Excelente sesión...' }, 
+                    { name: 'María López', date: 'hace 1 semana', stars: 5, comment: 'Súper recomendado...' } 
+                ], 
+                avatarColor: 'text-blue-400' // Dato solo para la UI.
+            }, 
+            { 
+                id: 2, userId: 'uuid-user-2', displayname: 'María García', specialties: 'Psicología Clínica', rating: 4.9, city: 'Medellín', country: 'Colombia', status: 'Disponible', reviewsCount: 203, bio: 'Psicóloga con enfoque humanista...',
+                reviews: [ { name: 'Ana Sofía', date: 'hace 1 día', stars: 5, comment: 'María es increíble...' }, { name: 'Pedro R.', date: 'hace 3 semanas', stars: 5, comment: 'Una gran profesional...' } ], 
+                avatarColor: 'text-pink-400'
+            },
+            // Se podrían añadir más coaches aquí para probar.
+        ];
+        
+        // --- 2. VARIABLES GLOBALES Y ESTADO DE LA APP ---
+        
+        // Almacena el ID del coach que se está viendo actualmente. Es 'null' si no se ve ninguno.
+        let currentCoachId = null;
+        // Almacena el plan de suscripción del usuario actual ('free' o 'premium').
+        let currentUserPlan = 'free';
+        
+        // --- 3. SELECCIÓN DE ELEMENTOS DEL DOM ---
+        // Guardamos en constantes las referencias a los elementos HTML que manipularemos.
+        
+        // Todas las "páginas" de la aplicación.
+        const pages = document.querySelectorAll('.page');
+        // Botones principales de navegación y acción.
+        const loginButton = document.getElementById('login-button');
+        const verify2faButton = document.getElementById('verify-2fa-button');
+        const logoutButton = document.getElementById('logout-button');
+        const subscriptionsButton = document.getElementById('subscriptions-button');
+        // Elementos para el cambio de tema.
+        const themeToggleButton = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+        // Elementos de la página de búsqueda.
+        const coachesGrid = document.getElementById('coaches-grid');
+        const coachesCountSpan = document.getElementById('coaches-count');
+        // Botones para volver atrás.
+        const backToSearchButton = document.getElementById('back-to-search-button');
+        const backToSearchFromSubsButton = document.getElementById('back-to-search-from-subs-button');
+        // Elementos de la videollamada y chat.
+        const endCallBtn = document.getElementById('end-call-btn');
+        const backToProfileFromChatBtn = document.getElementById('back-to-profile-from-chat-btn');
+        // Elementos de la página de suscripciones.
+        const freePlanCard = document.getElementById('free-plan-card');
+        const premiumPlanCard = document.getElementById('premium-plan-card');
+        const freePlanBtn = document.getElementById('free-plan-btn');
+        const premiumPlanBtn = document.getElementById('premium-plan-btn');
+
+        // --- 4. FUNCIONES PRINCIPALES ---
+
+        /**
+         * @description Controla la visibilidad de las páginas. Oculta todas excepto la que se pasa por ID.
+         * @param {string} pageId - El ID de la página a mostrar (ej: 'login', 'search').
+         */
+        function showPage(pageId) {
+            window.scrollTo(0, 0); // Vuelve al inicio de la página al cambiar.
+            pages.forEach(page => {
+                page.classList.toggle('hidden', page.id !== `page-${pageId}`);
+            });
+        }
+        
+        /**
+         * @description Genera y renderiza las tarjetas de los coaches en el grid de la página de búsqueda.
+         * @param {Array} coaches - Un array de objetos de coach para mostrar.
+         */
+        function generateCoachCards(coaches) {
+            coachesGrid.innerHTML = ''; // Limpia el contenido anterior.
+            coaches.forEach(coach => {
+                const isAvailable = coach.status === 'Disponible';
+                // Se usa la nomenclatura de la base de datos: 'displayname', 'specialties'.
+                const cardHTML = `<div class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl shadow-lg rounded-2xl p-6 flex flex-col text-center items-center ${isAvailable ? 'transform hover:-translate-y-2 transition-transform duration-300' : 'opacity-60'}"><div class="relative mb-4"><i class="fas fa-user-circle text-6xl ${coach.avatarColor}"></i><span class="absolute bottom-0 right-0 block h-5 w-5 ${isAvailable ? 'bg-green-500' : 'bg-slate-500'} border-2 border-white dark:border-slate-800 rounded-full"></span></div><span class="${isAvailable ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-300'} text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2">${coach.status}</span><h3 class="text-xl font-bold text-slate-800 dark:text-white">${coach.displayname}</h3><p class="text-slate-500 dark:text-slate-400 text-sm mb-4">${coach.specialties}</p><div class="w-full border-t border-slate-200 dark:border-slate-700 my-4"></div><div class="flex justify-between w-full text-sm text-slate-600 dark:text-slate-300 mb-6"><span><i class="fas fa-star text-yellow-400"></i> ${coach.rating} (${coach.reviewsCount})</span><span><i class="fas fa-map-marker-alt text-red-500"></i> ${coach.city}</span></div><button data-coach-id="${coach.id}" class="view-profile-btn w-full mt-auto ${isAvailable ? 'bg-primary hover:bg-primary-hover' : 'bg-slate-400 cursor-not-allowed'} text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105">Ver Perfil</button></div>`;
+                coachesGrid.innerHTML += cardHTML;
+            });
+            coachesCountSpan.textContent = `${coaches.length} coaches encontrados`;
+            
+            // Se añaden event listeners a los botones 'Ver Perfil' de cada tarjeta recién creada.
+            document.querySelectorAll('.view-profile-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    currentCoachId = e.currentTarget.dataset.coachId;
+                    const coach = coachesData.find(c => c.id == currentCoachId);
+                    if (coach && coach.status === 'Disponible') {
+                        populateCoachProfile(coach);
+                        showPage('coach-profile');
+                    }
+                });
+            });
+        }
+
+        /**
+         * @description Rellena la página de perfil con la información de un coach específico.
+         * @param {object} coach - El objeto del coach seleccionado.
+         */
+        function populateCoachProfile(coach) {
+            const isAvailable = coach.status === 'Disponible';
+            document.getElementById('profile-avatar').className = `fas fa-user-circle text-8xl ${coach.avatarColor}`;
+            document.getElementById('profile-status-dot').className = `absolute bottom-1 right-1 block h-6 w-6 ${isAvailable ? 'bg-green-500' : 'bg-slate-500'} border-4 border-white dark:border-slate-800 rounded-full`;
+            const statusTextEl = document.getElementById('profile-status-text');
+            statusTextEl.textContent = coach.status;
+            statusTextEl.className = `${isAvailable ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-300'} text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2`;
+            
+            // Usando los nuevos nombres de campo
+            document.getElementById('profile-name').textContent = coach.displayname;
+            document.getElementById('profile-specialties').textContent = coach.specialties;
+            document.getElementById('profile-rating').textContent = `${coach.rating} (${coach.reviewsCount} reseñas)`;
+            document.getElementById('profile-location').textContent = `${coach.city}, ${coach.country}`;
+            
+            document.getElementById('profile-about-name').textContent = coach.displayname.split(' ')[0];
+            document.getElementById('profile-bio').textContent = coach.bio;
+            
+            const reviewsContainer = document.getElementById('profile-reviews-container');
+            reviewsContainer.innerHTML = '';
+            if (coach.reviews.length > 0) {
+                coach.reviews.forEach(review => {
+                    // Usando 'stars' de la nueva estructura de datos para las reseñas
+                    let starsHTML = Array.from({length: 5}, (_, i) => `<i class="fas fa-star ${i < review.stars ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'}"></i>`).join('');
+                    reviewsContainer.innerHTML += `<div class="border-t border-slate-200 dark:border-slate-700 pt-6"><div class="flex justify-between items-center mb-2"><h5 class="font-bold text-slate-800 dark:text-white">${review.name}</h5><span class="text-xs text-slate-500 dark:text-slate-400">${review.date}</span></div><div class="text-yellow-400 mb-2">${starsHTML}</div><p class="text-slate-600 dark:text-slate-300">${review.comment}</p></div>`;
+                });
+            } else {
+                reviewsContainer.innerHTML = '<p class="text-slate-500 dark:text-slate-400">Este coach aún no tiene reseñas.</p>';
+            }
+            document.getElementById('connect-now-btn').onclick = () => openVideoCall(coach);
+            document.getElementById('send-message-btn').onclick = () => openChat(coach);
+        }
+
+        /**
+         * @description Actualiza la vista de la página de suscripciones para reflejar el plan actual del usuario.
+         */
+        function updateSubscriptionView() {
+            if (currentUserPlan === 'free') {
+                freePlanCard.classList.add('border-primary', 'transform', 'md:scale-105');
+                freePlanCard.classList.remove('border-transparent');
+                premiumPlanCard.classList.add('border-transparent');
+                premiumPlanCard.classList.remove('border-primary', 'transform', 'md:scale-105');
+                freePlanBtn.textContent = 'Plan Actual';
+                freePlanBtn.disabled = true;
+                freePlanBtn.className = 'w-full mt-auto bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold py-3 px-4 rounded-lg cursor-not-allowed';
+                premiumPlanBtn.textContent = 'Cambiar a Premium';
+                premiumPlanBtn.disabled = false;
+                premiumPlanBtn.className = 'w-full mt-auto bg-primary hover:bg-primary-hover text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105';
+            } else {
+                premiumPlanCard.classList.add('border-primary', 'transform', 'md:scale-105');
+                premiumPlanCard.classList.remove('border-transparent');
+                freePlanCard.classList.add('border-transparent');
+                freePlanCard.classList.remove('border-primary', 'transform', 'md:scale-105');
+                premiumPlanBtn.textContent = 'Plan Actual';
+                premiumPlanBtn.disabled = true;
+                premiumPlanBtn.className = 'w-full mt-auto bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold py-3 px-4 rounded-lg cursor-not-allowed';
+                freePlanBtn.textContent = 'Cambiar a Gratuito';
+                freePlanBtn.disabled = false;
+                freePlanBtn.className = 'w-full mt-auto bg-primary hover:bg-primary-hover text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105';
+            }
+        }
+        
+        /**
+         * @description Muestra la página de videollamada con el nombre del coach.
+         * @param {object} coach - El objeto del coach con quien se va a conectar.
+         */
+        function openVideoCall(coach) {
+            document.getElementById('video-call-coach-name').textContent = `Llamada con ${coach.displayname}`;
+            showPage('video-call');
+        }
+
+        /**
+         * @description Muestra la página de chat con la información del coach.
+         * @param {object} coach - El objeto del coach con quien se va a chatear.
+         */
+        function openChat(coach) {
+            document.getElementById('chat-coach-name').textContent = coach.displayname;
+            document.getElementById('chat-avatar').className = `fas fa-user-circle text-3xl mr-3 ${coach.avatarColor}`;
+            const statusEl = document.getElementById('chat-coach-status');
+            statusEl.textContent = coach.status;
+            statusEl.className = `text-xs ${coach.status === 'Disponible' ? 'text-green-500' : 'text-slate-500'}`;
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = `<div class="flex justify-start"><div class="bg-slate-200 dark:bg-slate-700 rounded-lg p-3 max-w-xs"><p class="text-sm text-slate-800 dark:text-slate-200">¡Hola! ¿En qué puedo ayudarte hoy?</p></div></div>`;
+            showPage('chat');
+        }
+
+        /**
+         * @description Maneja el envío de un nuevo mensaje en el chat.
+         */
+        function handleSendMessage() {
+            const chatInput = document.getElementById('chat-input');
+            const message = chatInput.value.trim();
+            if (message) {
+                const messageHTML = `<div class="flex justify-end"><div class="bg-primary text-white rounded-lg p-3 max-w-xs"><p class="text-sm">${message}</p></div></div>`;
+                document.getElementById('chat-messages').innerHTML += messageHTML;
+                chatInput.value = '';
+                document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+            }
+        }
+
+        // --- 5. EVENT LISTENERS (MANEJADORES DE EVENTOS) ---
+        // Aquí se define cómo responde la aplicación a las interacciones del usuario.
+
+        // Al hacer clic en el botón de login, muestra la página de 2FA.
+        loginButton.addEventListener('click', () => showPage('2fa'));
+
+        // Al verificar el código 2FA, muestra la página de búsqueda y los botones de usuario.
+        verify2faButton.addEventListener('click', () => {
+            showPage('search');
+            logoutButton.classList.remove('hidden');
+            subscriptionsButton.classList.remove('hidden');
+        });
+
+        // Al hacer clic en logout, vuelve a la página de login.
+        logoutButton.addEventListener('click', () => {
+            showPage('login');
+            logoutButton.classList.add('hidden');
+        });
+        
+        // Navegación a la página de suscripciones.
+        subscriptionsButton.addEventListener('click', () => showPage('subscriptions'));
+        
+        // Botones para volver a la página de búsqueda.
+        backToSearchButton.addEventListener('click', () => showPage('search'));
+        backToSearchFromSubsButton.addEventListener('click', () => showPage('search'));
+        
+        /**
+         * @description Función reutilizable para volver al perfil del coach actual.
+         */
+        const returnToProfile = () => {
+            if (currentCoachId) {
+                const coach = coachesData.find(c => c.id == currentCoachId);
+                populateCoachProfile(coach);
+                showPage('coach-profile');
+            } else { showPage('search'); } // Fallback si no hay coach seleccionado.
+        };
+        endCallBtn.addEventListener('click', returnToProfile);
+        backToProfileFromChatBtn.addEventListener('click', returnToProfile);
+        
+        // Listeners para cambiar de plan de suscripción.
+        premiumPlanBtn.addEventListener('click', () => { currentUserPlan = 'premium'; updateSubscriptionView(); });
+        freePlanBtn.addEventListener('click', () => { currentUserPlan = 'free'; updateSubscriptionView(); });
+        
+        // Listeners para el envío de mensajes en el chat.
+        document.getElementById('send-chat-btn').addEventListener('click', handleSendMessage);
+        document.getElementById('chat-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSendMessage(); });
+        
+        // Listeners para los controles de la videollamada (micrófono y cámara).
+        ['mic', 'cam'].forEach(type => {
+            document.getElementById(`${type}-btn`).addEventListener('click', (e) => {
+                const btn = e.currentTarget;
+                const icon = document.getElementById(`${type}-icon`);
+                btn.classList.toggle('bg-red-600');
+                btn.classList.toggle('bg-slate-600');
+                if (type === 'mic') icon.classList.toggle('fa-microphone-slash');
+                if (type === 'cam') icon.classList.toggle('fa-video-slash');
+            });
+        });
+        
+        /**
+         * @description Actualiza el icono del tema (sol/luna) y la clase en el <html>.
+         * @param {boolean} isDarkMode - True si el modo oscuro está activo.
+         */
+        function updateThemeIcon(isDarkMode) {
+             document.documentElement.classList.toggle('light', !isDarkMode);
+             if (isDarkMode) {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        }
+        
+        // Listener para el botón de cambio de tema.
+        themeToggleButton.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            updateThemeIcon(isDarkMode);
+        });
+        
+        // --- 6. INICIALIZACIÓN DE LA APLICACIÓN ---
+        
+        // Se ejecuta cuando todo el contenido HTML de la página ha sido cargado.
+        document.addEventListener('DOMContentLoaded', () => {
+            // Comprueba la preferencia de tema del sistema o del localStorage para aplicar el modo oscuro/claro.
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            updateThemeIcon(isDarkMode);
+            // Genera las tarjetas de coaches con los datos iniciales.
+            generateCoachCards(coachesData);
+            // Actualiza la vista de suscripciones al cargar la página.
+            updateSubscriptionView();
+        });
+    </script>
+</body>
+</html>
+
