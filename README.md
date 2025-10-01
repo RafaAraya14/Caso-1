@@ -1732,6 +1732,29 @@ npm run storybook
 | **Vite**                           | Build Tool              | Fast development and building           |
 | **WebSockets + WebRTC**            | Real-time Communication | Video calls and notifications           |
 
+# Project Documentation
+
+## Getting Started
+
+### Start Storybook
+```bash
+npm run storybook
+```
+
+## 🏗️ Technology Stack
+
+| Technology                         | Purpose                 | Implementation                          |
+| ---------------------------------- | ----------------------- | --------------------------------------- |
+| **React 18.2.0**                   | Frontend Framework      | Functional components with hooks        |
+| **TypeScript 5.2.2**               | Type Safety             | Strict mode configuration               |
+| **Tailwind CSS**                   | Styling System          | Utility-first approach with Card Design |
+| **Redux Toolkit + TanStack Query** | State Management        | User sessions + API data management     |
+| **Supabase**                       | Backend & Auth          | Real-time database and authentication   |
+| **Jest + React Testing Library**   | Testing Framework       | 461 tests with 100% pass rate           |
+| **ESLint + Prettier**              | Code Quality            | Custom rules with formatting            |
+| **Vite**                           | Build Tool              | Fast development and building           |
+| **WebSockets + WebRTC**            | Real-time Communication | Video calls and notifications           |
+
 ## 📁 Project Architecture
 
 ### N-Layer Architecture Overview
@@ -1739,122 +1762,298 @@ npm run storybook
 The project follows a 15-layer architecture based on the Caso #1 requirements:
 
 ```
-
-src/ ├── components/ # 1. UI Components Layer │ ├── ui/ # Atoms: Button, Card,
-Input, Modal │ ├── auth/ # Authentication components │ ├── coaches/ #
-Coach-related components │ ├── sessions/ # Session management components │ └──
-dashboard/ # Dashboard components ├── business/ # 2. Business Logic Layer │ ├──
-rules/ # Domain business rules │ ├── useCases/ # Application use cases │ └──
-index.ts ├── services/ # 3. Proxy/Client/Services Layer │ ├── PaymentService.ts
-│ ├── SessionService.ts │ └── api/ ├── middleware/ # 4. Middleware Layer │ ├──
-authInterceptor.ts │ ├── errorHandlerMiddleware.ts │ ├──
-permissionsMiddleware.ts │ └── enhancedRequestLogger.ts ├── background/ # 5.
-Background Jobs/Listeners Layer │ ├── EventBus.ts # Pub/Sub system │ ├──
-NotificationService.ts │ └── index.ts ├── validators/ # 6. Validators Layer │
-├── BaseValidator.ts │ ├── CreateSessionValidator.ts │ └──
-SearchCoachValidator.ts ├── transformers/ # 7. DTOs & Transformation Layer │ ├──
-CoachTransformer.ts │ ├── SessionTransformer.ts │ └── index.ts ├── types/ # 8.
-DTOs Layer │ ├── dtos/ │ └── index.ts ├── hooks/ # 9. Controllers Layer (React
-Hooks) │ ├── useAuth.ts │ ├── useCoachSearch.ts │ └── useSessionController.ts
-├── models/ # 10. Model Layer │ ├── User.ts │ ├── Coach.ts │ └── index.ts ├──
-utils/ # 11. Utilities Layer │ ├── ConfigManager.ts │ ├── CacheManager.ts │ ├──
-dateFormatter.ts │ └── validationUtils.ts ├── styles/ # 12. Styles Layer │ ├──
-globals.css │ └── tailwind.css ├── error-handling/ # 13. Exception Handling
-Layer │ ├── CustomError.ts │ └── errorHandler.ts ├── logging/ # 14. Logging
-Layer │ ├── logger.ts │ └── index.ts └── lib/ # 15. Security Layer └──
-supabase.ts
-
+src/
+├── components/                    # 1. UI Components Layer
+│   ├── ui/                       # Atoms: Button, Card, Input, Modal
+│   ├── auth/                     # Authentication components
+│   ├── coaches/                  # Coach-related components
+│   ├── sessions/                 # Session management components
+│   └── dashboard/                # Dashboard components
+├── business/                     # 2. Business Logic Layer
+│   ├── rules/                    # Domain business rules
+│   ├── useCases/                 # Application use cases
+│   └── index.ts
+├── services/                     # 3. Proxy/Client/Services Layer
+│   ├── PaymentService.ts
+│   ├── SessionService.ts
+│   └── api/
+├── middleware/                   # 4. Middleware Layer
+│   ├── authInterceptor.ts
+│   ├── errorHandlerMiddleware.ts
+│   ├── permissionsMiddleware.ts
+│   └── enhancedRequestLogger.ts
+├── background/                   # 5. Background Jobs/Listeners Layer
+│   ├── EventBus.ts              # Pub/Sub system
+│   ├── NotificationService.ts
+│   └── index.ts
+├── validators/                   # 6. Validators Layer
+│   ├── BaseValidator.ts
+│   ├── CreateSessionValidator.ts
+│   └── SearchCoachValidator.ts
+├── transformers/                 # 7. DTOs & Transformation Layer
+│   ├── CoachTransformer.ts
+│   ├── SessionTransformer.ts
+│   └── index.ts
+├── types/                        # 8. DTOs Layer
+│   ├── dtos/
+│   └── index.ts
+├── hooks/                        # 9. Controllers Layer (React Hooks)
+│   ├── useAuth.ts
+│   ├── useCoachSearch.ts
+│   └── useSessionController.ts
+├── models/                       # 10. Model Layer
+│   ├── User.ts
+│   ├── Coach.ts
+│   └── index.ts
+├── utils/                        # 11. Utilities Layer
+│   ├── ConfigManager.ts
+│   ├── CacheManager.ts
+│   ├── dateFormatter.ts
+│   └── validationUtils.ts
+├── styles/                       # 12. Styles Layer
+│   ├── globals.css
+│   └── tailwind.css
+├── error-handling/               # 13. Exception Handling Layer
+│   ├── CustomError.ts
+│   └── errorHandler.ts
+├── logging/                      # 14. Logging Layer
+│   ├── logger.ts
+│   └── index.ts
+└── lib/                          # 15. Security Layer
+    └── supabase.ts
 ```
 
-│ ├── vite.config.ts # Vite build configuration │ ├── jest.config.js # Testing
-configuration │ ├── tailwind.config.js # Styling configuration │ └──
-.eslintrc.js # Code quality rules │ ├── 📂 src/ (Main Application) │ ├── 🖥️
-components/ # React Components (UI Layer) │ │ ├── auth/ # Authentication
-components │ │ │ ├── SimpleLogin.tsx # Simple login component │ │ │ ├──
-LoginForm/ # Complete login form │ │ │ └── AuthProvider/ # Auth context provider
-│ │ ├── coaches/ # Coach-related components │ │ │ ├── CoachCard/ # Individual
-coach card │ │ │ ├── CoachList/ # Coach listing component │ │ │ ├──
-CoachProfile/ # Coach profile page │ │ │ └── CoachSearch/ # Coach search
-functionality │ │ ├── sessions/ # Session management │ │ │ ├──
-HireCoachButton.tsx # Hiring functionality │ │ │ └── index.ts # Session exports
-│ │ ├── dashboard/ # Dashboard components │ │ │ ├── index.tsx # Dashboard layout
-│ │ │ └── page.tsx # Dashboard page │ │ └── ui/ # Reusable UI components │ │ ├──
-Button/ # Button component │ │ ├── Card/ # Card component │ │ ├── Input/ # Input
-component │ │ ├── Modal/ # Modal component │ │ └── ThemeToggle/ # Theme switcher
-│ │ │ ├── 🧠 business/ (FASE 1) # Business Logic Layer │ │ ├── rules/ # Business
-rules │ │ │ ├── SessionRules.ts # Session business rules │ │ │ ├──
-CoachRules.ts # Coach business rules │ │ │ └── index.ts # Business rules exports
-│ │ ├── use-cases/ # Use case implementations │ │ │ ├── BookSessionUseCase.ts #
-Book session use case │ │ │ ├── SearchCoachUseCase.ts # Search coach use case │
-│ │ └── index.ts # Use cases exports │ │ └── index.ts # Business layer exports │
-│ │ ├── 📡 background/ (FASE 2) # Background Jobs & Events │ │ ├── EventBus.ts #
-Singleton event bus (359 lines) │ │ ├── NotificationService.ts # Singleton
-notification service (285 lines) │ │ └── index.ts # Background system exports │
-│ │ ├── 👂 listeners/ (FASE 2) # Event Listeners (Observer Pattern) │ │ ├──
-SessionListener.ts # Session event listener │ │ ├── CoachListener.ts # Coach
-event listener │ │ └── index.ts # Listeners exports │ │ │ ├── 🔧 utils/
-(FASE 2) # Utilities Layer │ │ ├── ConfigManager.ts # Singleton configuration
-manager │ │ ├── CacheManager.ts # Strategy pattern cache manager │ │ ├──
-dateFormatter.ts # Date formatting utilities │ │ ├── stringFormatter.ts # String
-formatting utilities │ │ ├── numberFormatter.ts # Number formatting utilities │
-│ ├── validationUtils.ts # Validation utilities │ │ ├── arrayUtils.ts # Array
-manipulation utilities │ │ ├── objectUtils.ts # Object manipulation utilities │
-│ ├── browserUtils.ts # Browser-specific utilities │ │ └── index.ts # Utilities
-exports │ │ │ ├── ✅ validators/ (FASE 1) # Validation Layer (Strategy Pattern)
-│ │ ├── BaseValidator.ts # Base validator interface │ │ ├──
-CreateSessionValidator.ts # Session creation validator │ │ ├──
-SearchCoachValidator.ts # Coach search validator │ │ └── index.ts # Validators
-exports │ │ │ ├── 🔄 transformers/ (FASE 1) # Data Transformation (Factory
-Pattern) │ │ ├── TransformerFactory.ts # Factory for transformers │ │ ├──
-CoachTransformer.ts # Coach data transformer │ │ ├── SessionTransformer.ts #
-Session data transformer │ │ └── index.ts # Transformers exports │ │ │ ├── 📝
-types/ (FASE 1) # Type Definitions │ │ ├── dtos/ # Data Transfer Objects │ │ │
-├── CreateSessionDTO.ts # Session creation DTO │ │ │ ├── SearchCoachDTO.ts #
-Coach search DTO │ │ │ └── index.ts # DTOs exports │ │ ├── supabase/ # Supabase
-type definitions │ │ │ └── database.types.ts # Generated database types │ │ └──
-index.ts # All types exports │ │ │ ├── ⚙️ services/ # Services Layer │ │ ├──
-PaymentService.ts # Payment processing service │ │ ├── SessionService.ts #
-Session management service │ │ └── api/ # API layer │ │ ├── coachApi.ts # Coach
-API client │ │ ├── supabase/ # Supabase integrations │ │ │ └── index.ts #
-Supabase client setup │ │ └── index.ts # API exports │ │ │ ├── 🏗️ models/ #
-Domain Models │ │ ├── Coach.ts # Coach domain model │ │ ├── Coach.test.ts #
-Coach model tests │ │ ├── User.ts # User domain model │ │ ├── User.test.ts #
-User model tests │ │ └── index.ts # Models exports │ │ │ ├── 🎣 hooks/ # React
-Hooks (Controller Layer) │ │ ├── useAuth.ts # Authentication hook │ │ ├──
-useCoachSearch.ts # Coach search hook │ │ ├── useSessionController.ts # Session
-controller hook │ │ ├── useTheme.ts # Theme management hook │ │ ├──
-useUserCredits.tsx # User credits hook │ │ └── index.ts # Hooks exports │ │ │
-├── 🛡️ middleware/ # Middleware Layer │ │ ├── authInterceptor.ts #
-Authentication interceptor │ │ ├── errorHandlerMiddleware.ts # Error handling
-middleware │ │ ├── requestLogger.ts # Request logging middleware │ │ └──
-index.ts # Middleware exports │ │ │ ├── ⚠️ error-handling/ # Error Management │
-│ ├── CustomError.ts # Custom error classes │ │ ├── errorHandler.ts # Error
-handler implementation │ │ └── index.ts # Error handling exports │ │ │ ├── 📊
-logging/ # Logging System │ │ ├── logger.ts # Logger implementation │ │ └──
-index.ts # Logging exports │ │ │ ├── 🎨 styles/ # Styling │ │ ├── globals.css #
-Global styles │ │ └── tailwind.css # Tailwind imports │ │ │ ├── 📚 lib/ #
-External Libraries │ │ └── supabase.ts # Supabase client configuration │ │ │ ├──
-🔧 App.tsx # Main App component │ ├── AppPrototype.tsx # Prototype component │
-├── index.tsx # App entry point │ ├── prototype.tsx # Prototype entry point │
-├── setupTests.ts # Test setup │ └── vite-env.d.ts # Vite environment types │
-├── 📂 docs/ (Documentation) │ ├── UX-Testing-Results.md # UX testing
-documentation │ ├── Background-Jobs-Examples.md # Background jobs documentation
-│ ├── Design-Patterns-Documentation.md # Design patterns guide │ ├──
-Architecture-Diagram.md # Architecture documentation │ ├── Classes-Diagram.md #
-Classes documentation │ └── Middleware_v1.docx # Middleware documentation │ ├──
-📂 diagrams/ (Visual Documentation) │ ├── Architecture Diagram.jpg # Original
-architecture diagram │ ├── Architecture Diagram.pdf # Original architecture PDF
-│ ├── Classes Diagram.jpg # Original classes diagram │ ├── Classes Diagram.pdf #
-Original classes PDF │ ├── Architecture-Diagram-Updated.txt # Updated
-architecture (FASE 1-2) │ └── Classes-Diagram-Updated.txt # Updated classes
-(FASE 1-2) │ ├── 📂 demo/ (Testing & Demos) │ ├── fase2-demo.ts # FASE 2
-demonstration script │ ├── manual-test.ts # Manual testing script │ └──
-basic-tests.ts # Basic functionality tests │ ├── 📄 Root Files │ ├── README.md #
-This comprehensive documentation │ ├── caso #1.md # Original project
-requirements │ ├── index.html # Main HTML template │ ├── prototype.html #
-Prototype HTML template │ ├── LICENSE # Project license │ └──
-postcss.config.js # PostCSS configuration
+## 📂 Detailed Project Structure
 
+### Configuration Files
+```
+├── vite.config.ts               # Vite build configuration
+├── jest.config.js               # Testing configuration
+├── tailwind.config.js           # Styling configuration
+└── .eslintrc.js                 # Code quality rules
+```
+
+### Main Application (src/)
+
+#### 🖥️ Components Layer
+```
+components/                      # React Components (UI Layer)
+├── auth/                        # Authentication components
+│   ├── SimpleLogin.tsx          # Simple login component
+│   ├── LoginForm/               # Complete login form
+│   └── AuthProvider/            # Auth context provider
+├── coaches/                     # Coach-related components
+│   ├── CoachCard/               # Individual coach card
+│   ├── CoachList/               # Coach listing component
+│   ├── CoachProfile/            # Coach profile page
+│   └── CoachSearch/             # Coach search functionality
+├── sessions/                    # Session management
+│   ├── HireCoachButton.tsx      # Hiring functionality
+│   └── index.ts                 # Session exports
+├── dashboard/                   # Dashboard components
+│   ├── index.tsx                # Dashboard layout
+│   └── page.tsx                 # Dashboard page
+└── ui/                          # Reusable UI components
+    ├── Button/                  # Button component
+    ├── Card/                    # Card component
+    ├── Input/                   # Input component
+    ├── Modal/                   # Modal component
+    └── ThemeToggle/             # Theme switcher
+```
+
+#### 🧠 Business Logic Layer (FASE 1)
+```
+business/
+├── rules/                       # Business rules
+│   ├── SessionRules.ts          # Session business rules
+│   ├── CoachRules.ts            # Coach business rules
+│   └── index.ts                 # Business rules exports
+├── use-cases/                   # Use case implementations
+│   ├── BookSessionUseCase.ts    # Book session use case
+│   ├── SearchCoachUseCase.ts    # Search coach use case
+│   └── index.ts                 # Use cases exports
+└── index.ts                     # Business layer exports
+```
+
+#### 📡 Background Jobs & Events (FASE 2)
+```
+background/
+├── EventBus.ts                  # Singleton event bus (359 lines)
+├── NotificationService.ts       # Singleton notification service (285 lines)
+└── index.ts                     # Background system exports
+```
+
+#### 👂 Event Listeners (FASE 2)
+```
+listeners/                       # Observer Pattern
+├── SessionListener.ts           # Session event listener
+├── CoachListener.ts             # Coach event listener
+└── index.ts                     # Listeners exports
+```
+
+#### 🔧 Utilities Layer (FASE 2)
+```
+utils/
+├── ConfigManager.ts             # Singleton configuration manager
+├── CacheManager.ts              # Strategy pattern cache manager
+├── dateFormatter.ts             # Date formatting utilities
+├── stringFormatter.ts           # String formatting utilities
+├── numberFormatter.ts           # Number formatting utilities
+├── validationUtils.ts           # Validation utilities
+├── arrayUtils.ts                # Array manipulation utilities
+├── objectUtils.ts               # Object manipulation utilities
+├── browserUtils.ts              # Browser-specific utilities
+└── index.ts                     # Utilities exports
+```
+
+#### ✅ Validation Layer (FASE 1)
+```
+validators/                      # Strategy Pattern
+├── BaseValidator.ts             # Base validator interface
+├── CreateSessionValidator.ts    # Session creation validator
+├── SearchCoachValidator.ts      # Coach search validator
+└── index.ts                     # Validators exports
+```
+
+#### 🔄 Data Transformation (FASE 1)
+```
+transformers/                    # Factory Pattern
+├── TransformerFactory.ts        # Factory for transformers
+├── CoachTransformer.ts          # Coach data transformer
+├── SessionTransformer.ts        # Session data transformer
+└── index.ts                     # Transformers exports
+```
+
+#### 📝 Type Definitions (FASE 1)
+```
+types/
+├── dtos/                        # Data Transfer Objects
+│   ├── CreateSessionDTO.ts      # Session creation DTO
+│   ├── SearchCoachDTO.ts        # Coach search DTO
+│   └── index.ts                 # DTOs exports
+├── supabase/                    # Supabase type definitions
+│   └── database.types.ts        # Generated database types
+└── index.ts                     # All types exports
+```
+
+#### ⚙️ Services Layer
+```
+services/
+├── PaymentService.ts            # Payment processing service
+├── SessionService.ts            # Session management service
+└── api/                         # API layer
+    ├── coachApi.ts              # Coach API client
+    ├── supabase/                # Supabase integrations
+    │   └── index.ts             # Supabase client setup
+    └── index.ts                 # API exports
+```
+
+#### 🏗️ Domain Models
+```
+models/
+├── Coach.ts                     # Coach domain model
+├── Coach.test.ts                # Coach model tests
+├── User.ts                      # User domain model
+├── User.test.ts                 # User model tests
+└── index.ts                     # Models exports
+```
+
+#### 🎣 React Hooks (Controller Layer)
+```
+hooks/
+├── useAuth.ts                   # Authentication hook
+├── useCoachSearch.ts            # Coach search hook
+├── useSessionController.ts      # Session controller hook
+├── useTheme.ts                  # Theme management hook
+├── useUserCredits.tsx           # User credits hook
+└── index.ts                     # Hooks exports
+```
+
+#### 🛡️ Middleware Layer
+```
+middleware/
+├── authInterceptor.ts           # Authentication interceptor
+├── errorHandlerMiddleware.ts    # Error handling middleware
+├── requestLogger.ts             # Request logging middleware
+└── index.ts                     # Middleware exports
+```
+
+#### ⚠️ Error Management
+```
+error-handling/
+├── CustomError.ts               # Custom error classes
+├── errorHandler.ts              # Error handler implementation
+└── index.ts                     # Error handling exports
+```
+
+#### 📊 Logging System
+```
+logging/
+├── logger.ts                    # Logger implementation
+└── index.ts                     # Logging exports
+```
+
+#### 🎨 Styling
+```
+styles/
+├── globals.css                  # Global styles
+└── tailwind.css                 # Tailwind imports
+```
+
+#### 📚 External Libraries
+```
+lib/
+└── supabase.ts                  # Supabase client configuration
+```
+
+#### Application Entry Points
+```
+├── App.tsx                      # Main App component
+├── AppPrototype.tsx             # Prototype component
+├── index.tsx                    # App entry point
+├── prototype.tsx                # Prototype entry point
+├── setupTests.ts                # Test setup
+└── vite-env.d.ts                # Vite environment types
+```
+
+### 📂 Documentation
+```
+docs/
+├── UX-Testing-Results.md        # UX testing documentation
+├── Background-Jobs-Examples.md  # Background jobs documentation
+├── Design-Patterns-Documentation.md # Design patterns guide
+├── Architecture-Diagram.md      # Architecture documentation
+├── Classes-Diagram.md           # Classes documentation
+└── Middleware_v1.docx           # Middleware documentation
+```
+
+### 📂 Visual Documentation
+```
+diagrams/
+├── Architecture Diagram.jpg     # Original architecture diagram
+├── Architecture Diagram.pdf     # Original architecture PDF
+├── Classes Diagram.jpg          # Original classes diagram
+├── Classes Diagram.pdf          # Original classes PDF
+├── Architecture-Diagram-Updated.txt # Updated architecture (FASE 1-2)
+└── Classes-Diagram-Updated.txt  # Updated classes (FASE 1-2)
+```
+
+### 📂 Testing & Demos
+```
+demo/
+├── fase2-demo.ts               # FASE 2 demonstration script
+├── manual-test.ts              # Manual testing script
+└── basic-tests.ts              # Basic functionality tests
+```
+
+### 📄 Root Files
+```
+├── README.md                   # This comprehensive documentation
+├── caso #1.md                  # Original project requirements
+├── index.html                  # Main HTML template
+├── prototype.html              # Prototype HTML template
+├── LICENSE                     # Project license
+└── postcss.config.js           # PostCSS configuration
 ```
 
 ## 🛠️ Development Guide
