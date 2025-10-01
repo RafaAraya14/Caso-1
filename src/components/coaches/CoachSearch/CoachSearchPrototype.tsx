@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Button } from '../../ui/Button';
+import { Button } from '../../ui/Button/Button';
 import { Input } from '../../ui/Input';
 
 interface Coach {

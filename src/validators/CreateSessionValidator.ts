@@ -1,5 +1,5 @@
 // src/validators/CreateSessionValidator.ts
-import { BaseValidator, type ValidationResult } from './BaseValidator';
+import { BaseValidator, type ValidationError, type ValidationResult } from './BaseValidator';
 
 import type { CreateSessionDTO } from '../types/dtos/CreateSessionDTO';
 
@@ -9,9 +9,21 @@ import type { CreateSessionDTO } from '../types/dtos/CreateSessionDTO';
  */
 export class CreateSessionValidator extends BaseValidator<CreateSessionDTO> {
   validate(data: CreateSessionDTO): ValidationResult {
-    const errors = [];
+    const errors: ValidationError[] = [];
 
-    // Validar campos requeridos
+    // Validar cada grupo de campos usando métodos separados
+    this.validateRequiredFields(data, errors);
+    this.validateSessionDetails(data, errors);
+    this.validateOptionalFields(data, errors);
+
+    return {
+      isValid: errors.length === 0,
+      errors: errors.filter(Boolean),
+    };
+  }
+
+  private validateRequiredFields(data: CreateSessionDTO, errors: ValidationError[]): void {
+    // Validar campos requeridos básicos
     if (!data.userId) {
       errors.push(this.createError('userId', 'El ID de usuario es requerido', 'REQUIRED_FIELD'));
     }
@@ -21,7 +33,10 @@ export class CreateSessionValidator extends BaseValidator<CreateSessionDTO> {
     } else if (!this.isValidIdFormat(data.coachId)) {
       errors.push(this.createError('coachId', 'Formato de ID de coach inválido', 'INVALID_FORMAT'));
     }
+  }
 
+  private validateSessionDetails(data: CreateSessionDTO, errors: ValidationError[]): void {
+    // Validar fecha y hora programada
     if (!data.scheduledDateTime) {
       errors.push(
         this.createError('scheduledDateTime', 'La fecha programada es requerida', 'REQUIRED_FIELD')
@@ -33,6 +48,7 @@ export class CreateSessionValidator extends BaseValidator<CreateSessionDTO> {
       }
     }
 
+    // Validar duración
     if (!data.duration) {
       errors.push(this.createError('duration', 'La duración es requerida', 'REQUIRED_FIELD'));
     } else if (data.duration < 10 || data.duration >= 120) {
@@ -45,6 +61,7 @@ export class CreateSessionValidator extends BaseValidator<CreateSessionDTO> {
       );
     }
 
+    // Validar tipo de sesión
     if (!data.sessionType) {
       errors.push(
         this.createError('sessionType', 'El tipo de sesión es requerido', 'REQUIRED_FIELD')
@@ -52,7 +69,9 @@ export class CreateSessionValidator extends BaseValidator<CreateSessionDTO> {
     } else if (!['video-call', 'phone-call', 'in-person'].includes(data.sessionType)) {
       errors.push(this.createError('sessionType', 'Tipo de sesión inválido', 'INVALID_VALUE'));
     }
+  }
 
+  private validateOptionalFields(data: CreateSessionDTO, errors: ValidationError[]): void {
     // Validar campos opcionales
     if (data.topic && data.topic.length > 200) {
       errors.push(
@@ -65,11 +84,6 @@ export class CreateSessionValidator extends BaseValidator<CreateSessionDTO> {
         this.createError('notes', 'Las notas no pueden exceder 500 caracteres', 'MAX_LENGTH')
       );
     }
-
-    return {
-      isValid: errors.length === 0,
-      errors: errors.filter(Boolean),
-    };
   }
 
   private isValidIdFormat(id: string): boolean {

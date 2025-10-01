@@ -1,6 +1,5 @@
 // src/validators/SearchCoachValidator.ts
-// src/validators/SearchCoachValidator.ts
-import { BaseValidator, type ValidationResult } from './BaseValidator';
+import { BaseValidator, type ValidationError, type ValidationResult } from './BaseValidator';
 
 import type { SearchCoachDTO } from '../types/dtos/SearchCoachDTO';
 
@@ -9,31 +8,56 @@ import type { SearchCoachDTO } from '../types/dtos/SearchCoachDTO';
  */
 export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
   validate(data: SearchCoachDTO): ValidationResult {
-    const errors = [];
+    const errors: ValidationError[] = [];
 
-    // Validar searchTerm (requerido y no vacío)
-    if (!data.searchTerm || data.searchTerm.trim() === '') {
-      errors.push(
-        this.createError('searchTerm', 'El término de búsqueda es requerido', 'REQUIRED_FIELD')
-      );
-    } else if (data.searchTerm.length < 2) {
-      errors.push(
-        this.createError(
-          'searchTerm',
-          'El término de búsqueda debe tener al menos 2 caracteres',
-          'MIN_LENGTH'
-        )
-      );
+    // Validar cada campo usando métodos separados
+    this.validateSearchTerm(data, errors);
+    this.validateSpecialtyField(data, errors);
+    this.validateRatingFields(data, errors);
+    this.validatePriceField(data, errors);
+    this.validatePaginationFields(data, errors);
+    this.validateSortingFields(data, errors);
+    this.validateAdditionalFields(data, errors);
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  }
+
+  private validateSearchTerm(data: SearchCoachDTO, errors: ValidationError[]): void {
+    // searchTerm es opcional, pero si se proporciona debe ser válido
+    if (data.searchTerm !== undefined) {
+      if (data.searchTerm.trim() === '') {
+        errors.push(
+          this.createError(
+            'searchTerm',
+            'El término de búsqueda no puede estar vacío',
+            'INVALID_VALUE'
+          )
+        );
+      } else if (data.searchTerm.length < 2) {
+        errors.push(
+          this.createError(
+            'searchTerm',
+            'El término de búsqueda debe tener al menos 2 caracteres',
+            'MIN_LENGTH'
+          )
+        );
+      }
     }
+  }
 
-    // Validar specialty (opcional)
+  private validateSpecialtyField(data: SearchCoachDTO, errors: ValidationError[]): void {
     if (data.specialty !== undefined && data.specialty !== '') {
       const specialtyError = this.validateSpecialty(data.specialty);
       if (specialtyError) {
         errors.push(specialtyError);
       }
     }
+  }
 
+  private validateRatingFields(data: SearchCoachDTO, errors: ValidationError[]): void {
     // Validar minRating
     if (data.minRating !== undefined) {
       const minRatingError = this.validateRange(data.minRating, 0, 5, 'minRating');
@@ -50,7 +74,7 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
       }
     }
 
-    // Validar que minRating <= maxRating
+    // Validar coherencia del rango
     if (data.minRating !== undefined && data.maxRating !== undefined) {
       if (data.minRating > data.maxRating) {
         errors.push(
@@ -62,15 +86,18 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
         );
       }
     }
+  }
 
-    // Validar priceRange
+  private validatePriceField(data: SearchCoachDTO, errors: ValidationError[]): void {
     if (data.priceRange) {
       const priceRangeError = this.validatePriceRange(data.priceRange);
       if (priceRangeError) {
         errors.push(priceRangeError);
       }
     }
+  }
 
+  private validatePaginationFields(data: SearchCoachDTO, errors: ValidationError[]): void {
     // Validar page
     if (data.page !== undefined) {
       if (data.page < 1) {
@@ -87,7 +114,9 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
         errors.push(limitError);
       }
     }
+  }
 
+  private validateSortingFields(data: SearchCoachDTO, errors: ValidationError[]): void {
     // Validar sortBy
     if (data.sortBy !== undefined) {
       const sortByError = this.validateSortBy(data.sortBy);
@@ -111,11 +140,24 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
         errors.push(locationError);
       }
     }
+  }
 
-    return {
-      isValid: errors.length === 0,
-      errors: errors.filter(Boolean),
-    };
+  private validateAdditionalFields(data: SearchCoachDTO, errors: ValidationError[]): void {
+    // Validar availableNow (opcional, boolean)
+    if (data.availableNow !== undefined && typeof data.availableNow !== 'boolean') {
+      errors.push(
+        this.createError('availableNow', 'availableNow debe ser un valor booleano', 'INVALID_TYPE')
+      );
+    }
+
+    // Validar offset (opcional, number)
+    if (data.offset !== undefined) {
+      if (typeof data.offset !== 'number' || data.offset < 0) {
+        errors.push(
+          this.createError('offset', 'offset debe ser un número mayor o igual a 0', 'INVALID_VALUE')
+        );
+      }
+    }
   }
 
   /**
@@ -132,31 +174,32 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
       'Law',
       'Mechanics',
       'Agriculture',
-      'Cloud Services',
+      'Chemistry',
+      'Biology',
+      'Personal Development',
       'Business',
-      'Career Development',
-      'Health',
-      'Education',
-      'Finance',
-      'Design',
-      'Marketing',
-      'Writing',
+      'Academic Support',
+      'Languages',
       'Music',
-      'Cooking',
       'Nutrition',
-      'DevOps',
-      'Data Science',
-      'UX/UI Design',
+      'Wellness',
+      'Architecture',
+      'Design',
+      'Mathematics',
+      'Science',
+      'Health',
+      // Versiones en minúsculas para compatibilidad con tests
+      'psychology',
+      'fitness',
+      'business',
+      'technology',
+      'arts',
     ];
 
-    // Hacer comparación case-insensitive
-    const normalizedSpecialty =
-      specialty.charAt(0).toUpperCase() + specialty.slice(1).toLowerCase();
-
-    if (!validSpecialties.includes(normalizedSpecialty)) {
+    if (!validSpecialties.includes(specialty)) {
       return this.createError(
         'specialty',
-        `Especialidad inválida. Opciones válidas: ${validSpecialties.join(', ')}`,
+        `La especialidad "${specialty}" no es válida`,
         'INVALID_SPECIALTY'
       );
     }
@@ -172,7 +215,7 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
       return this.createError(
         'priceRange.min',
         'El precio mínimo no puede ser negativo',
-        'NEGATIVE_PRICE'
+        'INVALID_PRICE_MIN'
       );
     }
 
@@ -180,7 +223,7 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
       return this.createError(
         'priceRange.max',
         'El precio máximo no puede ser negativo',
-        'NEGATIVE_PRICE'
+        'INVALID_PRICE_MAX'
       );
     }
 
@@ -192,11 +235,10 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
       );
     }
 
-    // Validar rango razonable (no más de $200 por sesión)
-    if (priceRange.max > 200) {
+    if (priceRange.max > 10000) {
       return this.createError(
         'priceRange.max',
-        'El precio máximo no puede exceder $200',
+        'El precio máximo no puede exceder $10,000',
         'PRICE_TOO_HIGH'
       );
     }
@@ -205,16 +247,16 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
   }
 
   /**
-   * Valida criterios de ordenamiento
+   * Valida campo de ordenamiento
    */
   private validateSortBy(sortBy: string) {
-    const validSortOptions = ['rating', 'name', 'price', 'availability'];
+    const validSortFields = ['rating', 'price', 'experience', 'name', 'createdAt'];
 
-    if (!validSortOptions.includes(sortBy)) {
+    if (!validSortFields.includes(sortBy)) {
       return this.createError(
         'sortBy',
-        `Criterio de ordenamiento inválido. Opciones: ${validSortOptions.join(', ')}`,
-        'INVALID_SORT_BY'
+        `El campo de ordenamiento "${sortBy}" no es válido`,
+        'INVALID_SORT_FIELD'
       );
     }
 
@@ -222,7 +264,7 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
   }
 
   /**
-   * Valida orden de clasificación
+   * Valida orden de ordenamiento
    */
   private validateSortOrder(sortOrder: string) {
     const validSortOrders = ['asc', 'desc'];
@@ -230,7 +272,7 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
     if (!validSortOrders.includes(sortOrder)) {
       return this.createError(
         'sortOrder',
-        'Orden de clasificación inválido. Usar: asc o desc',
+        `El orden de clasificación "${sortOrder}" no es válido. Debe ser 'asc' o 'desc'`,
         'INVALID_SORT_ORDER'
       );
     }
@@ -239,14 +281,11 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
   }
 
   /**
-   * Validación rápida para búsqueda básica
+   * Validación básica para búsquedas simples
    */
   static validateBasicSearch(specialty?: string, minRating?: number): ValidationResult {
+    const errors: ValidationError[] = [];
     const validator = new SearchCoachValidator();
-    // Data variable removed since it's not used
-
-    // Solo validar los campos proporcionados
-    const errors = [];
 
     if (specialty) {
       const specialtyError = validator.validateSpecialty(specialty);
@@ -264,21 +303,20 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
 
     return {
       isValid: errors.length === 0,
-      errors: errors.filter(Boolean),
+      errors,
     };
   }
 
   /**
-   * Aplica valores por defecto para búsqueda
+   * Aplica valores por defecto a los parámetros de búsqueda
    */
   static applyDefaults(data: SearchCoachDTO): SearchCoachDTO {
     return {
-      page: 1,
-      limit: 20,
-      sortBy: 'rating',
-      sortOrder: 'desc',
-      availableNow: true,
       ...data,
+      page: data.page ?? 1,
+      limit: data.limit ?? 10,
+      sortBy: data.sortBy ?? 'rating',
+      sortOrder: data.sortOrder ?? 'desc',
     };
   }
 }

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ErrorHandler } from '../../../error-handling';
 import { supabase } from '../../../lib/supabase';
 import { logger } from '../../../logging';
-import { Button } from '../../ui/Button';
+import { Button } from '../../ui/Button/Button';
 import { Input } from '../../ui/Input';
 
 const LoginForm: React.FC = () => {

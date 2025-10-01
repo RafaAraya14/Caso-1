@@ -2,7 +2,7 @@ import React from 'react';
 
 import useSessionController from '../../hooks/useSessionController';
 import { useAuth } from '../auth';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/Button/Button';
 
 interface Props {
   coachId: number;
@@ -26,7 +26,7 @@ const HireCoachButton: React.FC<Props> = ({ coachId, onHired }) => {
       <Button
         onClick={onClick}
         disabled={!user?.id}
-        isLoading={loading}
+        loading={loading}
         variant="primary"
         className="w-full"
       >

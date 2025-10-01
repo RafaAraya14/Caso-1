@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUserCredits } from '../../hooks/useUserCredits';
 import { useAuth } from '../auth';
 import HireCoachButton from '../sessions/HireCoachButton';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/Button/Button';
 import { Card } from '../ui/Card';
 
 const mockCoaches = [

@@ -1,6 +1,4 @@
-import React from 'react';
-
-import { Button } from '../../ui/Button';
+import { Button } from '../../ui/Button/Button';
 import { Card } from '../../ui/Card';
 
 export const CoachCard = () => {

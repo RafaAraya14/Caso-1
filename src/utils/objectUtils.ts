@@ -5,6 +5,21 @@
  * Incluye clonado profundo, merge, transformaciones y navegación.
  */
 
+// Tipos helper para mayor type safety
+interface CloneableObject {
+  [key: string]: Cloneable;
+}
+
+type Cloneable =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Date
+  | Cloneable[]
+  | CloneableObject;
+
 export class ObjectUtils {
   private static instance: ObjectUtils;
 
@@ -20,52 +35,55 @@ export class ObjectUtils {
 
 // Clonado y merge
 
-export const deepClone = <T>(obj: T, visited = new WeakMap()): T => {
+export const deepClone = <T>(obj: T, visited = new WeakMap<object, unknown>()): T => {
   if (obj === null || typeof obj !== 'object') {
     return obj;
   }
 
   // Check for circular references
-  if (visited.has(obj as any)) {
-    return visited.get(obj as any);
+  if (visited.has(obj as object)) {
+    return visited.get(obj as object) as T;
   }
 
   if (obj instanceof Date) {
-    return new Date(obj.getTime()) as any;
+    return new Date(obj.getTime()) as T;
   }
 
   if (obj instanceof Array) {
-    const cloned = [] as any;
-    visited.set(obj as any, cloned);
-    return obj.map(item => deepClone(item, visited)) as any;
+    const cloned: unknown[] = [];
+    visited.set(obj as object, cloned);
+    return obj.map(item => deepClone(item, visited)) as T;
   }
 
   if (typeof obj === 'object') {
-    const cloned = {} as any;
-    visited.set(obj as any, cloned);
+    const cloned: Record<string, unknown> = {};
+    visited.set(obj as object, cloned);
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        cloned[key] = deepClone(obj[key], visited);
+        cloned[key] = deepClone((obj as Record<string, unknown>)[key], visited);
       }
     }
-    return cloned;
+    return cloned as T;
   }
 
   return obj;
 };
 
 export const deepMerge = <T extends object, U extends object>(target: T, source: U): T & U => {
-  const result = { ...target } as any;
+  const result = { ...target } as T & U;
 
   for (const key in source) {
     if (Object.prototype.hasOwnProperty.call(source, key)) {
       const sourceValue = source[key];
-      const targetValue = result[key];
+      const targetValue = (result as Record<string, unknown>)[key];
 
       if (isObject(sourceValue) && isObject(targetValue)) {
-        result[key] = deepMerge(targetValue as object, sourceValue as object);
+        (result as Record<string, unknown>)[key] = deepMerge(
+          targetValue as object,
+          sourceValue as object
+        );
       } else {
-        result[key] = sourceValue;
+        (result as Record<string, unknown>)[key] = sourceValue;
       }
     }
   }
@@ -86,17 +104,17 @@ export const pick = <T extends object, K extends keyof T>(obj: T, keys: K[]): Pi
 };
 
 export const omit = <T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
-  const result = { ...obj } as any;
+  const result = { ...obj } as Omit<T, K>;
   keys.forEach(key => {
-    delete result[key];
+    delete (result as Record<string, unknown>)[key as string];
   });
   return result;
 };
 
 // Aplanado y navegación
 
-export const flattenObject = (obj: object, prefix: string = ''): Record<string, any> => {
-  const flattened: Record<string, any> = {};
+export const flattenObject = (obj: object, prefix: string = ''): Record<string, unknown> => {
+  const flattened: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(obj)) {
     const newKey = prefix ? `${prefix}.${key}` : key;
@@ -132,21 +150,30 @@ export const unflattenObject = (obj: Record<string, any>): object => {
   return result;
 };
 
-export const getNestedValue = (obj: any, path: string): any => {
-  return path.split('.').reduce((current, key) => {
-    return current && current[key] !== undefined ? current[key] : undefined;
-  }, obj);
+export const getNestedValue = (obj: Record<string, unknown>, path: string): unknown => {
+  return path.split('.').reduce((current: unknown, key: string): unknown => {
+    return current && typeof current === 'object' && current !== null
+      ? (current as Record<string, unknown>)[key]
+      : undefined;
+  }, obj as unknown);
 };
 
-export const setNestedValue = (obj: any, path: string, value: any): void => {
+export const setNestedValue = (
+  obj: Record<string, unknown>,
+  path: string,
+  value: unknown
+): void => {
   const keys = path.split('.');
-  const lastKey = keys.pop()!;
+  const lastKey = keys.pop();
+  if (!lastKey) {
+    return;
+  }
 
   const target = keys.reduce((current, key) => {
-    if (!(key in current)) {
+    if (!current[key] || typeof current[key] !== 'object') {
       current[key] = {};
     }
-    return current[key];
+    return current[key] as Record<string, unknown>;
   }, obj);
 
   target[lastKey] = value;
@@ -154,7 +181,7 @@ export const setNestedValue = (obj: any, path: string, value: any): void => {
 
 // Verificaciones
 
-export const hasProperty = (obj: any, path: string): boolean => {
+export const hasProperty = (obj: Record<string, unknown>, path: string): boolean => {
   return getNestedValue(obj, path) !== undefined;
 };
 
