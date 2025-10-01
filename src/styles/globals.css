@@ -68,7 +68,7 @@ body {
 }
 
 /* ===========================================
-   CARD COMPONENTS
+   CARD COMPONENTS - Card Design Pattern
    =========================================== */
 .card {
   @apply bg-slate-900/50 border border-slate-700/50 rounded-xl backdrop-blur-sm;
@@ -85,6 +85,38 @@ body {
 
 .card-footer {
   @apply p-6 border-t border-slate-700/50;
+}
+
+/* Card Design Pattern Base Classes */
+.card-base {
+  @apply relative bg-slate-900/90 backdrop-blur-sm;
+  @apply border border-slate-700/50 rounded-xl;
+  @apply transition-all duration-200 ease-in-out;
+  @apply shadow-sm;
+}
+
+.card-base:hover {
+  @apply shadow-md border-slate-600/60;
+}
+
+.card-base:focus-within {
+  @apply ring-2 ring-blue-500/50 ring-offset-2 ring-offset-slate-900;
+  @apply border-blue-500/50;
+}
+
+/* Card Variants */
+.card-base.variant-outlined {
+  @apply bg-transparent border-2 border-slate-600/60;
+}
+
+.card-base.variant-filled {
+  @apply bg-slate-800/60 border-slate-600/40;
+}
+
+/* Input Card Specific */
+.input-card {
+  @apply card-base;
+  @apply focus-within:border-blue-500/50;
 }
 
 /* ===========================================
