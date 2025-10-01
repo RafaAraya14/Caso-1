@@ -81,6 +81,9 @@ export class SessionTransformer {
    * Convierte CreateSessionDTO a formato para validación de negocio
    */
   static toBusinessValidationData(dto: CreateSessionDTO) {
+    if (!dto.scheduledTime) {
+      throw new Error('scheduledTime is required');
+    }
     const scheduledDate = new Date(dto.scheduledTime);
 
     return {

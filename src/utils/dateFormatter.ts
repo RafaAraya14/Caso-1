@@ -204,7 +204,18 @@ export const parseDate = (date: Date | string | number): Date | null => {
     return isNaN(date.getTime()) ? null : date;
   }
 
-  if (typeof date === 'string' || typeof date === 'number') {
+  if (typeof date === 'string') {
+    // Para strings de fecha como '2023-12-14', crear fecha local en lugar de UTC
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      const [year, month, day] = date.split('-').map(Number);
+      const parsed = new Date(year, month - 1, day);
+      return isNaN(parsed.getTime()) ? null : parsed;
+    }
+    const parsed = new Date(date);
+    return isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  if (typeof date === 'number') {
     const parsed = new Date(date);
     return isNaN(parsed.getTime()) ? null : parsed;
   }

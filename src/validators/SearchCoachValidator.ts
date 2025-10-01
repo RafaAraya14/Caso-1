@@ -11,6 +11,21 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
   validate(data: SearchCoachDTO): ValidationResult {
     const errors = [];
 
+    // Validar searchTerm (requerido y no vacío)
+    if (!data.searchTerm || data.searchTerm.trim() === '') {
+      errors.push(
+        this.createError('searchTerm', 'El término de búsqueda es requerido', 'REQUIRED_FIELD')
+      );
+    } else if (data.searchTerm.length < 2) {
+      errors.push(
+        this.createError(
+          'searchTerm',
+          'El término de búsqueda debe tener al menos 2 caracteres',
+          'MIN_LENGTH'
+        )
+      );
+    }
+
     // Validar specialty (opcional)
     if (data.specialty !== undefined && data.specialty !== '') {
       const specialtyError = this.validateSpecialty(data.specialty);
@@ -110,7 +125,9 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
     const validSpecialties = [
       'Psychology',
       'Programming',
+      'Technology',
       'Art',
+      'Arts',
       'Fitness',
       'Law',
       'Mechanics',
@@ -132,7 +149,11 @@ export class SearchCoachValidator extends BaseValidator<SearchCoachDTO> {
       'UX/UI Design',
     ];
 
-    if (!validSpecialties.includes(specialty)) {
+    // Hacer comparación case-insensitive
+    const normalizedSpecialty =
+      specialty.charAt(0).toUpperCase() + specialty.slice(1).toLowerCase();
+
+    if (!validSpecialties.includes(normalizedSpecialty)) {
       return this.createError(
         'specialty',
         `Especialidad inválida. Opciones válidas: ${validSpecialties.join(', ')}`,

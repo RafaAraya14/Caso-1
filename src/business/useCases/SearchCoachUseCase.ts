@@ -120,7 +120,7 @@ export class SearchCoachUseCase {
       return { isValid: false, reason: 'Rating mínimo debe estar entre 0 y 5' };
     }
 
-    if (request.maxResults && request.maxResults <= 0) {
+    if (request.maxResults !== undefined && request.maxResults <= 0) {
       return { isValid: false, reason: 'Máximo de resultados debe ser mayor que 0' };
     }
 

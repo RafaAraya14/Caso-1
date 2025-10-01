@@ -4,6 +4,7 @@
  * DTO para buscar coaches
  */
 export interface SearchCoachDTO {
+  searchTerm?: string;
   specialty?: string;
   minRating?: number;
   maxRating?: number;
@@ -15,6 +16,7 @@ export interface SearchCoachDTO {
   };
   page?: number;
   limit?: number;
+  offset?: number;
   sortBy?: 'rating' | 'name' | 'price' | 'availability';
   sortOrder?: 'asc' | 'desc';
 }

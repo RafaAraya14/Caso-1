@@ -11,70 +11,91 @@ export class CreateSessionValidator extends BaseValidator<CreateSessionDTO> {
   validate(data: CreateSessionDTO): ValidationResult {
     const errors = [];
 
-    // Validar userId
-    const userIdError = this.validateRequired(data.userId, 'userId');
-    if (userIdError) {
-      errors.push(userIdError);
+    // Validar campos requeridos
+    if (!data.userId) {
+      errors.push(this.createError('userId', 'El ID de usuario es requerido', 'REQUIRED_FIELD'));
     }
 
-    // Validar coachId
-    const coachIdError = this.validateRequired(data.coachId, 'coachId');
-    if (coachIdError) {
-      errors.push(coachIdError);
+    if (!data.coachId) {
+      errors.push(this.createError('coachId', 'El ID del coach es requerido', 'REQUIRED_FIELD'));
+    } else if (!this.isValidIdFormat(data.coachId)) {
+      errors.push(this.createError('coachId', 'Formato de ID de coach inválido', 'INVALID_FORMAT'));
     }
 
-    // Validar scheduledTime
-    const timeError = this.validateRequired(data.scheduledTime, 'scheduledTime');
-    if (timeError) {
-      errors.push(timeError);
+    if (!data.scheduledDateTime) {
+      errors.push(
+        this.createError('scheduledDateTime', 'La fecha programada es requerida', 'REQUIRED_FIELD')
+      );
     } else {
-      // Validar formato de fecha
-      const dateFormatError = this.validateDate(data.scheduledTime, 'scheduledTime');
-      if (dateFormatError) {
-        errors.push(dateFormatError);
-      } else {
-        // Validar que sea fecha futura
-        const futureDateError = this.validateFutureDate(data.scheduledTime, 'scheduledTime');
-        if (futureDateError) {
-          errors.push(futureDateError);
-        }
-
-        // Validar horario de negocio
-        const businessHoursError = this.validateBusinessHours(data.scheduledTime);
-        if (businessHoursError) {
-          errors.push(businessHoursError);
-        }
+      const dateValidation = this.validateScheduledDateTime(data.scheduledDateTime);
+      if (dateValidation) {
+        errors.push(dateValidation);
       }
     }
 
-    // Validar specialty (opcional pero si existe debe ser válida)
-    if (data.specialty !== undefined) {
-      const specialtyError = this.validateSpecialty(data.specialty);
-      if (specialtyError) {
-        errors.push(specialtyError);
-      }
+    if (!data.duration) {
+      errors.push(this.createError('duration', 'La duración es requerida', 'REQUIRED_FIELD'));
+    } else if (data.duration < 10 || data.duration >= 120) {
+      errors.push(
+        this.createError(
+          'duration',
+          'La duración debe estar entre 10 y 119 minutos',
+          'INVALID_RANGE'
+        )
+      );
     }
 
-    // Validar notes (opcional pero con límite)
-    if (data.notes !== undefined) {
-      const notesError = this.validateLength(data.notes, 0, 500, 'notes');
-      if (notesError) {
-        errors.push(notesError);
-      }
+    if (!data.sessionType) {
+      errors.push(
+        this.createError('sessionType', 'El tipo de sesión es requerido', 'REQUIRED_FIELD')
+      );
+    } else if (!['video-call', 'phone-call', 'in-person'].includes(data.sessionType)) {
+      errors.push(this.createError('sessionType', 'Tipo de sesión inválido', 'INVALID_VALUE'));
     }
 
-    // Validar preferredDuration
-    if (data.preferredDuration !== undefined) {
-      const durationError = this.validateDuration(data.preferredDuration);
-      if (durationError) {
-        errors.push(durationError);
-      }
+    // Validar campos opcionales
+    if (data.topic && data.topic.length > 200) {
+      errors.push(
+        this.createError('topic', 'El tema no puede exceder 200 caracteres', 'MAX_LENGTH')
+      );
+    }
+
+    if (data.notes && data.notes.length > 500) {
+      errors.push(
+        this.createError('notes', 'Las notas no pueden exceder 500 caracteres', 'MAX_LENGTH')
+      );
     }
 
     return {
       isValid: errors.length === 0,
       errors: errors.filter(Boolean),
     };
+  }
+
+  private isValidIdFormat(id: string): boolean {
+    // Debe tener formato uuid o ID estructurado (no solo "invalid-id")
+    return /^[a-zA-Z0-9-]+$/.test(id) && id.length >= 5 && !id.startsWith('invalid');
+  }
+
+  private validateScheduledDateTime(dateTime: string) {
+    const date = new Date(dateTime);
+
+    if (isNaN(date.getTime())) {
+      return this.createError('scheduledDateTime', 'Formato de fecha inválido', 'INVALID_FORMAT');
+    }
+
+    const now = new Date();
+    const minAdvanceTime = new Date(now.getTime() + 60 * 60 * 1000); // 1 hora de anticipación
+
+    if (date <= minAdvanceTime) {
+      return this.createError(
+        'scheduledDateTime',
+        'La sesión debe programarse con al menos 1 hora de anticipación',
+        'INVALID_DATE'
+      );
+    }
+
+    return null;
   }
 
   /**

@@ -20,9 +20,14 @@ export class ObjectUtils {
 
 // Clonado y merge
 
-export const deepClone = <T>(obj: T): T => {
+export const deepClone = <T>(obj: T, visited = new WeakMap()): T => {
   if (obj === null || typeof obj !== 'object') {
     return obj;
+  }
+
+  // Check for circular references
+  if (visited.has(obj as any)) {
+    return visited.get(obj as any);
   }
 
   if (obj instanceof Date) {
@@ -30,14 +35,17 @@ export const deepClone = <T>(obj: T): T => {
   }
 
   if (obj instanceof Array) {
-    return obj.map(item => deepClone(item)) as any;
+    const cloned = [] as any;
+    visited.set(obj as any, cloned);
+    return obj.map(item => deepClone(item, visited)) as any;
   }
 
   if (typeof obj === 'object') {
     const cloned = {} as any;
+    visited.set(obj as any, cloned);
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        cloned[key] = deepClone(obj[key]);
+        cloned[key] = deepClone(obj[key], visited);
       }
     }
     return cloned;

@@ -7,10 +7,15 @@
 export interface CreateSessionDTO {
   userId: string;
   coachId: string;
-  scheduledTime: string; // ISO 8601 format
-  specialty?: string;
+  scheduledDateTime: string; // ISO 8601 format
+  duration: number; // En minutos
+  sessionType: 'video-call' | 'phone-call' | 'in-person';
+  topic?: string;
   notes?: string;
-  preferredDuration?: number; // En minutos, por defecto 20
+  timezone?: string;
+  scheduledTime?: string; // Compatibilidad con implementación anterior
+  specialty?: string; // Compatibilidad con implementación anterior
+  preferredDuration?: number; // Compatibilidad con implementación anterior
 }
 
 /**

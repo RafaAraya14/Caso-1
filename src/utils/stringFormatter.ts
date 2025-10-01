@@ -50,14 +50,12 @@ export const capitalize = (str: string): string => {
 
 export const camelCase = (str: string): string => {
   return str
-    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
-      return index === 0 ? word.toLowerCase() : word.toUpperCase();
-    })
-    .replace(/\s+/g, '');
+    .replace(/[\s\-_]+(.)?/g, (_, char) => (char ? char.toUpperCase() : ''))
+    .replace(/^./, char => char.toLowerCase());
 };
 
 export const pascalCase = (str: string): string => {
-  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, word => word.toUpperCase()).replace(/\s+/g, '');
+  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, word => word.toUpperCase()).replace(/[\s\-_]+/g, '');
 };
 
 export const kebabCase = (str: string): string => {
@@ -77,14 +75,91 @@ export const snakeCase = (str: string): string => {
 // Formateo y truncado
 
 export const truncate = (str: string, maxLength: number, suffix: string = '...'): string => {
-  if (!str || str.length <= maxLength) {
+  if (!str) {
     return str;
   }
-  return str.slice(0, maxLength - suffix.length) + suffix;
-};
 
+  // Si el texto + sufijo es menor o igual al límite, no truncar
+  if (str.length + suffix.length <= maxLength) {
+    return str;
+  }
+
+  let truncateLength = maxLength - suffix.length;
+  if (truncateLength <= 0) {
+    return suffix.slice(0, maxLength);
+  }
+
+  // Si el carácter siguiente es un espacio, retroceder uno
+  if (truncateLength < str.length && str[truncateLength] === ' ') {
+    truncateLength -= 1;
+  }
+
+  return str.slice(0, truncateLength) + suffix;
+};
 export const removeAccents = (str: string): string => {
-  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const mapping: { [key: string]: string } = {
+    à: 'a',
+    á: 'a',
+    â: 'a',
+    ã: 'a',
+    ä: 'a',
+    å: 'a',
+    æ: 'a',
+    ç: 'e',
+    è: 'e',
+    é: 'e',
+    ê: 'e',
+    ë: 'e',
+    ì: 'i',
+    í: 'i',
+    î: 'i',
+    ï: 'i',
+    ñ: 'n',
+    ò: 'o',
+    ó: 'o',
+    ô: 'o',
+    õ: 'o',
+    ö: 'o',
+    ù: 'u',
+    ú: 'u',
+    û: 'u',
+    ü: 'u',
+    ý: 'y',
+    ÿ: 'y',
+    À: 'A',
+    Á: 'A',
+    Â: 'A',
+    Ã: 'A',
+    Ä: 'A',
+    Å: 'A',
+    Æ: 'A',
+    Ç: 'E',
+    È: 'E',
+    É: 'E',
+    Ê: 'E',
+    Ë: 'E',
+    Ì: 'I',
+    Í: 'I',
+    Î: 'I',
+    Ï: 'I',
+    Ñ: 'N',
+    Ò: 'O',
+    Ó: 'O',
+    Ô: 'O',
+    Õ: 'O',
+    Ö: 'O',
+    Ù: 'U',
+    Ú: 'U',
+    Û: 'U',
+    Ü: 'U',
+    Ý: 'Y',
+    Ÿ: 'Y',
+  };
+
+  return str.replace(
+    /[àáâãäåæçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝŸ]/g,
+    char => mapping[char] || char
+  );
 };
 
 export const generateSlug = (str: string): string => {
@@ -124,11 +199,11 @@ export const maskPhone = (phone: string): string => {
   }
 
   if (cleaned.length === 10) {
-    // (XXX) XXX-XXXX -> (XXX) XXX-XX##
-    return cleaned.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/, '($1) $2-XX$4');
+    // (XXX) XXX-XXXX -> (XXX) XXX-**##
+    return cleaned.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/, '($1) $2-**$4');
   } else if (cleaned.length === 11) {
-    // +1 (XXX) XXX-XXXX -> +1 (XXX) XXX-XX##
-    return cleaned.replace(/(\d)(\d{3})(\d{3})(\d{2})(\d{2})/, '+$1 ($2) $3-XX$5');
+    // +1 (XXX) XXX-XXXX -> +1 (XXX) XXX-**##
+    return cleaned.replace(/(\d)(\d{3})(\d{3})(\d{2})(\d{2})/, '+$1 ($2) $3-**$5');
   }
 
   return phone;
@@ -231,26 +306,27 @@ export const singularize = (word: string, locale: string = 'es'): string => {
 export const highlightText = (
   text: string,
   searchTerm: string,
-  className: string = 'highlight'
+  _className: string = 'highlight'
 ): string => {
   if (!searchTerm) {
     return text;
   }
 
   const regex = new RegExp(`(${searchTerm})`, 'gi');
-  return text.replace(regex, `<span class="${className}">$1</span>`);
+  return text.replace(regex, `<mark>$1</mark>`);
 };
 
 export const stripHtml = (html: string): string => {
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || '';
+  return html.replace(/<[^>]*>/g, '');
 };
 
 export const escapeHtml = (text: string): string => {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
 };
 
 export const unescapeHtml = (html: string): string => {
