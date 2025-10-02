@@ -4,11 +4,14 @@
 // Authentication hooks
 export { useAuth } from './useAuth';
 
+// Voice search hooks
+export { useVoiceSearch } from './useVoiceSearch';
+
 // Coach-related hooks
 export {
   default as useCoachSearch,
-  useQuickCoachSearch,
   useCoachesBySpecialty,
+  useQuickCoachSearch,
   type SearchFilters,
   type UseCoachSearchResult,
 } from './useCoachSearch';

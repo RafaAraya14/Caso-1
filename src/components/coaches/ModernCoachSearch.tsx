@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useVoiceSearch } from '../../hooks/useVoiceSearch';
 import { mockCoachesData, type Coach } from '../../types/coach';
 import { ThemeToggle } from '../ui/ThemeToggle';
 
@@ -21,7 +22,56 @@ const ModernCoachSearch: React.FC<ModernCoachSearchProps> = ({
   const [searchText, setSearchText] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [availableOnly, setAvailableOnly] = useState(false);
+  const [showVoiceResult, setShowVoiceResult] = useState(false);
   const navigate = useNavigate();
+
+  // Hook de búsqueda por voz
+  const {
+    isListening,
+    isSupported,
+    transcript,
+    error,
+    confidence,
+    startListening,
+    stopListening,
+    clearError,
+  } = useVoiceSearch({
+    onSearchResult: (query: string, specialties: string[]) => {
+      console.log('🎤 Resultado de búsqueda por voz:', { query, specialties });
+
+      // Si se encontraron especialidades específicas, usar la primera
+      if (specialties.length > 0) {
+        const firstSpecialty = specialties[0];
+        console.log('🎯 Buscando especialidad:', firstSpecialty);
+
+        // Buscar coincidencia exacta en las especialidades disponibles
+        const matchingSpecialty = Array.from(new Set(coaches.map(coach => coach.specialties))).find(
+          spec => spec === firstSpecialty
+        );
+
+        if (matchingSpecialty) {
+          console.log('✅ Especialidad encontrada:', matchingSpecialty);
+          setSelectedSpecialty(matchingSpecialty);
+          // Limpiar el texto de búsqueda para mostrar todos los coaches de esa especialidad
+          setSearchText('');
+        } else {
+          console.log('❌ Especialidad no encontrada, buscando por texto');
+          // Si no encuentra la especialidad exacta, usar como búsqueda de texto
+          setSearchText(query);
+          setSelectedSpecialty('');
+        }
+      } else {
+        console.log('🔍 No se encontraron especialidades, buscando por texto');
+        // Si no se encontraron especialidades, usar como búsqueda de texto
+        setSearchText(query);
+        setSelectedSpecialty('');
+      }
+
+      setShowVoiceResult(true);
+      setTimeout(() => setShowVoiceResult(false), 3000);
+    },
+    language: 'es-ES',
+  });
 
   // Especialidades únicas para el filtro
   const specialties = Array.from(new Set(coaches.map(coach => coach.specialties)));
@@ -30,21 +80,22 @@ const ModernCoachSearch: React.FC<ModernCoachSearchProps> = ({
   useEffect(() => {
     let filtered = coaches;
 
-    // Filtrar por texto de búsqueda
-    if (searchText) {
-      filtered = filtered.filter(
-        coach =>
-          coach.displayname.toLowerCase().includes(searchText.toLowerCase()) ||
-          coach.specialties.toLowerCase().includes(searchText.toLowerCase())
-      );
-    }
-
-    // Filtrar por especialidad
+    // 1. PRIMERO filtrar por especialidad (categoría)
     if (selectedSpecialty) {
       filtered = filtered.filter(coach => coach.specialties === selectedSpecialty);
     }
 
-    // Filtrar solo disponibles
+    // 2. DESPUÉS filtrar por texto de búsqueda DENTRO de la categoría seleccionada
+    if (searchText) {
+      filtered = filtered.filter(
+        coach =>
+          coach.displayname.toLowerCase().includes(searchText.toLowerCase()) ||
+          coach.specialties.toLowerCase().includes(searchText.toLowerCase()) ||
+          coach.bio.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    // 3. FINALMENTE filtrar solo disponibles
     if (availableOnly) {
       filtered = filtered.filter(coach => coach.status === 'Disponible');
     }
@@ -53,8 +104,22 @@ const ModernCoachSearch: React.FC<ModernCoachSearchProps> = ({
   }, [searchText, selectedSpecialty, availableOnly, coaches]);
 
   const handleSearch = () => {
-    // La búsqueda se hace automáticamente con useEffect
-    console.log('Búsqueda ejecutada');
+    // Forzar actualización del filtro
+    console.log('🔍 Búsqueda manual activada:', {
+      searchText,
+      selectedSpecialty,
+      totalCoaches: coaches.length,
+    });
+
+    // Limpiar errores de voz si existen
+    if (error) {
+      clearError();
+    }
+
+    // El filtrado se hace automáticamente con useEffect,
+    // pero podemos forzar una re-renderización si es necesario
+    const currentFiltered = filteredCoaches.length;
+    console.log('📊 Coaches filtrados actuales:', currentFiltered);
   };
 
   const handleCoachClick = (coach: Coach) => {
@@ -221,11 +286,39 @@ const ModernCoachSearch: React.FC<ModernCoachSearchProps> = ({
                   placeholder="Busca por especialidad o nombre..."
                   className="w-full bg-slate-100 dark:bg-slate-700/50 border-2 border-slate-300 dark:border-slate-700 rounded-lg py-3 pl-4 pr-12 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-0 focus:border-indigo-600 transition-colors"
                 />
-                <button className="absolute inset-y-0 right-0 flex items-center justify-center w-12 text-slate-500 hover:text-indigo-600">
-                  <i className="fas fa-microphone text-xl" />
-                </button>
-              </div>
+                {(() => {
+                  const getButtonClass = () => {
+                    if (!isSupported) {
+                      return 'text-slate-400 cursor-not-allowed';
+                    }
+                    if (isListening) {
+                      return 'text-red-500 animate-pulse';
+                    }
+                    return 'text-slate-500 hover:text-indigo-600';
+                  };
 
+                  const getButtonTitle = () => {
+                    if (!isSupported) {
+                      return 'Reconocimiento de voz no soportado';
+                    }
+                    if (isListening) {
+                      return 'Detener grabación';
+                    }
+                    return 'Iniciar búsqueda por voz';
+                  };
+
+                  return (
+                    <button
+                      onClick={isListening ? stopListening : startListening}
+                      disabled={!isSupported}
+                      className={`absolute inset-y-0 right-0 flex items-center justify-center w-12 transition-colors ${getButtonClass()}`}
+                      title={getButtonTitle()}
+                    >
+                      <i className={`fas ${isListening ? 'fa-stop' : 'fa-microphone'} text-xl`} />
+                    </button>
+                  );
+                })()}
+              </div>{' '}
               {/* Specialty Filter */}
               <div className="col-span-12 md:col-span-3">
                 <select
@@ -241,7 +334,6 @@ const ModernCoachSearch: React.FC<ModernCoachSearchProps> = ({
                   ))}
                 </select>
               </div>
-
               {/* Search Button */}
               <div className="col-span-12 md:col-span-4">
                 <button
@@ -272,6 +364,53 @@ const ModernCoachSearch: React.FC<ModernCoachSearchProps> = ({
                 {filteredCoaches.length} coaches encontrados
               </span>
             </div>
+
+            {/* Voice Search Status */}
+            {(isListening || transcript || error) && (
+              <div className="mt-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600">
+                {isListening && (
+                  <div className="flex items-center text-red-600 dark:text-red-400 mb-2">
+                    <i className="fas fa-microphone animate-pulse mr-2" />
+                    <span className="text-sm font-medium">Escuchando... Habla ahora</span>
+                  </div>
+                )}
+
+                {transcript && (
+                  <div className="flex items-start text-slate-700 dark:text-slate-300 mb-2">
+                    <i className="fas fa-quote-left mr-2 mt-1" />
+                    <div>
+                      <span className="text-sm font-medium">Transcripción:</span>
+                      <p className="text-sm italic">&ldquo;{transcript}&rdquo;</p>
+                      {confidence > 0 && (
+                        <span className="text-xs text-slate-500">
+                          Confianza: {Math.round(confidence * 100)}%
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="flex items-center text-red-600 dark:text-red-400 mb-2">
+                    <i className="fas fa-exclamation-triangle mr-2" />
+                    <span className="text-sm">{error}</span>
+                    <button
+                      onClick={clearError}
+                      className="ml-2 text-xs underline hover:no-underline"
+                    >
+                      Cerrar
+                    </button>
+                  </div>
+                )}
+
+                {showVoiceResult && (
+                  <div className="flex items-center text-green-600 dark:text-green-400">
+                    <i className="fas fa-check-circle mr-2" />
+                    <span className="text-sm">¡Búsqueda inteligente aplicada!</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Coaches Grid */}
