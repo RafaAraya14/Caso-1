@@ -54,9 +54,19 @@ const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setRole(null);
+    try {
+      console.log('AuthProvider: Iniciando signOut...');
+      await supabase.auth.signOut();
+      console.log('AuthProvider: SignOut de Supabase completado');
+      setUser(null);
+      setRole(null);
+      console.log('AuthProvider: Estado local limpiado');
+    } catch (error) {
+      console.error('AuthProvider: Error en signOut:', error);
+      // Limpiar estado local incluso si hay error
+      setUser(null);
+      setRole(null);
+    }
   };
 
   return <AuthCtx.Provider value={{ user, role, loading, signOut }}>{children}</AuthCtx.Provider>;

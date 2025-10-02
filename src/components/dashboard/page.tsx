@@ -31,7 +31,7 @@ const DashboardPage: React.FC = () => {
 
   const handleLogout = async () => {
     await signOut();
-    navigate('/login', { replace: true });
+    // El AuthProvider + App.tsx manejan la navegación automáticamente
   };
 
   return (

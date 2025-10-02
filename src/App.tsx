@@ -1,120 +1,41 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 
 import AuthFlow from './components/auth/AuthFlow';
+import { useAuth } from './components/auth/AuthProvider/AuthProvider';
 import CoachApp from './components/coaches/CoachApp';
-import { supabase } from './lib/supabase';
 import CameraDebug from './pages/CameraDebug';
 import CameraDemo from './pages/CameraDemo';
 import { SimpleCameraTest } from './pages/SimpleCameraTest';
 import './styles/globals.css';
 
-import type { User } from '@supabase/supabase-js';
-
 export default function App() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
 
+  // Manejar navegación automática cuando cambia el estado de auth
   useEffect(() => {
-    let mounted = true;
-
-    // Simple session check with aggressive timeout
-    const checkAuth = async () => {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (mounted) {
-          setUser(session?.user ?? null);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        if (mounted) {
-          setUser(null);
-          setLoading(false);
-        }
+    if (!loading) {
+      if (!user && window.location.pathname !== '/login') {
+        navigate('/login', { replace: true });
+      } else if (user && window.location.pathname === '/login') {
+        navigate('/dashboard', { replace: true });
       }
-    };
-
-    // Set timeout to force loading to finish
-    const forceLoadComplete = setTimeout(() => {
-      if (mounted && loading) {
-        console.log('Forcing load complete - auth timeout');
-        setUser(null);
-        setLoading(false);
-      }
-    }, 3000);
-
-    checkAuth();
-
-    // Auth state listener
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!mounted) {
-        return;
-      }
-
-      console.log('Auth state change:', event);
-      const currentUser = session?.user ?? null;
-
-      // Actualizar el estado del usuario
-      setUser(currentUser);
-
-      // Manejar navegación según el evento
-      if (event === 'SIGNED_IN' && currentUser) {
-        setLoading(false);
-        navigate('/dashboard');
-      } else if (event === 'SIGNED_OUT') {
-        setLoading(false);
-        navigate('/login');
-      }
-    });
-
-    return () => {
-      mounted = false;
-      clearTimeout(forceLoadComplete);
-      subscription.unsubscribe();
-    };
-  }, [navigate, loading]);
+    }
+  }, [user, loading, navigate]);
 
   const handleLogout = async () => {
-    try {
-      console.log('Iniciando logout...');
-
-      // Deshabilitar botón durante el proceso
-      setLoading(true);
-
-      // Hacer signOut de Supabase
-      await supabase.auth.signOut();
-
-      console.log('Logout completado');
-
-      // El listener onAuthStateChange se encargará de la navegación
-      // cuando detecte el evento 'SIGNED_OUT'
-    } catch (error) {
-      console.error('Error durante logout:', error);
-
-      // Si hay error, forzar la limpieza manual
-      setUser(null);
-      setLoading(false);
-      navigate('/login');
-    }
+    await signOut();
+    // La navegación automática se maneja en el useEffect de arriba
   };
 
-  // Loading screen with timeout
+  // Loading screen
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4" />
           <p className="text-gray-900 dark:text-white text-lg">Loading...</p>
-          <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">
-            If this takes too long, please refresh the page
-          </p>
         </div>
       </div>
     );
