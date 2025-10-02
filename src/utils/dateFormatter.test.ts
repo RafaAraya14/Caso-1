@@ -142,7 +142,8 @@ describe('formatDate', () => {
 });
 
 describe('formatTime', () => {
-  const testDate = new Date('2023-12-15T14:30:00');
+  // Create date with UTC timezone to ensure consistent test behavior
+  const testDate = new Date('2023-12-15T20:30:00Z'); // UTC time that will be 14:30 in Mexico City
 
   it('should format time with default options', () => {
     const result = formatTime(testDate, 'es-ES', '24h');
@@ -164,7 +165,8 @@ describe('formatTime', () => {
 });
 
 describe('formatDateTime', () => {
-  const testDate = new Date('2023-12-15T14:30:00');
+  // Use UTC timezone for consistent test behavior
+  const testDate = new Date('2023-12-15T20:30:00Z'); // UTC time that will be 14:30 in Mexico City
 
   it('should format date and time', () => {
     const result = formatDateTime(testDate);
