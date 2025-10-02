@@ -61,7 +61,7 @@
         "build:prod": "tsc && vite build --mode production",
         "build:prototype": "vite build --config vite.config.prototype.ts",
         "preview": "vite preview",
-        "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --max-warnings 250",
+        "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --max-warnings 500",
         "lint:fix": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --fix",
         "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
         "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">80% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>8/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">75% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>3/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">77.77% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/9</span>
+                <span class='fraction'>7/9</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -89,41 +89,41 @@
 <a name='L24'></a><a href='#L24'>24</a>
 <a name='L25'></a><a href='#L25'>25</a>
 <a name='L26'></a><a href='#L26'>26</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/middleware/errorHandlerMiddleware.ts
-<span class="cstat-no" title="statement not covered" >import { CustomError } from '../error-handling/CustomError';</span>
-<span class="cstat-no" title="statement not covered" >import { logger } from '../logging/logger';</span>
+import { CustomError } from '../error-handling/CustomError';
+import { logger } from '../logging/logger';
 &nbsp;
 // ----- Template for how to handle errors centrally ------
 // Called from catch blocks.
-export const <span class="cstat-no" title="statement not covered" >handleApiError = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span></span></span>
+export const handleApiError = (
   error: unknown,
-  userMessage: string = <span class="branch-0 cbranch-no" title="branch not covered" >'Ocurrió un error inesperado.'</span>
+  userMessage: string = 'Ocurrió un error inesperado.'
 ) =&gt; {
-<span class="cstat-no" title="statement not covered" >  <span class="missing-if-branch" title="if path not taken" >I</span>if (error instanceof CustomError) {</span>
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (error instanceof CustomError) {
 <span class="cstat-no" title="statement not covered" >    logger.error(error.message, error, {</span>
       component: 'errorHandlerMiddleware',
       metadata: { errorCode: (error as any).code },
@@ -133,10 +133,10 @@ export const <span class="cstat-no" title="statement not covered" >handleApiErro
   }
 &nbsp;
   // If it's a generic error
-  const genericError = <span class="cstat-no" title="statement not covered" >error instanceof Error ? error : new Error('Unknown error');</span>
-<span class="cstat-no" title="statement not covered" >  logger.error('Generic API Error', genericError);</span>
+  const genericError = error instanceof Error ? error : new Error('Unknown error');
+  logger.error('Generic API Error', genericError);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return userMessage;</span>
+  return userMessage;
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -145,7 +145,7 @@ export const <span class="cstat-no" title="statement not covered" >handleApiErro
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-01T02:43:24.110Z
+                at 2025-10-02T04:21:19.211Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

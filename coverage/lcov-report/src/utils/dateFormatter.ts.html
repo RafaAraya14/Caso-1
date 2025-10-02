@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">77.61% </span>
+                <span class="strong">78.34% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>163/210</span>
+                <span class='fraction'>170/217</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">74.35% </span>
+                <span class="strong">69.51% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>58/78</span>
+                <span class='fraction'>57/82</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75.26% </span>
+                <span class="strong">76.14% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>143/190</span>
+                <span class='fraction'>150/197</span>
             </div>
         
             
@@ -485,7 +485,18 @@
 <a name='L420'></a><a href='#L420'>420</a>
 <a name='L421'></a><a href='#L421'>421</a>
 <a name='L422'></a><a href='#L422'>422</a>
-<a name='L423'></a><a href='#L423'>423</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L423'></a><a href='#L423'>423</a>
+<a name='L424'></a><a href='#L424'>424</a>
+<a name='L425'></a><a href='#L425'>425</a>
+<a name='L426'></a><a href='#L426'>426</a>
+<a name='L427'></a><a href='#L427'>427</a>
+<a name='L428'></a><a href='#L428'>428</a>
+<a name='L429'></a><a href='#L429'>429</a>
+<a name='L430'></a><a href='#L430'>430</a>
+<a name='L431'></a><a href='#L431'>431</a>
+<a name='L432'></a><a href='#L432'>432</a>
+<a name='L433'></a><a href='#L433'>433</a>
+<a name='L434'></a><a href='#L434'>434</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -692,8 +703,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">23x</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
@@ -1055,8 +1077,8 @@ export const formatDate = (date: Date | string | number, locale: string = 'es-ES
 &nbsp;
 export const formatTime = (
   date: Date | string | number,
-  locale: string = 'es-ES',
-  format: TimeFormat = '24h'
+  locale: string = <span class="branch-0 cbranch-no" title="branch not covered" >'es-ES',</span>
+  format: TimeFormat = <span class="branch-0 cbranch-no" title="branch not covered" >'24h'</span>
 ): string =&gt; {
   const formatter = DateFormatter.getInstance();
   return formatter.format(date, {
@@ -1113,9 +1135,20 @@ export const parseDate = (date: Date | string | number): Date | null =&gt; {
     return isNaN(date.getTime()) ? null : date;
   }
 &nbsp;
-  if (typeof date === 'string' || typeof date === 'number') {
+  if (typeof date === 'string') {
+    // Para strings de fecha como '2023-12-14', crear fecha local en lugar de UTC
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      const [year, month, day] = date.split('-').map(Number);
+      const parsed = new Date(year, month - 1, day);
+      return isNaN(parsed.getTime()) ? <span class="branch-0 cbranch-no" title="branch not covered" >null </span>: parsed;
+    }
     const parsed = new Date(date);
-    return isNaN(parsed.getTime()) ? null : parsed;
+    return isNaN(parsed.getTime()) ? null : <span class="branch-1 cbranch-no" title="branch not covered" >parsed;</span>
+  }
+&nbsp;
+  if (typeof date === 'number') {
+    const parsed = new Date(date);
+    return isNaN(parsed.getTime()) ? <span class="branch-0 cbranch-no" title="branch not covered" >null </span>: parsed;
   }
 &nbsp;
   return null;
@@ -1336,7 +1369,7 @@ export const getAvailableTimeSlots = <span class="fstat-no" title="function not 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-01T02:43:24.110Z
+                at 2025-10-02T04:21:19.211Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
