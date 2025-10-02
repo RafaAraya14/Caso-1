@@ -839,6 +839,7 @@ Caso-1/
 │   ├── background/                    # Background jobs layer
 │   ├── validators/                    # Validators layer
 │   ├── transformers/                  # DTOs transformation
+│   ├── pages/                         # Page components
 │   ├── types/                         # Type definitions
 │   ├── hooks/                         # Controllers (React hooks)
 │   ├── models/                        # Domain models
@@ -995,6 +996,9 @@ src/
 │   ├── sessions/                 # Session management components
 │   │   └── HireCoachButton.tsx   # Session booking component
 │   └── dashboard/                # Dashboard components
+│   ├── chat/                     # Chat/messaging components
+│   ├── subscription/             # Subscription management
+│   └── video/                    # Video call components
 ├── business/                     # 2. Business Logic Layer
 │   ├── rules/                    # Domain business rules
 │   │   ├── SessionRules.ts       # Session validation rules
@@ -1171,6 +1175,9 @@ components/                      # React Components (UI Layer)
 ├── dashboard/                   # Dashboard components
 │   ├── index.tsx                # Dashboard layout
 │   └── page.tsx                 # Dashboard page
+├── chat/                        # Real-time chat components
+├── subscription/                # Subscription & payment UI
+├── video/                       # WebRTC video components 
 └── ui/                          # Reusable UI components
     ├── Button/                  # Button component
     ├── Card/                    # Card component
@@ -1386,7 +1393,12 @@ demo/
 ├── manual-test.ts              # Manual testing script
 └── basic-tests.ts              # Basic functionality tests
 ```
-
+```
+src/tests/                      # Unit & integration tests 
+├── components/                 # Component tests
+├── hooks/                      # Hook tests
+└── utils/                      # Utility tests
+```
 ### 📄 Root Files
 
 ```
@@ -1771,465 +1783,71 @@ hotfix/*        → Emergency production (manual)
 
 ## 🧠 Business Logic Implementation (FASE 1)
 
-### Business Rules & Domain Logic
+### Core Business Components
 
-The business layer implements clean architecture principles with clear
-separation of concerns:
+| Component | Pattern | Description | Source |
+|-----------|---------|-------------|--------|
+| **SessionRules** | Domain Rules | Session validation & business constraints | [`SessionRules.ts`](src/business/rules/SessionRules.ts) |
+| **CoachRules** | Domain Rules | Coach eligibility & tier management | [`CoachRules.ts`](src/business/rules/CoachRules.ts) |
+| **BookSessionUseCase** | Command | Session booking orchestration | [`BookSessionUseCase.ts`](src/business/useCases/BookSessionUseCase.ts) |
+| **SearchCoachUseCase** | Command | Coach search & filtering logic | [`SearchCoachUseCase.ts`](src/business/useCases/SearchCoachUseCase.ts) |
+| **CoachTransformer** | Mapper | Coach entity ↔ DTO transformations | [`CoachTransformer.ts`](src/transformers/CoachTransformer.ts) |
+| **SessionTransformer** | Mapper | Session entity ↔ DTO transformations | [`SessionTransformer.ts`](src/transformers/SessionTransformer.ts) |
 
-#### 📋 Business Rules
-
+### Quick Usage Examples
 ```typescript
-// SessionRules.ts - Core business logic
-export class SessionRules {
-  static canBookSession(user: User, coach: Coach, date: Date): boolean {
-    if (!user.hasCredits()) throw new Error('Insufficient credits');
-    if (!coach.isAvailable(date)) throw new Error('Coach unavailable');
-    if (!this.isValidTimeSlot(date)) throw new Error('Invalid time slot');
-    return true;
-  }
+// Business Rules Validation
+const validation = SessionRules.validateSessionCreation(user, coach, requestedHour);
 
-  static calculatePrice(coach: Coach, duration: number): number {
-    return coach.hourlyRate * (duration / 60);
-  }
-}
+// Use Case Execution
+const result = await BookSessionUseCase.execute({ userId, coachId, requestedHour });
+
+// Data Transformation
+const coachDTO = CoachTransformer.toSummaryDTO(coach);
+Key Business Constraints
+
+Sessions: 20 minutes fixed duration
+Business hours: 8 AM - 10 PM
+Premium users: 25% discount
+Coach minimum rating: 3.5 stars
 ```
+🧪 **Tests**: [`transformers.test.ts`](src/transformers/transformers.test.ts)
 
-#### 🎯 Use Cases (Command Pattern)
 
-```typescript
-// BookSessionUseCase.ts - Clean use case implementation
-export class BookSessionUseCase {
-  constructor(
-    private sessionRules: SessionRules,
-    private sessionService: SessionService,
-    private eventBus: EventBus
-  ) {}
-
-  async execute(dto: CreateSessionDTO): Promise<SessionResult> {
-    // Validate input
-    const validation = await this.validateInput(dto);
-    if (!validation.isValid) throw new ValidationError(validation.errors);
-
-    // Apply business rules
-    this.sessionRules.canBookSession(dto.user, dto.coach, dto.date);
-
-    // Execute business logic
-    const session = await this.sessionService.createSession(dto);
-
-    // Publish domain event
-    this.eventBus.publish('session.booked', { session, user: dto.user });
-
-    return { session, success: true };
-  }
-}
-```
-
-#### 🔄 Data Transformation (Factory Pattern)
-
-```typescript
-// TransformerFactory.ts - Factory for data transformers
-export class TransformerFactory {
-  static createCoachTransformer(): CoachTransformer {
-    return new CoachTransformer();
-  }
-
-  static createSessionTransformer(): SessionTransformer {
-    return new SessionTransformer();
-  }
-}
-
-// CoachTransformer.ts - Transforms between domain and DTO
-export class CoachTransformer {
-  toDTO(coach: Coach): CoachDTO {
-    return {
-      id: coach.id,
-      name: coach.name,
-      specializations: coach.specializations,
-      hourlyRate: coach.hourlyRate,
-      rating: coach.rating,
-      availability: coach.availability.map(date => date.toISOString()),
-    };
-  }
-
-  fromDTO(dto: CoachDTO): Coach {
-    return new Coach(
-      dto.id,
-      dto.name,
-      dto.specializations,
-      dto.hourlyRate,
-      dto.rating,
-      dto.availability.map(dateStr => new Date(dateStr))
-    );
-  }
-}
-```
-
-#### ✅ Validation Strategy (Strategy Pattern)
-
-```typescript
-// BaseValidator.ts - Strategy interface
-export interface BaseValidator<T> {
-  validate(data: T): ValidationResult;
-}
-
-// CreateSessionValidator.ts - Concrete strategy
-export class CreateSessionValidator implements BaseValidator<CreateSessionDTO> {
-  validate(dto: CreateSessionDTO): ValidationResult {
-    const errors: string[] = [];
-
-    if (!dto.coachId) errors.push('Coach ID is required');
-    if (!dto.userId) errors.push('User ID is required');
-    if (!dto.scheduledAt || dto.scheduledAt < new Date()) {
-      errors.push('Valid future date is required');
-    }
-    if (dto.duration < 20 || dto.duration > 120) {
-      errors.push('Duration must be between 20 and 120 minutes');
-    }
-
-    return { isValid: errors.length === 0, errors };
-  }
-}
-```
-
-## 📡 Background Jobs & Event System (FASE 2)
-
-### Real-time Event Architecture
-
-The background system implements a sophisticated pub/sub pattern with real-time
-capabilities:
-
-#### 🔄 EventBus (Singleton Pattern) - 359 Lines
-
-```typescript
-// EventBus.ts - Core event management system
-export class EventBus {
-  private static instance: EventBus;
-  private listeners: Map<string, Function[]> = new Map();
-  private eventHistory: EventRecord[] = [];
-
-  static getInstance(): EventBus {
-    if (!EventBus.instance) {
-      EventBus.instance = new EventBus();
-    }
-    return EventBus.instance;
-  }
-
-  subscribe(eventType: string, callback: Function): void {
-    if (!this.listeners.has(eventType)) {
-      this.listeners.set(eventType, []);
-    }
-    this.listeners.get(eventType)!.push(callback);
-  }
-
-  async publish(eventType: string, data: any): Promise<void> {
-    // Record event in history
-    this.eventHistory.push({
-      type: eventType,
-      data,
-      timestamp: new Date(),
-      id: crypto.randomUUID(),
-    });
-
-    // Notify all listeners
-    const callbacks = this.listeners.get(eventType) || [];
-    for (const callback of callbacks) {
-      try {
-        await callback(data);
-      } catch (error) {
-        console.error(`Error in event listener for ${eventType}:`, error);
-      }
-    }
-  }
-}
-```
-
-#### 📢 NotificationService (Singleton Pattern) - 285 Lines
-
-```typescript
-// NotificationService.ts - Professional notification system
-export class NotificationService {
-  private static instance: NotificationService;
-  private emailTemplates: Map<string, EmailTemplate> = new Map();
-  private notificationQueue: NotificationJob[] = [];
-
-  static getInstance(): NotificationService {
-    if (!NotificationService.instance) {
-      NotificationService.instance = new NotificationService();
-    }
-    return NotificationService.instance;
-  }
-
-  async sendEmail(
-    templateName: string,
-    data: any,
-    recipient: string
-  ): Promise<void> {
-    const template = this.emailTemplates.get(templateName);
-    if (!template) throw new Error(`Template ${templateName} not found`);
-
-    const emailContent = this.renderTemplate(template, data);
-
-    // Queue for background processing
-    this.notificationQueue.push({
-      type: 'email',
-      recipient,
-      content: emailContent,
-      timestamp: new Date(),
-      priority: 'normal',
-    });
-
-    // Process queue asynchronously
-    this.processNotificationQueue();
-  }
-
-  private async processNotificationQueue(): Promise<void> {
-    while (this.notificationQueue.length > 0) {
-      const job = this.notificationQueue.shift()!;
-      try {
-        await this.executeNotificationJob(job);
-      } catch (error) {
-        console.error('Failed to process notification:', error);
-      }
-    }
-  }
-}
-```
-
-#### 👂 Event Listeners (Observer Pattern)
-
-```typescript
-// SessionListener.ts - Session-specific event handler
-export class SessionListener {
-  constructor(private notificationService: NotificationService) {
-    this.setupEventListeners();
-  }
-
-  private setupEventListeners(): void {
-    const eventBus = EventBus.getInstance();
-
-    eventBus.subscribe('session.booked', this.onSessionBooked.bind(this));
-    eventBus.subscribe('session.cancelled', this.onSessionCancelled.bind(this));
-    eventBus.subscribe('session.completed', this.onSessionCompleted.bind(this));
-  }
-
-  async onSessionBooked(data: SessionBookedEvent): Promise<void> {
-    // Send confirmation emails
-    await this.notificationService.sendEmail(
-      'session_confirmation',
-      data,
-      data.user.email
-    );
-
-    await this.notificationService.sendEmail(
-      'session_notification_coach',
-      data,
-      data.coach.email
-    );
-
-    // Schedule reminder notifications
-    this.scheduleReminders(data.session);
-  }
-
-  private scheduleReminders(session: Session): void {
-    const reminderTime = new Date(
-      session.scheduledAt.getTime() - 24 * 60 * 60 * 1000
-    );
-
-    setTimeout(() => {
-      this.notificationService.sendEmail(
-        'session_reminder',
-        { session },
-        session.userEmail
-      );
-    }, reminderTime.getTime() - Date.now());
-  }
-}
-```
 
 ## 🔧 Utilities System (FASE 2)
 
-### Professional Utility Suite
+### Core Utility Components
 
-The utilities layer provides enterprise-grade tools for common operations:
+| Utility | Pattern | Description | Source |
+|---------|---------|-------------|--------|
+| **ConfigManager** | Singleton | Centralized app configuration | [`ConfigManager.ts`](src/utils/ConfigManager.ts) |
+| **CacheManager** | Singleton + Strategy | Multi-tier caching with TTL & LRU | [`CacheManager.ts`](src/utils/CacheManager.ts) |
+| **DateFormatter** | Singleton + Utils | Date formatting & manipulation | [`dateFormatter.ts`](src/utils/dateFormatter.ts) |
+| **StringFormatter** | Utils | String manipulation & validation | [`stringFormatter.ts`](src/utils/stringFormatter.ts) |
+| **NumberFormatter** | Singleton + Utils | Number & currency formatting | [`numberFormatter.ts`](src/utils/numberFormatter.ts) |
+| **ValidationUtils** | Strategy + Factory | Form & data validation | [`validationUtils.ts`](src/utils/validationUtils.ts) |
+| **ArrayUtils** | Utils | Array operations & statistics | [`arrayUtils.ts`](src/utils/arrayUtils.ts) |
+| **ObjectUtils** | Utils | Object manipulation & deep operations | [`objectUtils.ts`](src/utils/objectUtils.ts) |
+| **BrowserUtils** | Utils | Browser detection & DOM utilities | [`browserUtils.ts`](src/utils/browserUtils.ts) |
 
-#### ⚙️ ConfigManager (Singleton Pattern)
-
+### Quick Usage Examples
 ```typescript
-// ConfigManager.ts - Centralized configuration
-export class ConfigManager {
-  private static instance: ConfigManager;
-  private config: Map<string, any> = new Map();
+// Configuration
+ConfigManager.getInstance().get('api.baseUrl');
 
-  static getInstance(): ConfigManager {
-    if (!ConfigManager.instance) {
-      ConfigManager.instance = new ConfigManager();
-      ConfigManager.instance.loadFromEnvironment();
-    }
-    return ConfigManager.instance;
-  }
+// Caching with TTL
+CacheManager.getInstance().set('key', data, { ttl: 300000 });
 
-  get(key: string): any {
-    return this.config.get(key);
-  }
+// Date formatting
+formatDate(new Date(), 'es-ES');
 
-  getApiKey(service: string): string {
-    const key = this.config.get(`API_KEY_${service.toUpperCase()}`);
-    if (!key) throw new Error(`API key for ${service} not configured`);
-    return key;
-  }
-
-  private loadFromEnvironment(): void {
-    this.config.set('SUPABASE_URL', import.meta.env.VITE_SUPABASE_URL);
-    this.config.set(
-      'SUPABASE_ANON_KEY',
-      import.meta.env.VITE_SUPABASE_ANON_KEY
-    );
-    this.config.set('APP_NAME', 'Coaching Platform');
-    this.config.set('SESSION_DURATION', 20);
-  }
-}
+// Validation
+const errors = validateForm(data, validationRules);
 ```
+📖 **Full Documentation**: [Utilities Guide](docs/guides/utilities-guide.md)
+🧪 **Tests**: See `*.test.ts` files in [`src/utils/`](src/utils/)
 
-#### 💾 CacheManager (Strategy Pattern)
-
-```typescript
-// CacheManager.ts - Flexible caching system
-export class CacheManager {
-  private strategy: CacheStrategy;
-
-  constructor(strategy: CacheStrategy) {
-    this.strategy = strategy;
-  }
-
-  setStrategy(strategy: CacheStrategy): void {
-    this.strategy = strategy;
-  }
-
-  async get<T>(key: string): Promise<T | null> {
-    return this.strategy.get<T>(key);
-  }
-
-  async set<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
-    return this.strategy.set(key, value, ttlSeconds);
-  }
-}
-
-// Memory cache strategy for fast access
-export class MemoryCacheStrategy implements CacheStrategy {
-  private cache: Map<string, CacheItem> = new Map();
-
-  async get<T>(key: string): Promise<T | null> {
-    const item = this.cache.get(key);
-    if (!item) return null;
-
-    if (item.expiresAt && item.expiresAt < Date.now()) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return item.value as T;
-  }
-
-  async set<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
-    const expiresAt = ttlSeconds ? Date.now() + ttlSeconds * 1000 : undefined;
-    this.cache.set(key, { value, expiresAt });
-  }
-}
-```
-
-#### 📅 Professional Formatters
-
-```typescript
-// dateFormatter.ts - Comprehensive date utilities
-export class DateFormatter {
-  static formatDate(date: Date, format: string = 'YYYY-MM-DD'): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-
-    return format
-      .replace('YYYY', String(year))
-      .replace('MM', month)
-      .replace('DD', day);
-  }
-
-  static getRelativeTime(date: Date): string {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return `${Math.floor(diffDays / 30)} months ago`;
-  }
-
-  static formatDuration(minutes: number): string {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-
-    if (hours === 0) return `${mins}m`;
-    if (mins === 0) return `${hours}h`;
-    return `${hours}h ${mins}m`;
-  }
-}
-
-// stringFormatter.ts - String manipulation utilities
-export class StringFormatter {
-  static capitalize(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-  }
-
-  static slugify(str: string): string {
-    return str
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  }
-
-  static truncate(str: string, maxLength: number): string {
-    if (str.length <= maxLength) return str;
-    return str.substring(0, maxLength - 3) + '...';
-  }
-
-  static formatPhone(phone: string): string {
-    const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length === 10) {
-      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
-    }
-    return phone;
-  }
-}
-
-// numberFormatter.ts - Number formatting utilities
-export class NumberFormatter {
-  static formatCurrency(amount: number, currency: string = 'USD'): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-    }).format(amount);
-  }
-
-  static formatPercent(value: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'percent',
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-    }).format(value);
-  }
-
-  static formatFileSize(bytes: number): string {
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    if (bytes === 0) return '0 Bytes';
-
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
-  }
-}
-```
 
 ## 📊 Testing & Quality Assurance
 
