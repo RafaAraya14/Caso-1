@@ -23,6 +23,16 @@
 
 ---
 
+## 📚 Quick Documentation Access
+
+| Category | Location | Description |
+|----------|----------|-------------|
+| **Architecture** | [📁 Archive v2](docs/archive/v2-text-updated/) | Latest architecture diagrams |
+| **Design Patterns** | [📖 Patterns Guide](docs/Design-Patterns-Documentation.md) | 10 patterns implementation |
+| **Dev Guides** | [📚 Guides](docs/guides/) | Component creation, linting, performance |
+| **Testing** | [🧪 UX Results](docs/UX-Testing-Results.md) | UX testing methodology & results |
+| **Security** | [🔐 2FA Guide](docs/Two-Factor-Authentication.md) | 2FA implementation guide |
+
 ## Project Overview
 
 ### System Description
@@ -158,19 +168,9 @@ The 15-layer architecture implements the following principles:
 - **Interface Segregation**: Clients depend only on interfaces they use
 
 ### Layer Communication Patterns
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   UI Components │───▶│   Controllers   │───▶│ Business Logic  │
-│     (React)     │    │   (Hooks)       │    │  (Use Cases)    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Middleware    │    │   Validators    │    │    Services     │
-│  (Interceptors) │    │  (Strategy)     │    │ (API Clients)   │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
+For detailed architecture diagrams, see:
+- 📊 [Complete Architecture Diagram](docs/archive/v2-text-updated/Architecture-Diagram-Updated.txt)
+- 🎨 [Classes Relationships](docs/archive/v2-text-updated/Classes-Diagram-Updated.txt)
 
 ### Complete Layer Structure
 
@@ -451,20 +451,17 @@ Verified UI renders only authorized actions:
 
 ## Design Patterns Implementation
 
-The architecture implements 10 design patterns as required by Caso #1:
+The architecture implements 10 design patterns. For detailed implementation and examples:
+📖 **[Complete Design Patterns Documentation](docs/Design-Patterns-Documentation.md)**
 
-| Pattern        | Location                             | Implementation                         | How to Use                                     |
-| -------------- | ------------------------------------ | -------------------------------------- | ---------------------------------------------- |
-| **Singleton**  | `EventBus.ts`, `ConfigManager.ts`, `CacheManager.ts`    | Single instance management             | `EventBus.getInstance().publish()`             |
-| **Strategy**   | `validators/BaseValidator.ts`        | Interchangeable validation algorithms  | Extend `BaseValidator<T>` for new validators   |
-| **Observer**   | `background/EventBus.ts`             | Event subscription system              | Subscribe/publish events for real-time updates |
-| **Factory**    | `transformers/TransformerFactory.ts` | Object creation abstraction            | Transform between DTOs and Models              |
-| **Command**    | `business/useCases/`                 | Encapsulated business operations       | Execute use cases with clear interfaces        |
-| **Facade**     | `services/SessionService.ts`         | Simplified complex subsystem interface | Single entry point for session operations      |
-| **Middleware** | `middleware/authInterceptor.ts`      | Request/response processing pipeline   | Add authentication to API calls                |
-| **Builder**    | `types/dtos/`                        | Complex object construction            | Build DTOs with optional parameters            |
-| **Repository** | `services/api/`                      | Data access abstraction                | Abstract database operations                   |
-| **Composite**  | `components/ui/`                     | Tree structure of objects              | Compose complex UI from simple parts           |
+### Pattern Overview
+| Pattern | Usage |
+|---------|-------|
+| Singleton | EventBus, ConfigManager, NotificationService |
+| Strategy | Validators, Cache Management |
+| Observer | Event System, Real-time Updates |
+| Factory | Data Transformers |
+| Command | Use Cases |
 
 ### Pattern Usage Examples
 
@@ -513,896 +510,42 @@ useEffect(() => {
 
 ---
 
-## Detailed Layer Design Requirements
+## Layer Architecture Overview
 
-### 1. Visual Components Layer
+### 📁 15-Layer Structure
 
-**Component Hierarchy**: Based on Atomic Design principles
+Each layer has a specific responsibility following clean architecture principles.
+For detailed implementation, see the source code and documentation:
 
-- **Atoms**: Button, Input, Card, Modal (in `src/components/ui/`)
-- **Molecules**: CoachCard, SessionCard, SearchForm
-- **Organisms**: CoachList, Dashboard, SessionManager
-- **Templates**: PageLayout, AuthLayout
-- **Pages**: CoachSearch, CoachProfile, Dashboard
+| Layer | Location | Purpose | Documentation |
+|-------|----------|---------|---------------|
+| **UI Components** | `src/components/` | React components (Atomic Design) | [Component Guide](docs/guides/Component-Creation-Guide.md) |
+| **Business Logic** | `src/business/` | Rules & Use Cases | Source code examples |
+| **Services** | `src/services/` | External integrations | API documentation |
+| **Middleware** | `src/middleware/` | Request/Response processing | [Examples](src/middleware/examples/) |
+| **Background Jobs** | `src/background/` | Event system (EventBus) | [Background Jobs Guide](docs/guides/Background-Jobs-Examples.md) |
+| **Validators** | `src/validators/` | Strategy pattern validation | Source code |
+| **Transformers** | `src/transformers/` | DTO transformations | Factory pattern |
+| **Types/DTOs** | `src/types/` | Type definitions | TypeScript interfaces |
+| **Hooks** | `src/hooks/` | React controllers | Usage examples |
+| **Models** | `src/models/` | Domain models | Test files included |
+| **Utils** | `src/utils/` | Utilities (Singleton) | Helper functions |
+| **Styles** | `src/styles/` | CSS/Tailwind | Design system |
+| **Error Handling** | `src/error-handling/` | Custom errors | Error boundaries |
+| **Logging** | `src/logging/` | Logger (Strategy) | Console & Remote |
+| **Security** | `src/lib/` | Supabase auth | [2FA Guide](docs/Two-Factor-Authentication.md) |
 
-**Reusable UI Components Structure**:
+### Key Implementation Principles
+- **Separation of Concerns**: Each layer has single responsibility
+- **Dependency Inversion**: Higher layers depend on abstractions
+- **Clean Architecture**: Business logic independent of frameworks
 
+### Quick Example
 ```typescript
-// Component template following Card Design methodology
-export const ComponentName: React.FC<ComponentProps> = ({
-  variant = 'primary',
-  size = 'md',
-  children,
-  ...props
-}) => {
-  return (
-    <div className={`card ${variant} ${size}`} {...props}>
-      {children}
-    </div>
-  );
-};
+// Simple layer interaction example
+const useCase = new BookSessionUseCase();
+const result = await useCase.execute(sessionDTO);
 ```
-
-**Accessibility Standards**: WCAG 2.1 AA compliance
-
-- Semantic HTML elements
-- ARIA labels and descriptions
-- Keyboard navigation support
-- Screen reader compatibility
-
-**Responsive Guidelines**:
-
-```css
-/* Mobile-first approach */
-.responsive-component {
-  @apply w-full p-4; /* Mobile: 320px+ */
-  @apply md:w-1/2 md:p-6; /* Tablet: 768px+ */
-  @apply lg:w-1/3 lg:p-8; /* Desktop: 1024px+ */
-  @apply xl:w-1/4 xl:p-10; /* Large: 1280px+ */
-}
-```
-
-### 2. Controllers Layer (React Hooks)
-
-**Hook-based Controllers** with dependency injection pattern:
-
-```typescript
-// useSessionController.ts
-export const useSessionController = () => {
-  const sessionService = useMemo(() => new SessionService(), []);
-  const eventBus = useMemo(() => EventBus.getInstance(), []);
-
-  const bookSession = useCallback(
-    async (data: CreateSessionDTO) => {
-      const useCase = new BookSessionUseCase(sessionService, eventBus);
-      return await useCase.execute(data);
-    },
-    [sessionService, eventBus]
-  );
-
-  return { bookSession };
-};
-```
-
-**User Input Validation**: Integrated with validation layer
-
-```typescript
-const { validate, errors } = useValidator(CreateSessionValidator);
-const handleSubmit = async data => {
-  const validation = validate(data);
-  if (!validation.isValid) {
-    setErrors(validation.errors);
-    return;
-  }
-  await bookSession(data);
-};
-```
-
-### 3. Model Layer
-
-**Domain Model Classes** with validation integration:
-
-```typescript
-// Coach.ts - Domain model with business logic
-export class Coach {
-  constructor(
-    public readonly id: string,
-    public readonly name: string,
-    public readonly specializations: string[],
-    public readonly hourlyRate: number,
-    public readonly rating: number,
-    private availability: Date[] = []
-  ) {}
-
-  isAvailable(date: Date): boolean {
-    return this.availability.some(slot => slot.getTime() === date.getTime());
-  }
-
-  calculatePrice(durationMinutes: number): number {
-    return (this.hourlyRate * durationMinutes) / 60;
-  }
-}
-```
-
-**Model Validation Example**:
-
-```typescript
-// Using Joi validator integration
-const coachSchema = Joi.object({
-  name: Joi.string().required().min(2).max(50),
-  specializations: Joi.array().items(Joi.string()).min(1),
-  hourlyRate: Joi.number().positive().required(),
-  rating: Joi.number().min(0).max(5),
-});
-
-// Validation in model constructor
-if (!coachSchema.validate(data).error) {
-  throw new ValidationError('Invalid coach data');
-}
-```
-
-### 4. Middleware Layer
-
-**Request/Response Interceptors**:
-
-```typescript
-// authInterceptor.ts - Authentication middleware
-export const authenticatedFetch = async (
-  url: string,
-  options: RequestInit = {}
-): Promise<Response> => {
-  const token = await getAuthToken();
-
-  const headers = {
-    ...options.headers,
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  };
-
-  const response = await fetch(url, { ...options, headers });
-
-  if (response.status === 401) {
-    EventBus.getInstance().publish('auth-required', {});
-    throw new AuthenticationError('Authentication required');
-  }
-
-  return response;
-};
-```
-
-**Permissions Middleware**:
-
-```typescript
-// permissionsMiddleware.ts
-export const withPermissions = (requiredRole: UserRole) => {
-  return (Component: React.FC) => (props: any) => {
-    const { user } = useAuth();
-
-    if (!user || !user.hasRole(requiredRole)) {
-      return <UnauthorizedComponent />;
-    }
-
-    return <Component {...props} />;
-  };
-};
-```
-
-**Error Handling Middleware**:
-
-```typescript
-// errorHandlerMiddleware.ts
-export const errorHandler = (error: Error): void => {
-  Logger.getInstance().error('Application error', {
-    message: error.message,
-    stack: error.stack,
-    timestamp: new Date().toISOString(),
-  });
-
-  // Don't expose internal errors to UI
-  const userMessage =
-    error instanceof CustomError
-      ? error.userMessage
-      : 'An unexpected error occurred';
-
-  EventBus.getInstance().publish('error-occurred', {
-    message: userMessage,
-  });
-};
-```
-
-### 5. Business Logic Layer
-
-**Domain-Driven Design Implementation**: Following DDD principles with clear
-domain boundaries and ubiquitous language.
-
-**Business Logic Services**:
-
-```typescript
-// BookSessionUseCase.ts - Clean use case implementation
-export class BookSessionUseCase {
-  constructor(
-    private sessionRules: SessionRules,
-    private sessionService: SessionService,
-    private eventBus: EventBus
-  ) {}
-
-  async execute(dto: CreateSessionDTO): Promise<SessionResult> {
-    // 1. Validate business rules
-    this.sessionRules.validateBooking(dto);
-
-    // 2. Execute domain logic
-    const session = await this.sessionService.createSession(dto);
-
-    // 3. Publish domain event
-    this.eventBus.publish('session.booked', { session });
-
-    return { session, success: true };
-  }
-}
-```
-
-**Domain-Specific Rules**:
-
-```typescript
-// SessionRules.ts - Business validation rules
-export class SessionRules {
-  static validateBooking(dto: CreateSessionDTO): void {
-    if (!dto.user.hasCredits()) {
-      throw CustomError.businessLogic('Insufficient credits');
-    }
-
-    if (!dto.coach.isAvailable(dto.scheduledAt)) {
-      throw CustomError.businessLogic('Coach not available');
-    }
-
-    if (dto.duration < 20 || dto.duration > 120) {
-      throw CustomError.businessLogic('Invalid session duration');
-    }
-  }
-}
-```
-
-### 6. Proxy/Client/Services Layer
-
-**API Client Abstraction**:
-
-```typescript
-// ApiClient.ts - Template for API integration
-export abstract class BaseApiClient {
-  protected baseUrl: string;
-  protected headers: Record<string, string>;
-
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
-    this.headers = {
-      'Content-Type': 'application/json',
-    };
-  }
-
-  protected async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    const response = await authenticatedFetch(url, {
-      ...options,
-      headers: { ...this.headers, ...options.headers },
-    });
-
-    if (!response.ok) {
-      throw new ApiError(`API request failed: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-}
-```
-
-**Security Layer Client** (Functional Code):
-
-```typescript
-// supabase.ts - Functional security client
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.VITE_SUPABASE_URL!;
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY!;
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Auth helpers
-export const authApi = {
-  signIn: (email: string, password: string) =>
-    supabase.auth.signInWithPassword({ email, password }),
-
-  signOut: () => supabase.auth.signOut(),
-
-  getCurrentUser: () => supabase.auth.getUser(),
-
-  onAuthStateChange: (callback: (user: any) => void) =>
-    supabase.auth.onAuthStateChange((event, session) => {
-      callback(session?.user || null);
-    }),
-};
-```
-
-### 7. Background/Jobs/Listeners Layer
-
-**Event Listeners for Real-time Updates**:
-
-```typescript
-// SessionListener.ts - Observer pattern implementation
-export class SessionListener {
-  constructor(private eventBus: EventBus) {
-    this.setupListeners();
-  }
-
-  private setupListeners(): void {
-    this.eventBus.subscribe('session.booked', this.handleSessionBooked);
-    this.eventBus.subscribe('session.cancelled', this.handleSessionCancelled);
-    this.eventBus.subscribe('coach.available', this.handleCoachAvailable);
-  }
-
-  private handleSessionBooked = async (
-    data: SessionBookedEvent
-  ): Promise<void> => {
-    // Send notification to coach
-    await NotificationService.getInstance().sendEmail(
-      'session-booked-coach',
-      data,
-      data.coach.email
-    );
-
-    // Update coach availability
-    await this.updateCoachAvailability(data.coach.id, data.scheduledAt);
-  };
-}
-```
-
-**Pub/Sub System Implementation**:
-
-```typescript
-// EventBus.ts - Publisher/Subscriber pattern
-export class EventBus {
-  private static instance: EventBus;
-  private listeners: Map<string, Function[]> = new Map();
-
-  static getInstance(): EventBus {
-    if (!EventBus.instance) {
-      EventBus.instance = new EventBus();
-    }
-    return EventBus.instance;
-  }
-
-  subscribe(eventType: string, callback: Function): () => void {
-    if (!this.listeners.has(eventType)) {
-      this.listeners.set(eventType, []);
-    }
-    this.listeners.get(eventType)!.push(callback);
-
-    // Return unsubscribe function
-    return () => {
-      const callbacks = this.listeners.get(eventType) || [];
-      const index = callbacks.indexOf(callback);
-      if (index > -1) callbacks.splice(index, 1);
-    };
-  }
-
-  async publish(eventType: string, data: any): Promise<void> {
-    const callbacks = this.listeners.get(eventType) || [];
-    await Promise.all(callbacks.map(callback => callback(data)));
-  }
-}
-```
-
-### 8. Validators Layer
-
-**Strategy Pattern Implementation**:
-
-```typescript
-// BaseValidator.ts - Strategy interface
-export interface ValidationResult {
-  isValid: boolean;
-  errors: ValidationError[];
-}
-
-export abstract class BaseValidator<T> {
-  abstract validate(data: T): ValidationResult;
-
-  protected createError(
-    field: string,
-    message: string,
-    code: string
-  ): ValidationError {
-    return { field, message, code };
-  }
-}
-```
-
-**Concrete Validator Example**:
-
-```typescript
-// CreateSessionValidator.ts - Concrete strategy
-export class CreateSessionValidator extends BaseValidator<CreateSessionDTO> {
-  validate(dto: CreateSessionDTO): ValidationResult {
-    const errors: ValidationError[] = [];
-
-    if (!dto.coachId) {
-      errors.push(
-        this.createError('coachId', 'Coach ID is required', 'REQUIRED')
-      );
-    }
-
-    if (!dto.scheduledAt || dto.scheduledAt < new Date()) {
-      errors.push(
-        this.createError(
-          'scheduledAt',
-          'Valid future date required',
-          'INVALID_DATE'
-        )
-      );
-    }
-
-    if (dto.duration < 20 || dto.duration > 120) {
-      errors.push(
-        this.createError(
-          'duration',
-          'Duration must be 20-120 minutes',
-          'INVALID_RANGE'
-        )
-      );
-    }
-
-    return { isValid: errors.length === 0, errors };
-  }
-}
-```
-
-**Developer Instructions for New Validators**:
-
-1. Extend `BaseValidator<T>` with your DTO type
-2. Implement the `validate` method with business rules
-3. Use `createError` helper for consistent error format
-4. Register validator in the validation factory
-5. Add unit tests for all validation scenarios
-
-### 9. DTOs Layer
-
-**Data Transfer Object Interfaces**:
-
-```typescript
-// CreateSessionDTO.ts - Session creation interface
-export interface CreateSessionDTO {
-  readonly coachId: string;
-  readonly userId: string;
-  readonly scheduledAt: Date;
-  readonly duration: number; // in minutes
-  readonly specialization: string;
-  readonly notes?: string;
-}
-
-// SearchCoachDTO.ts - Coach search parameters
-export interface SearchCoachDTO {
-  readonly specializations?: string[];
-  readonly maxHourlyRate?: number;
-  readonly minRating?: number;
-  readonly availableAt?: Date;
-  readonly location?: string;
-}
-```
-
-**DTO Usage Guidelines**:
-
-- **When to use DTOs**: API boundaries, form data, validation input
-- **Transformation required**: Between API responses and domain models
-- **Immutability**: All DTOs are readonly to prevent accidental mutations
-
-**Transformation Template**:
-
-```typescript
-// CoachTransformer.ts - DTO to Model transformation
-export class CoachTransformer {
-  static toModel(dto: CoachDTO): Coach {
-    return new Coach(
-      dto.id,
-      dto.name,
-      dto.specializations,
-      dto.hourlyRate,
-      dto.rating,
-      dto.availability.map(date => new Date(date))
-    );
-  }
-
-  static toDTO(coach: Coach): CoachDTO {
-    return {
-      id: coach.id,
-      name: coach.name,
-      specializations: coach.specializations,
-      hourlyRate: coach.hourlyRate,
-      rating: coach.rating,
-      availability: coach.getAvailability().map(date => date.toISOString()),
-    };
-  }
-}
-```
-
-### 10. State Management Layer
-
-**React Context + Custom Hooks Strategy**:
-
-```typescript
-// AuthContext.tsx - Authentication state management
-interface AuthContextValue {
-  user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  loading: boolean;
-}
-
-export const AuthContext = createContext<AuthContextValue | null>(null);
-
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Implementation with Supabase integration
-  const value = useMemo(() => ({
-    user,
-    login: async (email: string, password: string) => {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-      if (error) throw error;
-      setUser(data.user);
-    },
-    logout: async () => {
-      await supabase.auth.signOut();
-      setUser(null);
-    },
-    loading
-  }), [user, loading]);
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-```
-
-### 11. Styles Layer
-
-**CSS Management Strategy**: Using Tailwind CSS with custom configuration for
-design system consistency.
-
-**Responsive Design Rules**:
-
-```typescript
-// tailwind.config.js - Design system configuration
-module.exports = {
-  theme: {
-    screens: {
-      sm: '640px', // Small devices
-      md: '768px', // Medium devices
-      lg: '1024px', // Large devices
-      xl: '1280px', // Extra large devices
-      '2xl': '1536px', // 2X large devices
-    },
-    extend: {
-      colors: {
-        primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          900: '#1e3a8a',
-        },
-      },
-    },
-  },
-};
-```
-
-**Dark/Light Mode Strategy**:
-
-```css
-/* globals.css - Theme variables */
-:root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-}
-
-.dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-}
-
-/* Component styles using CSS variables */
-.card {
-  @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-white;
-  background-color: hsl(var(--card));
-  color: hsl(var(--card-foreground));
-}
-```
-
-**Testing Responsive Design**:
-
-1. Use browser dev tools for breakpoint testing
-2. Test all components at: 320px, 768px, 1024px, 1280px
-3. Verify dark/light mode toggle functionality
-4. Validate accessibility contrast ratios
-
-**Developer Instructions**:
-
-- Use Tailwind utilities for consistent spacing and colors
-- Follow mobile-first responsive approach
-- Implement dark mode using CSS custom properties
-- Test theme switching with the ThemeToggle component
-
-### 12. Utilities Layer
-
-**Singleton Pattern Implementation**:
-
-```typescript
-// ConfigManager.ts - Application configuration management
-export class ConfigManager {
-  private static instance: ConfigManager;
-  private config: AppConfig;
-
-  private constructor() {
-    this.config = {
-      apiUrl: process.env.VITE_API_URL || 'http://localhost:3000',
-      supabaseUrl: process.env.VITE_SUPABASE_URL || '',
-      environment: process.env.NODE_ENV || 'development',
-    };
-  }
-
-  static getInstance(): ConfigManager {
-    if (!ConfigManager.instance) {
-      ConfigManager.instance = new ConfigManager();
-    }
-    return ConfigManager.instance;
-  }
-
-  get<K extends keyof AppConfig>(key: K): AppConfig[K] {
-    return this.config[key];
-  }
-
-  set<K extends keyof AppConfig>(key: K, value: AppConfig[K]): void {
-    this.config[key] = value;
-  }
-}
-```
-
-**Utility Examples**:
-
-```typescript
-// dateFormatter.ts - Date formatting utilities
-export const dateFormatter = {
-  toLocal: (date: Date): string =>
-    date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }),
-
-  toTime: (date: Date): string =>
-    date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    }),
-};
-
-// validationUtils.ts - Common validation helpers
-export const validationUtils = {
-  isEmail: (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
-
-  isPhoneNumber: (phone: string): boolean => /^\+?[\d\s-()]+$/.test(phone),
-
-  isStrongPassword: (password: string): boolean =>
-    password.length >= 8 && /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password),
-};
-```
-
-### 13. Exception Handling Layer
-
-**Standardized Error Handling**:
-
-```typescript
-// CustomError.ts - Custom error classes
-export class CustomError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-    public userMessage: string,
-    public statusCode: number = 500
-  ) {
-    super(message);
-    this.name = this.constructor.name;
-  }
-
-  static businessLogic(
-    message: string,
-    code: string = 'BUSINESS_ERROR'
-  ): CustomError {
-    return new CustomError(message, code, message, 400);
-  }
-
-  static authentication(
-    message: string = 'Authentication required'
-  ): CustomError {
-    return new CustomError(
-      message,
-      'AUTH_ERROR',
-      'Please log in to continue',
-      401
-    );
-  }
-
-  static validation(message: string, errors: ValidationError[]): CustomError {
-    const userMessage = errors.map(e => e.message).join(', ');
-    return new CustomError(message, 'VALIDATION_ERROR', userMessage, 422);
-  }
-}
-```
-
-**Global Error Handler**:
-
-```typescript
-// errorHandler.ts - Centralized error handling
-export const globalErrorHandler = (error: Error): void => {
-  // Log error with context
-  Logger.getInstance().error('Application error', {
-    message: error.message,
-    stack: error.stack,
-    timestamp: new Date().toISOString(),
-    userAgent: navigator.userAgent,
-    url: window.location.href,
-  });
-
-  // Don't expose internal errors to users
-  const userMessage =
-    error instanceof CustomError
-      ? error.userMessage
-      : 'An unexpected error occurred. Please try again.';
-
-  // Notify UI layer
-  EventBus.getInstance().publish('error-occurred', {
-    message: userMessage,
-    severity: error instanceof CustomError ? 'warning' : 'error',
-  });
-};
-```
-
-**Error Boundary Implementation**:
-
-```typescript
-// ErrorBoundary.tsx - React error boundary
-export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    globalErrorHandler(error);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <ErrorFallback error={this.state.error} />;
-    }
-    return this.props.children;
-  }
-}
-```
-
-### 14. Logging Layer
-
-**Strategy Pattern Logging System**:
-
-```typescript
-// logger.ts - Strategy pattern implementation
-interface LogProvider {
-  log(level: LogLevel, message: string, context?: any): void;
-}
-
-class ConsoleProvider implements LogProvider {
-  log(level: LogLevel, message: string, context?: any): void {
-    console[level](message, context);
-  }
-}
-
-class RemoteProvider implements LogProvider {
-  async log(level: LogLevel, message: string, context?: any): Promise<void> {
-    await fetch('/api/logs', {
-      method: 'POST',
-      body: JSON.stringify({ level, message, context, timestamp: new Date() }),
-    });
-  }
-}
-
-export class Logger {
-  private static instance: Logger;
-  private providers: LogProvider[] = [];
-
-  static getInstance(): Logger {
-    if (!Logger.instance) {
-      Logger.instance = new Logger();
-      Logger.instance.providers.push(new ConsoleProvider());
-
-      if (process.env.NODE_ENV === 'production') {
-        Logger.instance.providers.push(new RemoteProvider());
-      }
-    }
-    return Logger.instance;
-  }
-
-  info(message: string, context?: any): void {
-    this.providers.forEach(provider => provider.log('info', message, context));
-  }
-
-  error(message: string, context?: any): void {
-    this.providers.forEach(provider => provider.log('error', message, context));
-  }
-}
-```
-
-### 15. Security Layer
-
-**Authentication and Authorization**:
-
-```typescript
-// supabase.ts - Security client implementation
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.VITE_SUPABASE_URL!;
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY!;
-
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-});
-
-// Row Level Security policies implemented in Supabase
-// Users can only access their own data
-// Coaches can only access their assigned sessions
-// Admin role for system management
-```
-
-**Role-Based Access Control**:
-
-```typescript
-// useAuth.ts - Authentication hook with RBAC
-export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-
-  const hasRole = (role: UserRole): boolean => {
-    return user?.roles?.includes(role) || false;
-  };
-
-  const hasPermission = (permission: Permission): boolean => {
-    return user?.permissions?.includes(permission) || false;
-  };
-
-  return {
-    user,
-    login,
-    logout,
-    hasRole,
-    hasPermission,
-    isAuthenticated: !!user,
-  };
-};
-```
-
----
-
 ## Linter Configuration
 
 ### ESLint Rules Implementation
@@ -1600,16 +743,20 @@ components documented:
 ```
 Caso-1/
 ├── README.md                          # Complete design documentation
-├── diagrams/                          # Architecture visuals
-│   ├── Architecture Diagram.pdf      # N-Layer architecture diagram
-│   ├── Classes Diagram.pdf           # Object design with patterns
-│   ├── Architecture-Diagram-Updated.txt
-│   └── Classes-Diagram-Updated.txt
-├── docs/                              # Supporting documentation
-│   ├── UX-Testing-Results.md          # UX testing evidence
+├── docs/
+│   ├── archive/
+│   │   ├── v1-original/             # Initial PDF/JPG Diagrams
+│   │   ├── v2-text-updated/         # FASE 1&2 Updates (TXT)
+│   │   └── v3-markdown/             # Markdown Converted Version
+│   ├── guides/
+│   │   ├── Component-Creation-Guide.md
+│   │   ├── linting-guide.md
+│   │   ├── performance-hooks-guidelines.md
+│   │   └── Background-Jobs-Examples.md
 │   ├── Design-Patterns-Documentation.md
-│   ├── Background-Jobs-Examples.md
-│   └── ci-cd-pipeline.md
+│   ├── ci-cd-pipeline.md
+│   ├── UX-Testing-Results.md
+│   └── Two-Factor-Authentication.md
 ├── src/                               # Complete project structure
 │   ├── components/                    # UI Components layer
 │   ├── business/                      # Business logic layer
@@ -1729,30 +876,6 @@ npm run lint
 
 npm run storybook
 
-```
-
-## 🏗️ Technology Stack
-
-| Technology                         | Purpose                 | Implementation                          |
-| ---------------------------------- | ----------------------- | --------------------------------------- |
-| **React 18.2.0**                   | Frontend Framework      | Functional components with hooks        |
-| **TypeScript 5.2.2**               | Type Safety             | Strict mode configuration               |
-| **Tailwind CSS**                   | Styling System          | Utility-first approach with Card Design |
-| **Redux Toolkit + TanStack Query** | State Management        | User sessions + API data management     |
-| **Supabase**                       | Backend & Auth          | Real-time database and authentication   |
-| **Jest + React Testing Library**   | Testing Framework       | 150 tests with 100% pass rate           |
-| **ESLint + Prettier**              | Code Quality            | Custom rules with formatting            |
-| **Vite**                           | Build Tool              | Fast development and building           |
-| **WebSockets + WebRTC**            | Real-time Communication | Video calls and notifications           |
-
-# Project Documentation
-
-## Getting Started
-
-### Start Storybook
-```bash
-npm run storybook
-```
 
 ## 🏗️ Technology Stack
 
@@ -1905,16 +1028,21 @@ Caso-1/
 │   └── extensions.json         # Recommended VSCode extensions
 ├── coverage/                    # Test Coverage Reports
 │   └── lcov-report/            # Detailed coverage analysis
-├── diagrams/                    # Architecture Documentation
-│   ├── Architecture Diagram.pdf # Complete N-Layer architecture
-│   ├── Classes Diagram.pdf     # Design patterns & relationships
-│   ├── Architecture-Diagram-Updated.txt # Updated architecture notes
-│   └── Classes-Diagram-Updated.txt # Updated class relationships
-├── docs/                        # Project Documentation
-│   ├── UX-Testing-Results.md   # Complete UX testing evidence
-│   ├── Design-Patterns-Documentation.md # Pattern implementation guide
-│   ├── Background-Jobs-Examples.md # Event system documentation
-│   └── ci-cd-pipeline.md       # DevOps & deployment guide
+docs/
+├── guides/                      # Development Guide 
+│   ├── Component-Creation-Guide.md
+│   ├── linting-guide.md
+│   ├── performance-hooks-guidelines.md
+│   └── Background-Jobs-Examples.md
+├── archive/                    # Version History  
+│   ├── README.md               # Archive Description  
+│   ├── v1-original/
+│   ├── v2-text-updated/
+│   └── v3-markdown/
+├── Design-Patterns-Documentation.md  # Core Documents (Maintained)
+├── ci-cd-pipeline.md
+├── UX-Testing-Results.md
+└── Two-Factor-Authentication.md
 ├── scripts/                     # Build & Deployment Scripts
 │   ├── quality-check.ps1       # Quality assurance script
 │   └── run-ci-pipeline.ps1     # CI/CD automation script
@@ -2129,23 +1257,27 @@ lib/
 ### 📂 Documentation
 ```
 docs/
-├── UX-Testing-Results.md        # UX testing documentation
-├── Background-Jobs-Examples.md  # Background jobs documentation
-├── Design-Patterns-Documentation.md # Design patterns guide
-├── Architecture-Diagram.md      # Architecture documentation
-├── Classes-Diagram.md           # Classes documentation
-└── Middleware_v1.docx           # Middleware documentation
+├── guides/                      # Development Guide  
+│   ├── Component-Creation-Guide.md
+│   ├── linting-guide.md
+│   ├── performance-hooks-guidelines.md
+│   └── Background-Jobs-Examples.md
+├── archive/                     # Version History 
+│   ├── README.md               # Archive Description 
+│   ├── v1-original/
+│   ├── v2-text-updated/
+│   └── v3-markdown/
+├── Design-Patterns-Documentation.md  # Core Documents (Maintained)  
+├── ci-cd-pipeline.md
+├── UX-Testing-Results.md
+└── Two-Factor-Authentication.md
 ```
 
 ### 📂 Visual Documentation
 ```
 diagrams/
-├── Architecture Diagram.jpg     # Original architecture diagram
-├── Architecture Diagram.pdf     # Original architecture PDF
-├── Classes Diagram.jpg          # Original classes diagram
-├── Classes Diagram.pdf          # Original classes PDF
-├── Architecture-Diagram-Updated.txt # Updated architecture (FASE 1-2)
-└── Classes-Diagram-Updated.txt  # Updated classes (FASE 1-2)
+└── README.md                    # Description of diagram version history
+    (original files have been moved to docs/archive/)
 ```
 
 ### 📂 Testing & Demos
@@ -3428,6 +2560,29 @@ Our project includes comprehensive documentation covering all aspects:
   ├── Command: 2 implementations
   └── 5 additional patterns
 ```
+## 📁 Documentation Organization
+
+### Core Documentation
+- **Design Patterns**: Complete implementation guide for all 10 patterns
+- **CI/CD Pipeline**: DevOps and deployment configuration
+- **UX Testing**: User experience testing results and methodology
+- **Security**: Two-factor authentication implementation
+
+### Development Guides
+Located in `docs/guides/`:
+- **Component Creation**: Templates and patterns for new components
+- **Linting Guide**: ESLint configuration and rules
+- **Performance Hooks**: Guidelines for React optimization
+- **Background Jobs**: Event system and async processing examples
+
+### Version History
+Located in `docs/archive/`:
+- **v1-original**: Initial design diagrams (PDF/JPG)
+- **v2-text-updated**: FASE 1&2 implementation updates (TXT)
+- **v3-markdown**: Web documentation versions (MD)
+
+Each version includes timestamp and purpose documentation.
+
 
 ## 👥 Team & Academic Information
 
