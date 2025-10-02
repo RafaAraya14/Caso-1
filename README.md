@@ -242,7 +242,30 @@ src/
 │   ├── logger.ts
 │   └── index.ts
 └── lib/                 # 15. Security Layer
-    └── supabase.ts
+│   └── supabase.ts
+└── pages/               # 16. Camera & Video Testing Pages
+│   ├── CameraDebug.tsx
+│   ├── CameraDemo.tsx              
+│   ├── CameraTest.tsx              
+│   ├── CameraTestPage.tsx          
+│   ├── SimpleCameraTest.tsx        
+│   └── VideoTestPage.tsx
+└── demo/                # 17. Live Demonstrations & Examples
+│   ├── VideoCallDemo.tsx           
+│   ├── voice-search-demo.ts        
+│   ├── basic-tests.ts              
+│   ├── fase2-demo.ts               
+│   └── manual-test.ts
+├── demo/                # 18. Live Demonstrations & Examples
+│   ├── VideoCallDemo.tsx
+│   ├── voice-search-demo.ts
+│   ├── basic-tests.ts
+│   ├── fase2-demo.ts
+│   └── manual-test.ts
+└── tests/               # 19. Unit & Integration Tests
+├── components/
+├── hooks/
+└── utils/                        
 ```
 
 ---
@@ -549,28 +572,34 @@ useEffect(() => {
 
 ## Layer Architecture Overview
 
-### 📁 15-Layer Structure
+### 📁 19-Layer Structure
 
 Each layer has a specific responsibility following clean architecture
 principles. For detailed implementation, see the source code and documentation:
 
-| Layer               | Location              | Purpose                          | Documentation                                                    |
-| ------------------- | --------------------- | -------------------------------- | ---------------------------------------------------------------- |
-| **UI Components**   | `src/components/`     | React components (Atomic Design) | [Component Guide](docs/guides/Component-Creation-Guide.md)       |
-| **Business Logic**  | `src/business/`       | Rules & Use Cases                | Source code examples                                             |
-| **Services**        | `src/services/`       | External integrations            | API documentation                                                |
-| **Middleware**      | `src/middleware/`     | Request/Response processing      | [Examples](src/middleware/examples/)                             |
-| **Background Jobs** | `src/background/`     | Event system (EventBus)          | [Background Jobs Guide](docs/guides/Background-Jobs-Examples.md) |
-| **Validators**      | `src/validators/`     | Strategy pattern validation      | Source code                                                      |
-| **Transformers**    | `src/transformers/`   | DTO transformations              | Factory pattern                                                  |
-| **Types/DTOs**      | `src/types/`          | Type definitions                 | TypeScript interfaces                                            |
-| **Hooks**           | `src/hooks/`          | React controllers                | Usage examples                                                   |
-| **Models**          | `src/models/`         | Domain models                    | Test files included                                              |
-| **Utils**           | `src/utils/`          | Utilities (Singleton)            | Helper functions                                                 |
-| **Styles**          | `src/styles/`         | CSS/Tailwind                     | Design system                                                    |
-| **Error Handling**  | `src/error-handling/` | Custom errors                    | Error boundaries                                                 |
-| **Logging**         | `src/logging/`        | Logger (Strategy)                | Console & Remote                                                 |
-| **Security**        | `src/lib/`            | Supabase auth                    | [2FA Guide](docs/Two-Factor-Authentication.md)                   |
+### 📁 19-Layer Architecture Structure
+
+| Layer | Location | Purpose | Documentation |
+|-------|----------|---------|---------------|
+| **1. UI Components** | [`src/components/`](src/components/) | React components (Atomic Design) | [Component Guide](docs/guides/Component-Creation-Guide.md) |
+| **2. Business Logic** | [`src/business/`](src/business/) | Rules & Use Cases | [Source code](src/business/) |
+| **3. Services** | [`src/services/`](src/services/) | External integrations | [API folder](src/services/api/) |
+| **4. Middleware** | [`src/middleware/`](src/middleware/) | Request/Response processing | [Examples](src/middleware/examples/) |
+| **5. Background Jobs** | [`src/background/`](src/background/) | Event system (EventBus) | [Background Jobs Guide](docs/guides/Background-Jobs-Examples.md) |
+| **6. Listeners** | [`src/listeners/`](src/listeners/) | Event handlers (Observer) | [Source code](src/listeners/) |
+| **7. Validators** | [`src/validators/`](src/validators/) | Strategy pattern validation | [Source code](src/validators/) |
+| **8. Transformers** | [`src/transformers/`](src/transformers/) | DTO transformations | [Source code](src/transformers/) |
+| **9. Types/DTOs** | [`src/types/`](src/types/) | Type definitions | [DTOs folder](src/types/dtos/) |
+| **10. Hooks** | [`src/hooks/`](src/hooks/) | React controllers | [Source code](src/hooks/) |
+| **11. Models** | [`src/models/`](src/models/) | Domain models | [Test files](src/models/) |
+| **12. Utils** | [`src/utils/`](src/utils/) | Utilities (Singleton) | [Source code](src/utils/) |
+| **13. Styles** | [`src/styles/`](src/styles/) | CSS/Tailwind | [Globals.css](src/styles/globals.css) |
+| **14. Error Handling** | [`src/error-handling/`](src/error-handling/) | Custom errors | [Error handler](src/error-handling/errorHandler.ts) |
+| **15. Logging** | [`src/logging/`](src/logging/) | Logger (Strategy) | [Logger.ts](src/logging/logger.ts) |
+| **16. Security** | [`src/lib/`](src/lib/) | Supabase auth | [Supabase.ts](src/lib/supabase.ts) |
+| **17. Pages** | [`src/pages/`](src/pages/) | Camera/Video testing | [Test pages](src/pages/) |
+| **18. Demo** | [`src/demo/`](src/demo/) | Live demonstrations | [Demo files](src/demo/) |
+| **19. Tests** | [`src/tests/`](src/tests/) | Unit/Integration tests | [Test folder](src/tests/) |
 
 ### Key Implementation Principles
 
@@ -837,9 +866,9 @@ Caso-1/
 │   ├── services/                      # Services layer
 │   ├── middleware/                    # Middleware layer
 │   ├── background/                    # Background jobs layer
+│   ├── listeners/                     # Event listeners layer
 │   ├── validators/                    # Validators layer
 │   ├── transformers/                  # DTOs transformation
-│   ├── pages/                         # Page components
 │   ├── types/                         # Type definitions
 │   ├── hooks/                         # Controllers (React hooks)
 │   ├── models/                        # Domain models
@@ -847,14 +876,35 @@ Caso-1/
 │   ├── styles/                        # Styles layer
 │   ├── error-handling/                # Exception handling
 │   ├── logging/                       # Logging layer
-│   └── lib/                           # Security layer
+│   ├── lib/                           # Security layer
+│   ├── pages/                         # Camera & Video test pages
+│   ├── tests/                         # Unit & integration tests
+│   └── __mocks__/                     # Jest test mocks
 ├── demo/                              # Proof of concepts
+│   ├── VideoCallDemo.tsx              # Video call demonstration
+│   ├── voice-search-demo.ts           # Voice search demo
 │   ├── fase2-demo.ts                  # Background jobs demo
 │   ├── manual-test.ts                 # Manual testing script
 │   └── basic-tests.ts                 # Basic functionality tests
-└── scripts/                           # Build and deployment scripts
-    ├── quality-check.ps1
-    └── run-ci-pipeline.ps1
+├── scripts/                           # Build and deployment scripts
+│   ├── quality-check.ps1
+│   └── run-ci-pipeline.ps1
+├── public/                            # Static assets
+├── coverage/                          # Test coverage reports
+├── node_modules/                      # Dependencies (auto-generated)
+├── .github/                           # GitHub Actions workflows
+├── .husky/                            # Git hooks
+├── .vscode/                           # VSCode settings
+├── .next/                             # Next.js build (if applicable)
+├── package.json                       # Dependencies & scripts
+├── tsconfig.json                      # TypeScript configuration
+├── vite.config.ts                     # Vite build configuration
+├── jest.config.js                     # Testing configuration
+├── tailwind.config.js                 # Styling configuration
+├── .eslintrc.js                      # Code quality rules (50+ rules)
+├── .prettierrc.json                   # Code formatting rules
+├── .gitignore                         # Git exclusions
+└── LICENSE                            # Project license
 ```
 
 ### Architecture Diagrams
@@ -1129,7 +1179,7 @@ docs/
 │   ├── quality-check.ps1       # Quality assurance script
 │   └── run-ci-pipeline.ps1     # CI/CD automation script
 ├── src/                         # Main Application Source
-│   └── [15-Layer Architecture] # Complete implementation
+│   └── [19-Layer Architecture] # Complete implementation
 ├── node_modules/               # Dependencies (auto-generated)
 ├── README.md                   # Complete project documentation
 ├── package.json                # Dependencies & scripts
