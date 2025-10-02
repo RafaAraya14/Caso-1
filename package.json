@@ -56,6 +56,9 @@
         "dev": "vite",
         "dev:prototype": "vite --config vite.config.prototype.ts prototype.html",
         "build": "tsc && vite build",
+        "build:dev": "tsc && vite build --mode development",
+        "build:staging": "tsc && vite build --mode staging",
+        "build:prod": "tsc && vite build --mode production",
         "build:prototype": "vite build --config vite.config.prototype.ts",
         "preview": "vite preview",
         "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --max-warnings 250",
@@ -65,8 +68,13 @@
         "type-check": "tsc --noEmit",
         "test": "jest",
         "test:watch": "jest --watch",
-        "test:coverage": "jest --coverage",
+        "test:coverage": "jest --coverage --coverageThreshold='{\"global\":{\"branches\":80,\"functions\":80,\"lines\":80,\"statements\":80}}'",
+        "test:ci": "jest --ci --coverage --watchAll=false",
         "prepare": "husky install",
-        "pre-commit": "lint-staged"
+        "pre-commit": "lint-staged",
+        "quality:check": "npm run type-check && npm run lint && npm run test:coverage",
+        "pipeline:dev": "npm run quality:check && npm run build:dev",
+        "pipeline:staging": "npm run quality:check && npm run build:staging",
+        "pipeline:prod": "npm run quality:check && npm run build:prod"
     }
 }

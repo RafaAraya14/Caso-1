@@ -25,13 +25,13 @@
 
 ## 📚 Quick Documentation Access
 
-| Category | Location | Description |
-|----------|----------|-------------|
-| **Architecture** | [📁 Archive v2](docs/archive/v2-text-updated/) | Latest architecture diagrams |
-| **Design Patterns** | [📖 Patterns Guide](docs/Design-Patterns-Documentation.md) | 10 patterns implementation |
-| **Dev Guides** | [📚 Guides](docs/guides/) | Component creation, linting, performance |
-| **Testing** | [🧪 UX Results](docs/UX-Testing-Results.md) | UX testing methodology & results |
-| **Security** | [🔐 2FA Guide](docs/Two-Factor-Authentication.md) | 2FA implementation guide |
+| Category            | Location                                                   | Description                              |
+| ------------------- | ---------------------------------------------------------- | ---------------------------------------- |
+| **Architecture**    | [📁 Archive v2](docs/archive/v2-text-updated/)             | Latest architecture diagrams             |
+| **Design Patterns** | [📖 Patterns Guide](docs/Design-Patterns-Documentation.md) | 10 patterns implementation               |
+| **Dev Guides**      | [📚 Guides](docs/guides/)                                  | Component creation, linting, performance |
+| **Testing**         | [🧪 UX Results](docs/UX-Testing-Results.md)                | UX testing methodology & results         |
+| **Security**        | [🔐 2FA Guide](docs/Two-Factor-Authentication.md)          | 2FA implementation guide                 |
 
 ## Project Overview
 
@@ -168,9 +168,18 @@ The 15-layer architecture implements the following principles:
 - **Interface Segregation**: Clients depend only on interfaces they use
 
 ### Layer Communication Patterns
+
 For detailed architecture diagrams, see:
-- 📊 [Complete Architecture Diagram](docs/archive/v2-text-updated/Architecture-Diagram-Updated.txt)
-- 🎨 [Classes Relationships](docs/archive/v2-text-updated/Classes-Diagram-Updated.txt)
+
+- 📊
+  **[PRECISE Architecture Diagram](docs/diagrams/Architecture-Diagram-PRECISE.md)** -
+  ⭐ ACTUAL IMPLEMENTATION
+- 🎨 **[PRECISE Classes Diagram](docs/diagrams/Classes-Diagram-PRECISE.md)** -
+  ⭐ ACTUAL CLASSES
+- 📁
+  [Archive v2 Text](docs/archive/v2-text-updated/Architecture-Diagram-Updated.txt) -
+  Previous version
+- 📄 [Archive v1 PDFs](docs/archive/v1-original/) - Original PDF diagrams
 
 ### Complete Layer Structure
 
@@ -285,15 +294,30 @@ validation and component testing:
 Four test files covering business logic validation:
 
 **Coach Model Tests** (`src/models/Coach.test.ts`):
+
 ```typescript
 describe('Coach Class', () => {
   test('canAcceptSession should return true for eligible coach', () => {
-    const eligibleCoach = new Coach('c01', 'Coach Available', 4.5, ['Life Coaching'], true, 3);
+    const eligibleCoach = new Coach(
+      'c01',
+      'Coach Available',
+      4.5,
+      ['Life Coaching'],
+      true,
+      3
+    );
     expect(eligibleCoach.canAcceptSession()).toBe(true);
   });
 
   test('canAcceptSession should return false if rating is too low', () => {
-    const lowRatingCoach = new Coach('c02', 'Coach LowRate', 3.0, ['Yoga'], true, 2);
+    const lowRatingCoach = new Coach(
+      'c02',
+      'Coach LowRate',
+      3.0,
+      ['Yoga'],
+      true,
+      2
+    );
     expect(lowRatingCoach.canAcceptSession()).toBe(false);
   });
 });
@@ -304,26 +328,37 @@ describe('Coach Class', () => {
 ```typescript
 describe('User Class', () => {
   test('should create a user with correct properties', () => {
-    const user = new User('123', 'test@example.com', 'Test User', 'BasicUser', true, 5);
+    const user = new User(
+      '123',
+      'test@example.com',
+      'Test User',
+      'BasicUser',
+      true,
+      5
+    );
     expect(user.hasActiveSubscription).toBe(true);
   });
 
   test('validateRole should return true for a valid role', () => {
-    const user = new User('456', 'test2@example.com', 'Test User 2', 'PremiumUser', false, 0);
+    const user = new User(
+      '456',
+      'test2@example.com',
+      'Test User 2',
+      'PremiumUser',
+      false,
+      0
+    );
     expect(user.validateRole()).toBe(true);
   });
 });
 ```
-**EventBus Tests** (`src/background/EventBus.test.ts`):
-Comprehensive testing with 100+ test cases
-Singleton pattern validation
-Event publishing and subscription
-Performance testing
 
-**EventBus Tests** (`src/models/models.test.ts`):
-50+ comprehensive integration tests
-Cross-model validation
-Edge cases and error handling
+**EventBus Tests** (`src/background/EventBus.test.ts`): Comprehensive testing
+with 100+ test cases Singleton pattern validation Event publishing and
+subscription Performance testing
+
+**EventBus Tests** (`src/models/models.test.ts`): 50+ comprehensive integration
+tests Cross-model validation Edge cases and error handling
 
 #### Running Tests
 
@@ -451,17 +486,19 @@ Verified UI renders only authorized actions:
 
 ## Design Patterns Implementation
 
-The architecture implements 10 design patterns. For detailed implementation and examples:
-📖 **[Complete Design Patterns Documentation](docs/Design-Patterns-Documentation.md)**
+The architecture implements 10 design patterns. For detailed implementation and
+examples: 📖
+**[Complete Design Patterns Documentation](docs/Design-Patterns-Documentation.md)**
 
 ### Pattern Overview
-| Pattern | Usage |
-|---------|-------|
+
+| Pattern   | Usage                                        |
+| --------- | -------------------------------------------- |
 | Singleton | EventBus, ConfigManager, NotificationService |
-| Strategy | Validators, Cache Management |
-| Observer | Event System, Real-time Updates |
-| Factory | Data Transformers |
-| Command | Use Cases |
+| Strategy  | Validators, Cache Management                 |
+| Observer  | Event System, Real-time Updates              |
+| Factory   | Data Transformers                            |
+| Command   | Use Cases                                    |
 
 ### Pattern Usage Examples
 
@@ -514,38 +551,41 @@ useEffect(() => {
 
 ### 📁 15-Layer Structure
 
-Each layer has a specific responsibility following clean architecture principles.
-For detailed implementation, see the source code and documentation:
+Each layer has a specific responsibility following clean architecture
+principles. For detailed implementation, see the source code and documentation:
 
-| Layer | Location | Purpose | Documentation |
-|-------|----------|---------|---------------|
-| **UI Components** | `src/components/` | React components (Atomic Design) | [Component Guide](docs/guides/Component-Creation-Guide.md) |
-| **Business Logic** | `src/business/` | Rules & Use Cases | Source code examples |
-| **Services** | `src/services/` | External integrations | API documentation |
-| **Middleware** | `src/middleware/` | Request/Response processing | [Examples](src/middleware/examples/) |
-| **Background Jobs** | `src/background/` | Event system (EventBus) | [Background Jobs Guide](docs/guides/Background-Jobs-Examples.md) |
-| **Validators** | `src/validators/` | Strategy pattern validation | Source code |
-| **Transformers** | `src/transformers/` | DTO transformations | Factory pattern |
-| **Types/DTOs** | `src/types/` | Type definitions | TypeScript interfaces |
-| **Hooks** | `src/hooks/` | React controllers | Usage examples |
-| **Models** | `src/models/` | Domain models | Test files included |
-| **Utils** | `src/utils/` | Utilities (Singleton) | Helper functions |
-| **Styles** | `src/styles/` | CSS/Tailwind | Design system |
-| **Error Handling** | `src/error-handling/` | Custom errors | Error boundaries |
-| **Logging** | `src/logging/` | Logger (Strategy) | Console & Remote |
-| **Security** | `src/lib/` | Supabase auth | [2FA Guide](docs/Two-Factor-Authentication.md) |
+| Layer               | Location              | Purpose                          | Documentation                                                    |
+| ------------------- | --------------------- | -------------------------------- | ---------------------------------------------------------------- |
+| **UI Components**   | `src/components/`     | React components (Atomic Design) | [Component Guide](docs/guides/Component-Creation-Guide.md)       |
+| **Business Logic**  | `src/business/`       | Rules & Use Cases                | Source code examples                                             |
+| **Services**        | `src/services/`       | External integrations            | API documentation                                                |
+| **Middleware**      | `src/middleware/`     | Request/Response processing      | [Examples](src/middleware/examples/)                             |
+| **Background Jobs** | `src/background/`     | Event system (EventBus)          | [Background Jobs Guide](docs/guides/Background-Jobs-Examples.md) |
+| **Validators**      | `src/validators/`     | Strategy pattern validation      | Source code                                                      |
+| **Transformers**    | `src/transformers/`   | DTO transformations              | Factory pattern                                                  |
+| **Types/DTOs**      | `src/types/`          | Type definitions                 | TypeScript interfaces                                            |
+| **Hooks**           | `src/hooks/`          | React controllers                | Usage examples                                                   |
+| **Models**          | `src/models/`         | Domain models                    | Test files included                                              |
+| **Utils**           | `src/utils/`          | Utilities (Singleton)            | Helper functions                                                 |
+| **Styles**          | `src/styles/`         | CSS/Tailwind                     | Design system                                                    |
+| **Error Handling**  | `src/error-handling/` | Custom errors                    | Error boundaries                                                 |
+| **Logging**         | `src/logging/`        | Logger (Strategy)                | Console & Remote                                                 |
+| **Security**        | `src/lib/`            | Supabase auth                    | [2FA Guide](docs/Two-Factor-Authentication.md)                   |
 
 ### Key Implementation Principles
+
 - **Separation of Concerns**: Each layer has single responsibility
 - **Dependency Inversion**: Higher layers depend on abstractions
 - **Clean Architecture**: Business logic independent of frameworks
 
 ### Quick Example
+
 ```typescript
 // Simple layer interaction example
 const useCase = new BookSessionUseCase();
 const result = await useCase.execute(sessionDTO);
 ```
+
 ## Linter Configuration
 
 ### ESLint Rules Implementation
@@ -595,6 +635,40 @@ module.exports = {
 ---
 
 ## Build and Deployment Pipeline
+
+### Complete CI/CD Implementation
+
+**GitHub Actions Configuration** (`..github/workflows/complete-cicd.yml`):
+
+✅ **Development Environment**:
+
+- Automated testing on `develop` branch
+- Type checking with TypeScript
+- Code quality with ESLint + Prettier
+- Unit tests with coverage reporting
+- Development build validation
+
+✅ **Staging Environment**:
+
+- Full test suite execution
+- Bundle size analysis
+- Staging deployment automation
+- Performance monitoring
+
+✅ **Production Environment**:
+
+- Production-only dependencies
+- Security audit validation
+- Production build with optimization
+- Deployment verification
+- Health checks
+
+✅ **Quality Gates**:
+
+- Coverage threshold validation (80%+)
+- Bundle size limits (< 5MB)
+- Security vulnerability scanning
+- Code quality enforcement
 
 ### Environment Configuration
 
@@ -784,19 +858,22 @@ Caso-1/
 
 ### Architecture Diagrams
 
-**N-Layer Architecture Diagram** (`diagrams/Architecture Diagram.pdf`):
+**N-Layer Architecture Diagram**
+(`docs/diagrams/Architecture-Diagram-PRECISE.md`):
 
-- Complete 15-layer architecture visualization
-- Clear component relationships and dependencies
-- Design patterns integration labeled
-- Data flow and communication patterns
+- ⭐ **PRECISE 15-layer architecture** with actual implementation
+- Complete component relationships and dependencies
+- Design patterns integration clearly labeled
+- Data flow and communication patterns with Mermaid diagrams
+- Real folder structure mapping
 
-**Classes Diagram** (`diagrams/Classes Diagram.pdf`):
+**Classes Diagram** (`docs/diagrams/Classes-Diagram-PRECISE.md`):
 
-- Object design with all 10 design patterns
-- Class responsibilities and interactions
-- Pattern implementations clearly labeled
-- Interface and inheritance relationships
+- ⭐ **EXACT object design** with all implemented classes
+- All 10 design patterns with real relationships
+- Pattern implementations clearly labeled and documented
+- Interface and inheritance relationships as coded
+- Complete method signatures and properties
 
 ### Design Patterns Documentation
 
@@ -876,7 +953,6 @@ npm run lint
 
 npm run storybook
 
-
 ## 🏗️ Technology Stack
 
 | Technology                         | Purpose                 | Implementation                          |
@@ -948,7 +1024,7 @@ src/
 │   └── index.ts                 # Background system exports
 ├── listeners/                    # 6. Event Listeners (Observer Pattern)
 │   ├── SessionListener.ts       # Session event listener
-│   ├── CoachListener.ts         # Coach availability listener  
+│   ├── CoachListener.ts         # Coach availability listener
 │   └── index.ts                 # Event listeners exports
 ├── validators/                   # 7. Validators Layer (Strategy Pattern)
 │   ├── BaseValidator.ts         # Base validator interface
@@ -1013,7 +1089,9 @@ src/
 └── __mocks__/                    # Jest Testing Mocks
     └── [mock files]             # Component and service mocks
 ```
+
 ## 📁 Root Project Structure
+
 ```
 Caso-1/
 ├── .github/                      # CI/CD & GitHub Configuration
@@ -1029,13 +1107,13 @@ Caso-1/
 ├── coverage/                    # Test Coverage Reports
 │   └── lcov-report/            # Detailed coverage analysis
 docs/
-├── guides/                      # Development Guide 
+├── guides/                      # Development Guide
 │   ├── Component-Creation-Guide.md
 │   ├── linting-guide.md
 │   ├── performance-hooks-guidelines.md
 │   └── Background-Jobs-Examples.md
-├── archive/                    # Version History  
-│   ├── README.md               # Archive Description  
+├── archive/                    # Version History
+│   ├── README.md               # Archive Description
 │   ├── v1-original/
 │   ├── v2-text-updated/
 │   └── v3-markdown/
@@ -1064,6 +1142,7 @@ docs/
 ## 📂 Detailed Project Structure
 
 ### Configuration Files
+
 ```
 ├── vite.config.ts               # Vite build configuration
 ├── jest.config.js               # Testing configuration
@@ -1074,6 +1153,7 @@ docs/
 ### Main Application (src/)
 
 #### 🖥️ Components Layer
+
 ```
 components/                      # React Components (UI Layer)
 ├── auth/                        # Authentication components
@@ -1100,6 +1180,7 @@ components/                      # React Components (UI Layer)
 ```
 
 #### 🧠 Business Logic Layer (FASE 1)
+
 ```
 business/
 ├── rules/                       # Business rules
@@ -1114,6 +1195,7 @@ business/
 ```
 
 #### 📡 Background Jobs & Events (FASE 2)
+
 ```
 background/
 ├── EventBus.ts                  # Singleton event bus (359 lines)
@@ -1122,6 +1204,7 @@ background/
 ```
 
 #### 👂 Event Listeners (FASE 2)
+
 ```
 listeners/                       # Observer Pattern
 ├── SessionListener.ts           # Session event listener
@@ -1130,6 +1213,7 @@ listeners/                       # Observer Pattern
 ```
 
 #### 🔧 Utilities Layer (FASE 2)
+
 ```
 utils/
 ├── ConfigManager.ts             # Singleton configuration manager
@@ -1145,6 +1229,7 @@ utils/
 ```
 
 #### ✅ Validation Layer (FASE 1)
+
 ```
 validators/                      # Strategy Pattern
 ├── BaseValidator.ts             # Base validator interface
@@ -1154,6 +1239,7 @@ validators/                      # Strategy Pattern
 ```
 
 #### 🔄 Data Transformation (FASE 1)
+
 ```
 transformers/                    # Factory Pattern
 ├── TransformerFactory.ts        # Factory for transformers
@@ -1163,6 +1249,7 @@ transformers/                    # Factory Pattern
 ```
 
 #### 📝 Type Definitions (FASE 1)
+
 ```
 types/
 ├── dtos/                        # Data Transfer Objects
@@ -1175,6 +1262,7 @@ types/
 ```
 
 #### ⚙️ Services Layer
+
 ```
 services/
 ├── PaymentService.ts            # Payment processing service
@@ -1187,6 +1275,7 @@ services/
 ```
 
 #### 🏗️ Domain Models
+
 ```
 models/
 ├── Coach.ts                     # Coach domain model
@@ -1197,6 +1286,7 @@ models/
 ```
 
 #### 🎣 React Hooks (Controller Layer)
+
 ```
 hooks/
 ├── useAuth.ts                   # Authentication hook
@@ -1208,6 +1298,7 @@ hooks/
 ```
 
 #### 🛡️ Middleware Layer
+
 ```
 middleware/
 ├── authInterceptor.ts           # Authentication interceptor
@@ -1217,6 +1308,7 @@ middleware/
 ```
 
 #### ⚠️ Error Management
+
 ```
 error-handling/
 ├── CustomError.ts               # Custom error classes
@@ -1225,6 +1317,7 @@ error-handling/
 ```
 
 #### 📊 Logging System
+
 ```
 logging/
 ├── logger.ts                    # Logger implementation
@@ -1232,6 +1325,7 @@ logging/
 ```
 
 #### 🎨 Styling
+
 ```
 styles/
 ├── globals.css                  # Global styles
@@ -1239,12 +1333,14 @@ styles/
 ```
 
 #### 📚 External Libraries
+
 ```
 lib/
 └── supabase.ts                  # Supabase client configuration
 ```
 
 #### Application Entry Points
+
 ```
 ├── App.tsx                      # Main App component
 ├── AppPrototype.tsx             # Prototype component
@@ -1255,25 +1351,27 @@ lib/
 ```
 
 ### 📂 Documentation
+
 ```
 docs/
-├── guides/                      # Development Guide  
+├── guides/                      # Development Guide
 │   ├── Component-Creation-Guide.md
 │   ├── linting-guide.md
 │   ├── performance-hooks-guidelines.md
 │   └── Background-Jobs-Examples.md
-├── archive/                     # Version History 
-│   ├── README.md               # Archive Description 
+├── archive/                     # Version History
+│   ├── README.md               # Archive Description
 │   ├── v1-original/
 │   ├── v2-text-updated/
 │   └── v3-markdown/
-├── Design-Patterns-Documentation.md  # Core Documents (Maintained)  
+├── Design-Patterns-Documentation.md  # Core Documents (Maintained)
 ├── ci-cd-pipeline.md
 ├── UX-Testing-Results.md
 └── Two-Factor-Authentication.md
 ```
 
 ### 📂 Visual Documentation
+
 ```
 diagrams/
 └── README.md                    # Description of diagram version history
@@ -1281,6 +1379,7 @@ diagrams/
 ```
 
 ### 📂 Testing & Demos
+
 ```
 demo/
 ├── fase2-demo.ts               # FASE 2 demonstration script
@@ -1289,6 +1388,7 @@ demo/
 ```
 
 ### 📄 Root Files
+
 ```
 ├── README.md                   # This comprehensive documentation
 ├── caso #1.md                  # Original project requirements
@@ -2560,29 +2660,34 @@ Our project includes comprehensive documentation covering all aspects:
   ├── Command: 2 implementations
   └── 5 additional patterns
 ```
+
 ## 📁 Documentation Organization
 
 ### Core Documentation
+
 - **Design Patterns**: Complete implementation guide for all 10 patterns
 - **CI/CD Pipeline**: DevOps and deployment configuration
 - **UX Testing**: User experience testing results and methodology
 - **Security**: Two-factor authentication implementation
 
 ### Development Guides
+
 Located in `docs/guides/`:
+
 - **Component Creation**: Templates and patterns for new components
 - **Linting Guide**: ESLint configuration and rules
 - **Performance Hooks**: Guidelines for React optimization
 - **Background Jobs**: Event system and async processing examples
 
 ### Version History
+
 Located in `docs/archive/`:
+
 - **v1-original**: Initial design diagrams (PDF/JPG)
 - **v2-text-updated**: FASE 1&2 implementation updates (TXT)
 - **v3-markdown**: Web documentation versions (MD)
 
 Each version includes timestamp and purpose documentation.
-
 
 ## 👥 Team & Academic Information
 
