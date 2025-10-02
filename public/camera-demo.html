@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Directo - Cámara 20minCoach</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .video-container {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Simulación exacta de la interfaz de videollamada -->
+    <div class="min-h-screen bg-gray-900 text-white flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-4 bg-gray-800">
+            <div>
+                <h2 class="text-lg font-semibold">🎥 Test de Cámara - 20minCoach</h2>
+                <p class="text-sm text-gray-400">Prueba de activación automática</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <div id="connection-indicator" class="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                <span id="connection-text" class="text-sm">Conectando...</span>
+            </div>
+        </div>
+
+        <!-- Video Area -->
+        <div class="flex-1 relative video-container">
+            <!-- Coach Video (Main Area) -->
+            <div class="w-full h-full flex items-center justify-center">
+                <div class="text-center">
+                    <div class="w-32 h-32 bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="text-5xl">👨‍💼</span>
+                    </div>
+                    <p class="text-gray-400">Luis Ramírez</p>
+                    <p class="text-sm text-gray-500">Video del coach</p>
+                </div>
+            </div>
+
+            <!-- Tu Video (Picture in Picture) - ESTO ES LO IMPORTANTE -->
+            <div class="absolute top-4 right-4 w-48 h-36 bg-black rounded-lg overflow-hidden border-2 border-blue-500">
+                <!-- Video real del usuario -->
+                <video id="user-video" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                
+                <!-- Placeholder cuando no hay video -->
+                <div id="video-placeholder" class="absolute inset-0 flex items-center justify-center bg-gray-800">
+                    <div class="text-center">
+                        <span class="text-3xl mb-2 block">📹</span>
+                        <p class="text-xs text-gray-300">Tu video</p>
+                    </div>
+                </div>
+                
+                <!-- Indicador de estado -->
+                <div class="absolute top-2 left-2 bg-black/70 rounded px-2 py-1">
+                    <span id="video-status" class="text-xs text-red-400">●</span>
+                    <span class="text-xs ml-1">TU VIDEO</span>
+                </div>
+            </div>
+
+            <!-- Estado de conexión -->
+            <div class="absolute top-4 left-4">
+                <div id="connection-badge" class="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                    <div class="w-2 h-2 bg-black rounded-full mr-2"></div>
+                    Conectando
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="p-6 bg-gray-800">
+            <div class="flex items-center justify-center space-x-4">
+                <!-- Microphone -->
+                <button id="mic-button" class="h-14 w-14 rounded-full p-0 bg-gray-700 hover:bg-gray-600 transition-colors flex items-center justify-center">
+                    <span class="text-xl">🎤</span>
+                </button>
+                
+                <!-- Camera -->
+                <button id="camera-button" class="h-14 w-14 rounded-full p-0 bg-gray-700 hover:bg-gray-600 transition-colors flex items-center justify-center">
+                    <span class="text-xl">📹</span>
+                </button>
+                
+                <!-- Screen Share -->
+                <button id="screen-button" class="h-14 w-14 rounded-full p-0 bg-gray-700 hover:bg-gray-600 transition-colors flex items-center justify-center">
+                    <span class="text-xl">💻</span>
+                </button>
+                
+                <!-- End Call -->
+                <button id="end-button" class="h-14 w-14 rounded-full p-0 bg-red-600 hover:bg-red-700 transition-colors flex items-center justify-center">
+                    <span class="text-xl">📞</span>
+                </button>
+            </div>
+            
+            <div class="flex items-center justify-center space-x-4 mt-4">
+                <p id="status-text" class="text-sm text-gray-400">Conectando...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel de información (para testing) -->
+    <div id="info-panel" class="fixed bottom-4 left-4 bg-black/80 backdrop-blur-sm rounded-lg p-4 max-w-sm">
+        <h3 class="font-semibold mb-2 text-yellow-200">🔍 Estado del Test</h3>
+        <div id="test-info" class="text-sm space-y-1">
+            <div>Cámara: <span id="camera-info" class="text-red-400">Inactiva</span></div>
+            <div>Permisos: <span id="permissions-info" class="text-red-400">Pendientes</span></div>
+            <div>Stream: <span id="stream-info" class="text-red-400">Desconectado</span></div>
+        </div>
+        <button id="toggle-panel" class="mt-3 text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded">
+            Ocultar
+        </button>
+    </div>
+
+    <script>
+        let userStream = null;
+        let isCameraActive = false;
+        let isMicActive = false;
+
+        // Referencias DOM
+        const userVideo = document.getElementById('user-video');
+        const videoPlaceholder = document.getElementById('video-placeholder');
+        const videoStatus = document.getElementById('video-status');
+        const connectionBadge = document.getElementById('connection-badge');
+        const statusText = document.getElementById('status-text');
+        const infoPanel = document.getElementById('info-panel');
+        
+        // Info panel
+        const cameraInfo = document.getElementById('camera-info');
+        const permissionsInfo = document.getElementById('permissions-info');
+        const streamInfo = document.getElementById('stream-info');
+
+        // Botones
+        const micButton = document.getElementById('mic-button');
+        const cameraButton = document.getElementById('camera-button');
+        const endButton = document.getElementById('end-button');
+        const togglePanelButton = document.getElementById('toggle-panel');
+
+        function updateVideoDisplay(active) {
+            isCameraActive = active;
+            
+            if (active) {
+                videoPlaceholder.style.display = 'none';
+                userVideo.style.display = 'block';
+                videoStatus.className = 'text-xs text-green-400';
+                cameraInfo.textContent = 'Activa';
+                cameraInfo.className = 'text-green-400';
+                cameraButton.innerHTML = '<span class="text-xl">📹</span>';
+            } else {
+                videoPlaceholder.style.display = 'flex';
+                userVideo.style.display = 'none';
+                videoStatus.className = 'text-xs text-red-400';
+                cameraInfo.textContent = 'Inactiva';
+                cameraInfo.className = 'text-red-400';
+                cameraButton.innerHTML = '<span class="text-xl">📹❌</span>';
+            }
+        }
+
+        function updateMicDisplay(active) {
+            isMicActive = active;
+            micButton.innerHTML = active ? '<span class="text-xl">🎤</span>' : '<span class="text-xl">🎤❌</span>';
+        }
+
+        function updateConnectionStatus(status, color) {
+            connectionBadge.className = `bg-${color}-500 text-${color === 'yellow' ? 'black' : 'white'} px-3 py-1 rounded-full text-sm font-medium flex items-center`;
+            connectionBadge.innerHTML = `<div class="w-2 h-2 bg-${color === 'yellow' ? 'black' : 'white'} rounded-full mr-2"></div>${status}`;
+            statusText.textContent = status;
+        }
+
+        // Función principal: simula exactamente lo que debe pasar al entrar a una videollamada
+        async function initializeVideoCall() {
+            console.log('🚀 INICIANDO VIDEOLLAMADA - Esto simula el ingreso a una sesión');
+            
+            try {
+                // 1. Solicitar permisos automáticamente (esto debe pasar sin intervención del usuario después de la primera vez)
+                console.log('📋 Solicitando permisos de cámara y micrófono...');
+                permissionsInfo.textContent = 'Solicitando...';
+                permissionsInfo.className = 'text-yellow-400';
+                
+                userStream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        width: { ideal: 1280 }, 
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    },
+                    audio: true
+                });
+
+                console.log('✅ Permisos otorgados - configurando stream');
+                permissionsInfo.textContent = 'Otorgados';
+                permissionsInfo.className = 'text-green-400';
+                
+                // 2. Configurar video automáticamente
+                userVideo.srcObject = userStream;
+                updateVideoDisplay(true);
+                updateMicDisplay(true);
+                
+                streamInfo.textContent = 'Conectado';
+                streamInfo.className = 'text-green-400';
+                
+                // 3. Simular conexión establecida
+                setTimeout(() => {
+                    updateConnectionStatus('Conectado', 'green');
+                    console.log('🔗 Videollamada establecida exitosamente');
+                    console.log('📹 La cámara está ahora activa y transmitiendo');
+                }, 1500);
+
+            } catch (error) {
+                console.error('❌ Error al inicializar videollamada:', error);
+                permissionsInfo.textContent = 'Denegados';
+                permissionsInfo.className = 'text-red-400';
+                updateConnectionStatus('Error', 'red');
+                
+                // Mostrar el tipo específico de error
+                if (error.name === 'NotAllowedError') {
+                    alert('⚠️ Debes autorizar el acceso a cámara y micrófono para usar videollamadas');
+                } else if (error.name === 'NotFoundError') {
+                    alert('⚠️ No se encontró cámara o micrófono en tu dispositivo');
+                } else {
+                    alert(`⚠️ Error al acceder a cámara: ${error.message}`);
+                }
+            }
+        }
+
+        // Controles
+        function toggleCamera() {
+            if (userStream) {
+                const videoTrack = userStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.enabled = !videoTrack.enabled;
+                    updateVideoDisplay(videoTrack.enabled);
+                    console.log(`📹 Cámara ${videoTrack.enabled ? 'activada' : 'desactivada'}`);
+                }
+            }
+        }
+
+        function toggleMicrophone() {
+            if (userStream) {
+                const audioTrack = userStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    updateMicDisplay(audioTrack.enabled);
+                    console.log(`🎤 Micrófono ${audioTrack.enabled ? 'activado' : 'desactivado'}`);
+                }
+            }
+        }
+
+        function endCall() {
+            console.log('📞 Finalizando videollamada...');
+            
+            if (userStream) {
+                userStream.getTracks().forEach(track => track.stop());
+                userStream = null;
+                userVideo.srcObject = null;
+            }
+            
+            updateVideoDisplay(false);
+            updateMicDisplay(false);
+            updateConnectionStatus('Desconectado', 'gray');
+            
+            streamInfo.textContent = 'Desconectado';
+            streamInfo.className = 'text-red-400';
+            permissionsInfo.textContent = 'Pendientes';
+            permissionsInfo.className = 'text-red-400';
+            
+            console.log('✅ Videollamada finalizada - recursos liberados');
+            
+            // Opción de reiniciar
+            setTimeout(() => {
+                if (confirm('¿Quieres reiniciar el test?')) {
+                    location.reload();
+                }
+            }, 1000);
+        }
+
+        function toggleInfoPanel() {
+            const isHidden = infoPanel.style.display === 'none';
+            infoPanel.style.display = isHidden ? 'block' : 'none';
+            togglePanelButton.textContent = isHidden ? 'Ocultar' : 'Mostrar Info';
+        }
+
+        // Event listeners
+        cameraButton.addEventListener('click', toggleCamera);
+        micButton.addEventListener('click', toggleMicrophone);
+        endButton.addEventListener('click', endCall);
+        togglePanelButton.addEventListener('click', toggleInfoPanel);
+
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (userStream) {
+                userStream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        // INICIALIZACIÓN AUTOMÁTICA - Esto simula lo que debe pasar al entrar a una videollamada
+        window.addEventListener('load', () => {
+            console.log('🎬 Página cargada - Simulando ingreso a videollamada...');
+            console.log('📋 En el prototipo real, esto debe pasar automáticamente cuando:');
+            console.log('   1. El usuario hace clic en "Iniciar sesión con coach"');
+            console.log('   2. El sistema navega a la interfaz de videollamada');
+            console.log('   3. La cámara se activa inmediatamente sin intervención manual');
+            
+            // Simular un pequeño delay como si fuera una conexión real
+            setTimeout(() => {
+                initializeVideoCall();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

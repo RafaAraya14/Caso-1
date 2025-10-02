@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { ThemeToggle } from '../ui/ThemeToggle';
 
@@ -11,28 +11,131 @@ interface VideoCallProps {
   onLogout?: () => void;
 }
 
-const VideoCall: React.FC<VideoCallProps> = ({ coach, onEndCall, onSessionComplete, onLogout }) => {
-  const [isVideoOn, setIsVideoOn] = useState(true);
-  const [isAudioOn, setIsAudioOn] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+const VideoCall: React.FC<VideoCallProps> = ({ coach, onEndCall, onSessionComplete }) => {
+  const localVideoRef = useRef<HTMLVideoElement>(null);
   const [remainingTime, setRemainingTime] = useState(1200); // 20 minutos en segundos
-  const [isConnecting, setIsConnecting] = useState(true);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [selectedRating, setSelectedRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Simular conexión de la llamada
+  // Estados locales para controlar la conexión (prototipo)
+  const [isMicrophoneOn, setIsMicrophoneOn] = useState(true);
+  const [showConnectingScreen, setShowConnectingScreen] = useState(true);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [isCameraOn, setIsCameraOn] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+
+  // Función directa para pedir permisos de cámara
+  const requestCameraPermission = async () => {
+    try {
+      setCameraError(null);
+
+      // Limpiar stream anterior si existe
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        setLocalStream(null);
+        setIsCameraOn(false);
+      }
+
+      // Pedir permisos al usuario
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user' },
+        audio: true,
+      });
+
+      setLocalStream(stream);
+      setIsCameraOn(true);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Error desconocido';
+      setCameraError(`No se pudo acceder a la cámara: ${msg}`);
+      setIsCameraOn(false);
+    }
+  };
+
+  // NO activar cámara automáticamente
+  // El usuario debe dar permiso manualmente
+
+  // Simular que ya estamos "conectados" al coach (sin cámara)
   useEffect(() => {
-    const connectTimer = setTimeout(() => {
-      setIsConnecting(false);
-    }, 3000);
+    // Mostrar pantalla de conexión por 2 segundos, luego la interfaz de videollamada
+    const timer = setTimeout(() => {
+      setShowConnectingScreen(false);
+    }, 2000);
 
-    return () => clearTimeout(connectTimer);
+    return () => clearTimeout(timer);
   }, []);
+
+  // Limpiar stream al desmontar el componente
+  useEffect(() => {
+    return () => {
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [localStream]);
+
+  // Configurar video cuando se obtiene el stream
+  useEffect(() => {
+    console.log('Configurando video - localVideoRef:', localVideoRef.current);
+    console.log('Configurando video - localStream:', localStream);
+
+    if (localVideoRef.current && localStream) {
+      try {
+        // Asegurar que el elemento video esté listo
+        const videoElement = localVideoRef.current;
+        videoElement.srcObject = localStream;
+        videoElement.muted = true;
+
+        console.log('Stream asignado al video correctamente');
+
+        // Intentar reproducir inmediatamente
+        videoElement
+          .play()
+          .then(() => {
+            console.log('✅ Video reproduciéndose correctamente');
+          })
+          .catch(err => {
+            console.log('No se pudo auto-reproducir el video:', err);
+            // Intentar de nuevo después de un pequeño delay
+            setTimeout(() => {
+              videoElement.play().catch(() => {
+                console.log('Segundo intento de reproducción falló');
+              });
+            }, 500);
+          });
+      } catch (error) {
+        console.error('Error asignando stream:', error);
+      }
+    } else {
+      console.log(
+        'No se pudo asignar stream - ref:',
+        !!localVideoRef.current,
+        'stream:',
+        !!localStream
+      );
+    }
+  }, [localStream]);
+
+  // Limpiar stream al desmontar
+  useEffect(() => {
+    return () => {
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [localStream]);
+
+  // Configurar referencias de video cuando cambien los streams
+  useEffect(() => {
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream;
+    }
+  }, [localStream]);
 
   // Contador regresivo de la sesión
   useEffect(() => {
-    if (!isConnecting && remainingTime > 0) {
+    if (!showConnectingScreen && remainingTime > 0) {
       const timer = setInterval(() => {
         setRemainingTime(prev => {
           if (prev <= 1) {
@@ -46,7 +149,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ coach, onEndCall, onSessionComple
 
       return () => clearInterval(timer);
     }
-  }, [isConnecting, remainingTime]);
+  }, [showConnectingScreen, remainingTime]);
 
   const formatRemainingTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -54,12 +157,28 @@ const VideoCall: React.FC<VideoCallProps> = ({ coach, onEndCall, onSessionComple
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const toggleVideo = () => {
-    setIsVideoOn(!isVideoOn);
+  const handleToggleVideo = async () => {
+    if (!isCameraOn) {
+      // Pedir permisos cuando el usuario hace clic
+      await requestCameraPermission();
+    } else {
+      // Desactivar cámara
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        setLocalStream(null);
+        setIsCameraOn(false);
+      }
+    }
   };
 
-  const toggleAudio = () => {
-    setIsAudioOn(!isAudioOn);
+  const handleToggleAudio = () => {
+    if (localStream) {
+      const audioTrack = localStream.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled;
+        setIsMicrophoneOn(audioTrack.enabled);
+      }
+    }
   };
 
   const toggleFullscreen = () => {
@@ -102,17 +221,21 @@ const VideoCall: React.FC<VideoCallProps> = ({ coach, onEndCall, onSessionComple
   };
 
   const handleEndCall = () => {
-    if (remainingTime > 0) {
-      // Llamada finalizada antes del tiempo, mostrar modal de calificación
-      setShowRatingModal(true);
-    } else {
-      // Tiempo agotado, ir directamente al final
-      onSessionComplete?.(); // Track session completion
+    // Limpiar stream de cámara al salir
+    if (localStream) {
+      localStream.getTracks().forEach(track => track.stop());
+      setLocalStream(null);
+      setIsCameraOn(false);
+    }
+
+    if (showRatingModal) {
       onEndCall();
+    } else {
+      setShowRatingModal(true);
     }
   };
 
-  if (isConnecting) {
+  if (showConnectingScreen) {
     return (
       <div className="fixed inset-0 bg-slate-900 text-white flex flex-col items-center justify-center z-50">
         <div className="text-center mb-8">
@@ -154,12 +277,13 @@ const VideoCall: React.FC<VideoCallProps> = ({ coach, onEndCall, onSessionComple
 
   return (
     <div
-      className={`${isFullscreen ? 'fixed inset-0' : 'min-h-screen'} bg-slate-900 text-white flex flex-col z-50`}
+      className={`${isFullscreen ? 'fixed inset-0' : 'min-h-screen'} bg-white dark:bg-slate-900 text-slate-900 dark:text-white flex flex-col z-50`}
     >
       {/* Header */}
-      <div className="bg-slate-800/50 backdrop-blur-sm p-4">
+      <div className="bg-slate-100/50 dark:bg-slate-800/50 backdrop-blur-sm p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
+            <ThemeToggle />
             <div className="flex items-center space-x-3">
               <img
                 src={coach.profileimage || '/placeholder-avatar.jpg'}
@@ -168,7 +292,7 @@ const VideoCall: React.FC<VideoCallProps> = ({ coach, onEndCall, onSessionComple
               />
               <div>
                 <h1 className="text-lg font-semibold">{coach.displayname}</h1>
-                <p className="text-sm text-slate-300">
+                <p className="text-sm text-slate-600 dark:text-slate-300">
                   Tiempo restante: {formatRemainingTime(remainingTime)}
                 </p>
               </div>
@@ -176,21 +300,12 @@ const VideoCall: React.FC<VideoCallProps> = ({ coach, onEndCall, onSessionComple
           </div>
 
           <div className="flex items-center space-x-2">
-            <ThemeToggle />
             {!isFullscreen && (
               <button
                 onClick={toggleFullscreen}
-                className="p-2 rounded-lg text-white hover:bg-slate-700 transition-colors"
+                className="p-2 rounded-lg text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
                 <i className="fas fa-expand text-lg" />
-              </button>
-            )}
-            {onLogout && (
-              <button
-                onClick={onLogout}
-                className="p-2 rounded-lg text-white hover:bg-slate-700 transition-colors"
-              >
-                <i className="fas fa-sign-out-alt text-lg" />
               </button>
             )}
           </div>
@@ -200,46 +315,65 @@ const VideoCall: React.FC<VideoCallProps> = ({ coach, onEndCall, onSessionComple
       {/* Video Area */}
       <div className="flex-1 relative">
         {/* Coach Video (Main) */}
-        <div className="absolute inset-0 bg-slate-800 flex items-center justify-center">
-          {isVideoOn ? (
-            <div className="relative w-full h-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
-              <div className="text-center">
-                <img
-                  src={coach.profileimage || '/placeholder-avatar.jpg'}
-                  alt={coach.displayname}
-                  className="w-48 h-48 rounded-full object-cover mx-auto mb-4 border-4 border-indigo-500"
-                />
-                <p className="text-slate-300">Video del coach</p>
-              </div>
+        <div className="absolute inset-0 bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+          <div className="flex items-center justify-center w-full h-full bg-slate-200 dark:bg-slate-800">
+            <div className="text-center">
+              <img
+                src={coach.profileimage || '/placeholder-avatar.jpg'}
+                alt={coach.displayname}
+                className="w-48 h-48 rounded-full object-cover mx-auto mb-4 border-4 border-indigo-500"
+              />
+              <p className="text-slate-600 dark:text-slate-300">Esperando al coach...</p>
             </div>
-          ) : (
-            <div className="flex items-center justify-center w-full h-full bg-slate-800">
-              <div className="text-center">
-                <i className="fas fa-video-slash text-6xl text-slate-500 mb-4" />
-                <p className="text-slate-300">Video desactivado</p>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
 
-        {/* User Video (Picture in Picture) */}
-        <div className="absolute top-4 right-4 w-48 h-36 bg-slate-700 rounded-lg overflow-hidden border-2 border-slate-600">
-          {isVideoOn ? (
-            <div className="w-full h-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
-              <div className="text-center">
-                <i className="fas fa-user text-4xl text-white mb-2" />
-                <p className="text-white text-sm">Tu video</p>
-              </div>
-            </div>
+        {/* User Video (Picture in Picture) - Movido para evitar superposición */}
+        <div className="absolute top-20 right-4 w-48 h-36 bg-slate-300 dark:bg-slate-700 rounded-lg overflow-hidden border-2 border-slate-400 dark:border-slate-600">
+          {isCameraOn && localStream ? (
+            <video
+              ref={localVideoRef}
+              autoPlay
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full h-full bg-slate-800 flex items-center justify-center">
-              <i className="fas fa-video-slash text-2xl text-slate-400" />
+              <div className="text-center">
+                {!localStream ? (
+                  <div>
+                    <i className="fas fa-video text-xl text-slate-400 mb-2" />
+                    <p className="text-xs text-slate-400 mb-2">
+                      {cameraError ? 'Error de cámara' : 'Usa el botón de video de abajo'}
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <i className="fas fa-video-slash text-xl text-slate-400 mb-1" />
+                    <p className="text-xs text-slate-400">Cámara desactivada</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
+          <div className="absolute bottom-1 left-1 bg-black/50 text-white text-xs px-2 py-1 rounded">
+            Tú
+          </div>
+          {/* Indicador de estado de cámara */}
+          <div className="absolute top-1 left-1">
+            {localStream ? (
+              <div
+                className={`w-2 h-2 rounded-full ${isCameraOn ? 'bg-green-500' : 'bg-red-500'}`}
+              />
+            ) : (
+              <div className="w-2 h-2 rounded-full bg-yellow-500" />
+            )}
+          </div>
         </div>
 
-        {/* Connection Status */}
-        <div className="absolute top-4 left-4">
+        {/* Connection Status - Movido para evitar superposición */}
+        <div className="absolute top-20 left-4">
           <div className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center">
             <div className="w-2 h-2 bg-white rounded-full mr-2" />
             Conectado
@@ -248,34 +382,36 @@ const VideoCall: React.FC<VideoCallProps> = ({ coach, onEndCall, onSessionComple
       </div>
 
       {/* Controls */}
-      <div className="bg-slate-800/50 backdrop-blur-sm p-6">
+      <div className="bg-slate-100/50 dark:bg-slate-800/50 backdrop-blur-sm p-6">
         <div className="flex items-center justify-center space-x-6">
           {/* Audio Toggle */}
           <button
-            onClick={toggleAudio}
+            onClick={handleToggleAudio}
             className={`p-4 rounded-full transition-colors ${
-              isAudioOn
-                ? 'bg-slate-700 hover:bg-slate-600 text-white'
+              isMicrophoneOn
+                ? 'bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 text-slate-700 dark:text-white'
                 : 'bg-red-600 hover:bg-red-700 text-white'
             }`}
           >
-            <i className={`fas ${isAudioOn ? 'fa-microphone' : 'fa-microphone-slash'} text-xl`} />
+            <i
+              className={`fas ${isMicrophoneOn ? 'fa-microphone' : 'fa-microphone-slash'} text-xl`}
+            />
           </button>
 
           {/* Video Toggle */}
           <button
-            onClick={toggleVideo}
+            onClick={handleToggleVideo}
             className={`p-4 rounded-full transition-colors ${
-              isVideoOn
-                ? 'bg-slate-700 hover:bg-slate-600 text-white'
+              isCameraOn
+                ? 'bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 text-slate-700 dark:text-white'
                 : 'bg-red-600 hover:bg-red-700 text-white'
             }`}
           >
-            <i className={`fas ${isVideoOn ? 'fa-video' : 'fa-video-slash'} text-xl`} />
+            <i className={`fas ${isCameraOn ? 'fa-video' : 'fa-video-slash'} text-xl`} />
           </button>
 
           {/* Screen Share */}
-          <button className="p-4 rounded-full bg-slate-700 hover:bg-slate-600 text-white transition-colors">
+          <button className="p-4 rounded-full bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600 text-slate-700 dark:text-white transition-colors">
             <i className="fas fa-desktop text-xl" />
           </button>
 

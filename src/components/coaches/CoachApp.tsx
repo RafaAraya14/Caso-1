@@ -170,7 +170,7 @@ const CoachApp: React.FC<CoachAppProps> = ({ onLogout, user }) => {
       {/* Floating Profile Button */}
       <button
         onClick={handleShowProfile}
-        className="fixed top-4 right-4 z-30 w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+        className="fixed top-4 left-4 z-30 w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
       >
         <i className="fas fa-user text-lg" />
       </button>

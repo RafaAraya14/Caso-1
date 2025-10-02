@@ -7,6 +7,10 @@ export { useAuth } from './useAuth';
 // Voice search hooks
 export { useVoiceSearch } from './useVoiceSearch';
 
+// WebRTC and video call hooks
+export { useWebRTC } from './useWebRTC';
+export { useWebRTC as useWebRTCWithSignaling } from './useWebRTCWithSignaling';
+
 // Coach-related hooks
 export {
   default as useCoachSearch,

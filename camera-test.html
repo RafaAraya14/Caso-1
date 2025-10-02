@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Manual - Cámara WebRTC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto p-8">
+        <h1 class="text-3xl font-bold mb-8 text-center">🎥 Test Manual - Cámara al Ingresar a Llamada</h1>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Panel de Control -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">🎮 Controles de Prueba</h2>
+                
+                <div class="space-y-4">
+                    <button id="simulate-call-entry" class="w-full bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold transition-colors">
+                        🚀 Simular Ingreso a Llamada
+                    </button>
+                    
+                    <button id="toggle-camera" class="w-full bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold transition-colors" disabled>
+                        📹 Toggle Cámara
+                    </button>
+                    
+                    <button id="toggle-microphone" class="w-full bg-yellow-600 hover:bg-yellow-700 px-6 py-3 rounded-lg font-semibold transition-colors" disabled>
+                        🎤 Toggle Micrófono
+                    </button>
+                    
+                    <button id="end-call" class="w-full bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg font-semibold transition-colors" disabled>
+                        📞 Finalizar Llamada
+                    </button>
+                </div>
+                
+                <!-- Status -->
+                <div class="mt-6 p-4 bg-gray-700 rounded-lg">
+                    <h3 class="font-semibold mb-2">📊 Estado</h3>
+                    <div class="space-y-2 text-sm">
+                        <div>Cámara: <span id="camera-status" class="font-semibold text-red-400">Inactiva</span></div>
+                        <div>Micrófono: <span id="mic-status" class="font-semibold text-red-400">Inactivo</span></div>
+                        <div>Conexión: <span id="connection-status" class="font-semibold text-gray-400">Desconectado</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Video -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4">📺 Vista de Video</h2>
+                
+                <!-- Área de video principal (simulando el video del coach) -->
+                <div class="relative bg-black rounded-lg overflow-hidden mb-4" style="height: 300px;">
+                    <div id="remote-video-area" class="w-full h-full flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="w-24 h-24 bg-gray-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <span class="text-3xl">👨‍💼</span>
+                            </div>
+                            <p class="text-gray-400">Esperando al coach...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Video local (Tu video) - Picture in Picture -->
+                <div class="relative bg-black rounded-lg overflow-hidden border-2 border-blue-500" style="height: 150px;">
+                    <video id="local-video" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                    
+                    <div id="local-video-placeholder" class="absolute inset-0 flex items-center justify-center bg-gray-700">
+                        <div class="text-center">
+                            <span class="text-4xl mb-2 block">📹</span>
+                            <p class="text-sm text-gray-300">Tu video</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Indicador de estado -->
+                    <div class="absolute top-2 left-2 bg-black/70 rounded px-2 py-1">
+                        <span id="video-indicator" class="text-xs text-red-400">●</span>
+                        <span class="text-xs ml-1">TU VIDEO</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log de actividad -->
+        <div class="mt-8 bg-gray-800 rounded-lg p-6">
+            <h2 class="text-xl font-bold mb-4">📋 Log de Actividad</h2>
+            <div id="activity-log" class="bg-gray-900 rounded-lg p-4 h-32 overflow-y-auto font-mono text-sm">
+                <div class="text-gray-400">🔄 Esperando acciones...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let localStream = null;
+        let isCameraOn = false;
+        let isMicrophoneOn = false;
+
+        // Referencias DOM
+        const localVideo = document.getElementById('local-video');
+        const localVideoPlaceholder = document.getElementById('local-video-placeholder');
+        const videoIndicator = document.getElementById('video-indicator');
+        const cameraStatus = document.getElementById('camera-status');
+        const micStatus = document.getElementById('mic-status');
+        const connectionStatus = document.getElementById('connection-status');
+        const activityLog = document.getElementById('activity-log');
+
+        // Botones
+        const simulateCallBtn = document.getElementById('simulate-call-entry');
+        const toggleCameraBtn = document.getElementById('toggle-camera');
+        const toggleMicBtn = document.getElementById('toggle-microphone');
+        const endCallBtn = document.getElementById('end-call');
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.createElement('div');
+            logDiv.innerHTML = `<span class="text-blue-400">[${timestamp}]</span> ${message}`;
+            activityLog.appendChild(logDiv);
+            activityLog.scrollTop = activityLog.scrollHeight;
+        }
+
+        function updateCameraStatus(active) {
+            isCameraOn = active;
+            cameraStatus.textContent = active ? 'Activa' : 'Inactiva';
+            cameraStatus.className = `font-semibold ${active ? 'text-green-400' : 'text-red-400'}`;
+            videoIndicator.className = `text-xs ${active ? 'text-green-400' : 'text-red-400'}`;
+            
+            if (active) {
+                localVideoPlaceholder.style.display = 'none';
+                localVideo.style.display = 'block';
+            } else {
+                localVideoPlaceholder.style.display = 'flex';
+                localVideo.style.display = 'none';
+            }
+        }
+
+        function updateMicrophoneStatus(active) {
+            isMicrophoneOn = active;
+            micStatus.textContent = active ? 'Activo' : 'Inactivo';
+            micStatus.className = `font-semibold ${active ? 'text-green-400' : 'text-red-400'}`;
+        }
+
+        function updateConnectionStatus(status) {
+            connectionStatus.textContent = status;
+            const colors = {
+                'Conectado': 'text-green-400',
+                'Conectando': 'text-yellow-400',
+                'Desconectado': 'text-gray-400',
+                'Error': 'text-red-400'
+            };
+            connectionStatus.className = `font-semibold ${colors[status] || 'text-gray-400'}`;
+        }
+
+        // Simular ingreso a llamada (esto es lo que debe pasar automáticamente)
+        async function simulateCallEntry() {
+            log('🚀 Iniciando simulación de ingreso a llamada...');
+            updateConnectionStatus('Conectando');
+            
+            try {
+                // 1. Solicitar permisos automáticamente
+                log('🔑 Solicitando permisos de cámara y micrófono...');
+                
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 1280, height: 720 },
+                    audio: true
+                });
+                
+                log('✅ Permisos otorgados - cámara activada automáticamente');
+                
+                // 2. Configurar video local
+                localVideo.srcObject = localStream;
+                updateCameraStatus(true);
+                updateMicrophoneStatus(true);
+                
+                // 3. Simular conexión establecida
+                setTimeout(() => {
+                    updateConnectionStatus('Conectado');
+                    log('🔗 Conexión WebRTC establecida');
+                    
+                    // Habilitar controles
+                    toggleCameraBtn.disabled = false;
+                    toggleMicBtn.disabled = false;
+                    endCallBtn.disabled = false;
+                    simulateCallBtn.disabled = true;
+                    
+                }, 2000);
+                
+            } catch (error) {
+                log(`❌ Error al acceder a la cámara: ${error.message}`);
+                updateConnectionStatus('Error');
+                
+                if (error.name === 'NotAllowedError') {
+                    log('⚠️ El usuario debe autorizar el acceso a cámara y micrófono');
+                } else if (error.name === 'NotFoundError') {
+                    log('⚠️ No se encontró cámara o micrófono');
+                } else {
+                    log('⚠️ Error desconocido al acceder a medios');
+                }
+            }
+        }
+
+        function toggleCamera() {
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.enabled = !videoTrack.enabled;
+                    updateCameraStatus(videoTrack.enabled);
+                    log(`📹 Cámara ${videoTrack.enabled ? 'activada' : 'desactivada'}`);
+                }
+            }
+        }
+
+        function toggleMicrophone() {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    updateMicrophoneStatus(audioTrack.enabled);
+                    log(`🎤 Micrófono ${audioTrack.enabled ? 'activado' : 'desactivado'}`);
+                }
+            }
+        }
+
+        function endCall() {
+            log('📞 Finalizando llamada...');
+            
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+                localVideo.srcObject = null;
+            }
+            
+            updateCameraStatus(false);
+            updateMicrophoneStatus(false);
+            updateConnectionStatus('Desconectado');
+            
+            // Resetear controles
+            toggleCameraBtn.disabled = true;
+            toggleMicBtn.disabled = true;
+            endCallBtn.disabled = true;
+            simulateCallBtn.disabled = false;
+            
+            log('✅ Llamada finalizada - todos los recursos liberados');
+        }
+
+        // Event listeners
+        simulateCallBtn.addEventListener('click', simulateCallEntry);
+        toggleCameraBtn.addEventListener('click', toggleCamera);
+        toggleMicBtn.addEventListener('click', toggleMicrophone);
+        endCallBtn.addEventListener('click', endCall);
+
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        // Log inicial
+        log('🎯 Test manual iniciado');
+        log('📋 Instrucciones:');
+        log('1. Hacer clic en "Simular Ingreso a Llamada"');
+        log('2. Autorizar permisos cuando el navegador los solicite');
+        log('3. Verificar que tu video aparece automáticamente');
+        log('4. Probar los controles de cámara y micrófono');
+        log('');
+        log('🔍 Esto simula exactamente lo que debe pasar cuando');
+        log('   un usuario ingresa a una videollamada en 20minCoach');
+    </script>
+</body>
+</html>

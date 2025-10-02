@@ -4,6 +4,9 @@ import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import AuthFlow from './components/auth/AuthFlow';
 import CoachApp from './components/coaches/CoachApp';
 import { supabase } from './lib/supabase';
+import CameraDebug from './pages/CameraDebug';
+import CameraDemo from './pages/CameraDemo';
+import { SimpleCameraTest } from './pages/SimpleCameraTest';
 import './styles/globals.css';
 
 import type { User } from '@supabase/supabase-js';
@@ -141,6 +144,10 @@ export default function App() {
             )
           }
         />
+
+        <Route path="/camera-demo" element={<CameraDemo />} />
+        <Route path="/camera-test" element={<SimpleCameraTest />} />
+        <Route path="/camera-debug" element={<CameraDebug />} />
 
         <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} />} />
       </Routes>
