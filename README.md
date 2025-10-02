@@ -171,15 +171,13 @@ The 15-layer architecture implements the following principles:
 
 For detailed architecture diagrams, see:
 
-- 📊
-  **[PRECISE Architecture Diagram](docs/diagrams/Architecture-Diagram-PRECISE.md)** -
-  ⭐ ACTUAL IMPLEMENTATION
-- 🎨 **[PRECISE Classes Diagram](docs/diagrams/Classes-Diagram-PRECISE.md)** -
-  ⭐ ACTUAL CLASSES
-- 📁
-  [Archive v2 Text](docs/archive/v2-text-updated/Architecture-Diagram-Updated.txt) -
-  Previous version
-- 📄 [Archive v1 PDFs](docs/archive/v1-original/) - Original PDF diagrams
+#### 📊 Architecture Diagram
+
+![Diagrama de Arquitectura](diagrams/Architecture%20Diagram.jpg)
+
+#### 🎨 Classes Diagram
+
+![Diagrama de Clases](diagrams/Classes%20Diagram.jpg)
 
 ### Complete Layer Structure
 
@@ -245,16 +243,16 @@ src/
 │   └── supabase.ts
 └── pages/               # 16. Camera & Video Testing Pages
 │   ├── CameraDebug.tsx
-│   ├── CameraDemo.tsx              
-│   ├── CameraTest.tsx              
-│   ├── CameraTestPage.tsx          
-│   ├── SimpleCameraTest.tsx        
+│   ├── CameraDemo.tsx
+│   ├── CameraTest.tsx
+│   ├── CameraTestPage.tsx
+│   ├── SimpleCameraTest.tsx
 │   └── VideoTestPage.tsx
 └── demo/                # 17. Live Demonstrations & Examples
-│   ├── VideoCallDemo.tsx           
-│   ├── voice-search-demo.ts        
-│   ├── basic-tests.ts              
-│   ├── fase2-demo.ts               
+│   ├── VideoCallDemo.tsx
+│   ├── voice-search-demo.ts
+│   ├── basic-tests.ts
+│   ├── fase2-demo.ts
 │   └── manual-test.ts
 ├── demo/                # 18. Live Demonstrations & Examples
 │   ├── VideoCallDemo.tsx
@@ -265,7 +263,7 @@ src/
 └── tests/               # 19. Unit & Integration Tests
 ├── components/
 ├── hooks/
-└── utils/                        
+└── utils/
 ```
 
 ---
@@ -579,27 +577,27 @@ principles. For detailed implementation, see the source code and documentation:
 
 ### 📁 19-Layer Architecture Structure
 
-| Layer | Location | Purpose | Documentation |
-|-------|----------|---------|---------------|
-| **1. UI Components** | [`src/components/`](src/components/) | React components (Atomic Design) | [Component Guide](docs/guides/Component-Creation-Guide.md) |
-| **2. Business Logic** | [`src/business/`](src/business/) | Rules & Use Cases | [Source code](src/business/) |
-| **3. Services** | [`src/services/`](src/services/) | External integrations | [API folder](src/services/api/) |
-| **4. Middleware** | [`src/middleware/`](src/middleware/) | Request/Response processing | [Examples](src/middleware/examples/) |
-| **5. Background Jobs** | [`src/background/`](src/background/) | Event system (EventBus) | [Background Jobs Guide](docs/guides/Background-Jobs-Examples.md) |
-| **6. Listeners** | [`src/listeners/`](src/listeners/) | Event handlers (Observer) | [Source code](src/listeners/) |
-| **7. Validators** | [`src/validators/`](src/validators/) | Strategy pattern validation | [Source code](src/validators/) |
-| **8. Transformers** | [`src/transformers/`](src/transformers/) | DTO transformations | [Source code](src/transformers/) |
-| **9. Types/DTOs** | [`src/types/`](src/types/) | Type definitions | [DTOs folder](src/types/dtos/) |
-| **10. Hooks** | [`src/hooks/`](src/hooks/) | React controllers | [Source code](src/hooks/) |
-| **11. Models** | [`src/models/`](src/models/) | Domain models | [Test files](src/models/) |
-| **12. Utils** | [`src/utils/`](src/utils/) | Utilities (Singleton) | [Source code](src/utils/) |
-| **13. Styles** | [`src/styles/`](src/styles/) | CSS/Tailwind | [Globals.css](src/styles/globals.css) |
-| **14. Error Handling** | [`src/error-handling/`](src/error-handling/) | Custom errors | [Error handler](src/error-handling/errorHandler.ts) |
-| **15. Logging** | [`src/logging/`](src/logging/) | Logger (Strategy) | [Logger.ts](src/logging/logger.ts) |
-| **16. Security** | [`src/lib/`](src/lib/) | Supabase auth | [Supabase.ts](src/lib/supabase.ts) |
-| **17. Pages** | [`src/pages/`](src/pages/) | Camera/Video testing | [Test pages](src/pages/) |
-| **18. Demo** | [`src/demo/`](src/demo/) | Live demonstrations | [Demo files](src/demo/) |
-| **19. Tests** | [`src/tests/`](src/tests/) | Unit/Integration tests | [Test folder](src/tests/) |
+| Layer                  | Location                                     | Purpose                          | Documentation                                                    |
+| ---------------------- | -------------------------------------------- | -------------------------------- | ---------------------------------------------------------------- |
+| **1. UI Components**   | [`src/components/`](src/components/)         | React components (Atomic Design) | [Component Guide](docs/guides/Component-Creation-Guide.md)       |
+| **2. Business Logic**  | [`src/business/`](src/business/)             | Rules & Use Cases                | [Source code](src/business/)                                     |
+| **3. Services**        | [`src/services/`](src/services/)             | External integrations            | [API folder](src/services/api/)                                  |
+| **4. Middleware**      | [`src/middleware/`](src/middleware/)         | Request/Response processing      | [Examples](src/middleware/examples/)                             |
+| **5. Background Jobs** | [`src/background/`](src/background/)         | Event system (EventBus)          | [Background Jobs Guide](docs/guides/Background-Jobs-Examples.md) |
+| **6. Listeners**       | [`src/listeners/`](src/listeners/)           | Event handlers (Observer)        | [Source code](src/listeners/)                                    |
+| **7. Validators**      | [`src/validators/`](src/validators/)         | Strategy pattern validation      | [Source code](src/validators/)                                   |
+| **8. Transformers**    | [`src/transformers/`](src/transformers/)     | DTO transformations              | [Source code](src/transformers/)                                 |
+| **9. Types/DTOs**      | [`src/types/`](src/types/)                   | Type definitions                 | [DTOs folder](src/types/dtos/)                                   |
+| **10. Hooks**          | [`src/hooks/`](src/hooks/)                   | React controllers                | [Source code](src/hooks/)                                        |
+| **11. Models**         | [`src/models/`](src/models/)                 | Domain models                    | [Test files](src/models/)                                        |
+| **12. Utils**          | [`src/utils/`](src/utils/)                   | Utilities (Singleton)            | [Source code](src/utils/)                                        |
+| **13. Styles**         | [`src/styles/`](src/styles/)                 | CSS/Tailwind                     | [Globals.css](src/styles/globals.css)                            |
+| **14. Error Handling** | [`src/error-handling/`](src/error-handling/) | Custom errors                    | [Error handler](src/error-handling/errorHandler.ts)              |
+| **15. Logging**        | [`src/logging/`](src/logging/)               | Logger (Strategy)                | [Logger.ts](src/logging/logger.ts)                               |
+| **16. Security**       | [`src/lib/`](src/lib/)                       | Supabase auth                    | [Supabase.ts](src/lib/supabase.ts)                               |
+| **17. Pages**          | [`src/pages/`](src/pages/)                   | Camera/Video testing             | [Test pages](src/pages/)                                         |
+| **18. Demo**           | [`src/demo/`](src/demo/)                     | Live demonstrations              | [Demo files](src/demo/)                                          |
+| **19. Tests**          | [`src/tests/`](src/tests/)                   | Unit/Integration tests           | [Test folder](src/tests/)                                        |
 
 ### Key Implementation Principles
 
@@ -1227,7 +1225,7 @@ components/                      # React Components (UI Layer)
 │   └── page.tsx                 # Dashboard page
 ├── chat/                        # Real-time chat components
 ├── subscription/                # Subscription & payment UI
-├── video/                       # WebRTC video components 
+├── video/                       # WebRTC video components
 └── ui/                          # Reusable UI components
     ├── Button/                  # Button component
     ├── Card/                    # Card component
@@ -1443,12 +1441,14 @@ demo/
 ├── manual-test.ts              # Manual testing script
 └── basic-tests.ts              # Basic functionality tests
 ```
+
 ```
-src/tests/                      # Unit & integration tests 
+src/tests/                      # Unit & integration tests
 ├── components/                 # Component tests
 ├── hooks/                      # Hook tests
 └── utils/                      # Utility tests
 ```
+
 ### 📄 Root Files
 
 ```
@@ -1835,16 +1835,17 @@ hotfix/*        → Emergency production (manual)
 
 ### Core Business Components
 
-| Component | Pattern | Description | Source |
-|-----------|---------|-------------|--------|
-| **SessionRules** | Domain Rules | Session validation & business constraints | [`SessionRules.ts`](src/business/rules/SessionRules.ts) |
-| **CoachRules** | Domain Rules | Coach eligibility & tier management | [`CoachRules.ts`](src/business/rules/CoachRules.ts) |
-| **BookSessionUseCase** | Command | Session booking orchestration | [`BookSessionUseCase.ts`](src/business/useCases/BookSessionUseCase.ts) |
-| **SearchCoachUseCase** | Command | Coach search & filtering logic | [`SearchCoachUseCase.ts`](src/business/useCases/SearchCoachUseCase.ts) |
-| **CoachTransformer** | Mapper | Coach entity ↔ DTO transformations | [`CoachTransformer.ts`](src/transformers/CoachTransformer.ts) |
-| **SessionTransformer** | Mapper | Session entity ↔ DTO transformations | [`SessionTransformer.ts`](src/transformers/SessionTransformer.ts) |
+| Component              | Pattern      | Description                               | Source                                                                 |
+| ---------------------- | ------------ | ----------------------------------------- | ---------------------------------------------------------------------- |
+| **SessionRules**       | Domain Rules | Session validation & business constraints | [`SessionRules.ts`](src/business/rules/SessionRules.ts)                |
+| **CoachRules**         | Domain Rules | Coach eligibility & tier management       | [`CoachRules.ts`](src/business/rules/CoachRules.ts)                    |
+| **BookSessionUseCase** | Command      | Session booking orchestration             | [`BookSessionUseCase.ts`](src/business/useCases/BookSessionUseCase.ts) |
+| **SearchCoachUseCase** | Command      | Coach search & filtering logic            | [`SearchCoachUseCase.ts`](src/business/useCases/SearchCoachUseCase.ts) |
+| **CoachTransformer**   | Mapper       | Coach entity ↔ DTO transformations       | [`CoachTransformer.ts`](src/transformers/CoachTransformer.ts)          |
+| **SessionTransformer** | Mapper       | Session entity ↔ DTO transformations     | [`SessionTransformer.ts`](src/transformers/SessionTransformer.ts)      |
 
 ### Quick Usage Examples
+
 ```typescript
 // Business Rules Validation
 const validation = SessionRules.validateSessionCreation(user, coach, requestedHour);
@@ -1861,27 +1862,27 @@ Business hours: 8 AM - 10 PM
 Premium users: 25% discount
 Coach minimum rating: 3.5 stars
 ```
+
 🧪 **Tests**: [`transformers.test.ts`](src/transformers/transformers.test.ts)
-
-
 
 ## 🔧 Utilities System (FASE 2)
 
 ### Core Utility Components
 
-| Utility | Pattern | Description | Source |
-|---------|---------|-------------|--------|
-| **ConfigManager** | Singleton | Centralized app configuration | [`ConfigManager.ts`](src/utils/ConfigManager.ts) |
-| **CacheManager** | Singleton + Strategy | Multi-tier caching with TTL & LRU | [`CacheManager.ts`](src/utils/CacheManager.ts) |
-| **DateFormatter** | Singleton + Utils | Date formatting & manipulation | [`dateFormatter.ts`](src/utils/dateFormatter.ts) |
-| **StringFormatter** | Utils | String manipulation & validation | [`stringFormatter.ts`](src/utils/stringFormatter.ts) |
-| **NumberFormatter** | Singleton + Utils | Number & currency formatting | [`numberFormatter.ts`](src/utils/numberFormatter.ts) |
-| **ValidationUtils** | Strategy + Factory | Form & data validation | [`validationUtils.ts`](src/utils/validationUtils.ts) |
-| **ArrayUtils** | Utils | Array operations & statistics | [`arrayUtils.ts`](src/utils/arrayUtils.ts) |
-| **ObjectUtils** | Utils | Object manipulation & deep operations | [`objectUtils.ts`](src/utils/objectUtils.ts) |
-| **BrowserUtils** | Utils | Browser detection & DOM utilities | [`browserUtils.ts`](src/utils/browserUtils.ts) |
+| Utility             | Pattern              | Description                           | Source                                               |
+| ------------------- | -------------------- | ------------------------------------- | ---------------------------------------------------- |
+| **ConfigManager**   | Singleton            | Centralized app configuration         | [`ConfigManager.ts`](src/utils/ConfigManager.ts)     |
+| **CacheManager**    | Singleton + Strategy | Multi-tier caching with TTL & LRU     | [`CacheManager.ts`](src/utils/CacheManager.ts)       |
+| **DateFormatter**   | Singleton + Utils    | Date formatting & manipulation        | [`dateFormatter.ts`](src/utils/dateFormatter.ts)     |
+| **StringFormatter** | Utils                | String manipulation & validation      | [`stringFormatter.ts`](src/utils/stringFormatter.ts) |
+| **NumberFormatter** | Singleton + Utils    | Number & currency formatting          | [`numberFormatter.ts`](src/utils/numberFormatter.ts) |
+| **ValidationUtils** | Strategy + Factory   | Form & data validation                | [`validationUtils.ts`](src/utils/validationUtils.ts) |
+| **ArrayUtils**      | Utils                | Array operations & statistics         | [`arrayUtils.ts`](src/utils/arrayUtils.ts)           |
+| **ObjectUtils**     | Utils                | Object manipulation & deep operations | [`objectUtils.ts`](src/utils/objectUtils.ts)         |
+| **BrowserUtils**    | Utils                | Browser detection & DOM utilities     | [`browserUtils.ts`](src/utils/browserUtils.ts)       |
 
 ### Quick Usage Examples
+
 ```typescript
 // Configuration
 ConfigManager.getInstance().get('api.baseUrl');
@@ -1895,9 +1896,9 @@ formatDate(new Date(), 'es-ES');
 // Validation
 const errors = validateForm(data, validationRules);
 ```
-📖 **Full Documentation**: [Utilities Guide](docs/guides/utilities-guide.md)
-🧪 **Tests**: See `*.test.ts` files in [`src/utils/`](src/utils/)
 
+📖 **Full Documentation**: [Utilities Guide](docs/guides/utilities-guide.md) 🧪
+**Tests**: See `*.test.ts` files in [`src/utils/`](src/utils/)
 
 ## 📊 Testing & Quality Assurance
 
